@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { GoogleGenerativeAI, FileState } from '@google/generative-ai'
-import { GoogleAIFileManager } from '@google/generative-ai/server'
+import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleAIFileManager, FileState } from '@google/generative-ai/server'
 import { v4 as uuid } from 'uuid'
 import { saveDissectionToNotion } from '@/lib/notion'
 import type { Dissection } from '@/lib/types'
