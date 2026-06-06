@@ -47,6 +47,7 @@ function StoryBubble({
 
 export default function DissectionsPage() {
   const { dissections, addDissection, deleteDissection, streamlines } = useStore()
+  void streamlines // used in AddContentModal
   const [addOpen, setAddOpen]     = useState(false)
   const [selected, setSelected]   = useState<Dissection | null>(null)
   const [search, setSearch]       = useState('')
@@ -186,9 +187,8 @@ export default function DissectionsPage() {
       />
       {selected && (
         <DissectionModal
-          dissection={selected}
+          item={selected}
           onClose={() => setSelected(null)}
-          streamlines={streamlines}
         />
       )}
     </div>
