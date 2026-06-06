@@ -2,94 +2,122 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --ig-bg: #000000;
-  --ig-surface: #0a0a0a;
-  --ig-card: #121212;
-  --ig-border: #262626;
-  --ig-text: #f5f5f5;
-  --ig-muted: #8e8e8e;
-  --ig-faint: #555555;
-  --ig-blue: #0095f6;
-  --ig-blue-hover: #1a8fd1;
-}
+* { box-sizing: border-box; padding: 0; margin: 0; }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
-html,
-body {
+html, body {
+  background: #FAFAFA;
+  color: #262626;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
   max-width: 100vw;
   overflow-x: hidden;
-  background: #000;
-  color: #f5f5f5;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
-::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
-}
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #555; }
+/* Instagram-style thin scrollbar */
+::-webkit-scrollbar { width: 0px; height: 0px; }
 
-.ig-gradient-border {
-  background: linear-gradient(#111, #111) padding-box,
+/* Story gradient ring */
+.story-ring {
+  background: linear-gradient(white, white) padding-box,
     linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888) border-box;
   border: 2px solid transparent;
 }
 
-.ig-gradient-text {
-  background: linear-gradient(90deg, #833AB4, #FD1D1D, #F77737);
+/* Gradient text for logo */
+.ig-logo {
+  background: linear-gradient(45deg, #833AB4, #FD1D1D, #F77737);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  font-family: 'Billabong', 'Grand Hotel', cursive, sans-serif;
+  font-size: 1.6rem;
+  line-height: 1;
 }
 
-.card-hover {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+/* Instagram blue button */
+.ig-btn-blue {
+  background: #0095F6;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: 8px;
+  padding: 7px 16px;
+  transition: background 0.15s;
 }
-.card-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
-}
+.ig-btn-blue:hover { background: #1877F2; }
+.ig-btn-blue:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.shimmer {
-  background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+/* Ghost button */
+.ig-btn-ghost {
+  background: transparent;
+  border: 1px solid #DBDBDB;
+  color: #262626;
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: 8px;
+  padding: 7px 16px;
+  transition: background 0.15s;
 }
+.ig-btn-ghost:hover { background: #F2F2F2; }
 
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+/* Explore grid: no border-radius on thumbnails */
+.explore-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
 }
+.explore-grid > * { aspect-ratio: 1; }
 
-.tiptap {
+/* Post hover overlay */
+.post-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.post-overlay .stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
+}
+.group:hover .post-overlay { opacity: 1; }
+
+/* Input style */
+.ig-input {
+  width: 100%;
+  background: #FAFAFA;
+  border: 1px solid #DBDBDB;
+  border-radius: 3px;
+  padding: 9px 8px;
+  font-size: 14px;
+  color: #262626;
   outline: none;
-  min-height: 400px;
+  transition: border-color 0.15s;
 }
+.ig-input:focus { border-color: #A8A8A8; }
+
+/* Tiptap */
+.tiptap { outline: none; min-height: 400px; }
 .tiptap p.is-editor-empty:first-child::before {
-  color: #737373;
+  color: #8E8E8E;
   content: attr(data-placeholder);
   float: left;
   height: 0;
   pointer-events: none;
 }
-
-.tiptap h1 { font-size: 1.8rem; font-weight: 700; margin: 1rem 0 0.5rem; }
-.tiptap h2 { font-size: 1.4rem; font-weight: 600; margin: 1rem 0 0.5rem; }
-.tiptap h3 { font-size: 1.1rem; font-weight: 600; margin: 0.8rem 0 0.4rem; }
+.tiptap h1 { font-size: 1.6rem; font-weight: 700; margin: 1rem 0 0.5rem; }
+.tiptap h2 { font-size: 1.3rem; font-weight: 600; margin: 0.8rem 0 0.4rem; }
 .tiptap strong { font-weight: 700; }
 .tiptap em { font-style: italic; }
 .tiptap u { text-decoration: underline; }
-.tiptap mark { background: rgba(253,29,29,0.3); color: #fff; padding: 0 2px; border-radius: 2px; }
 .tiptap ul, .tiptap ol { padding-left: 1.5rem; margin: 0.5rem 0; }
-.tiptap li { margin: 0.25rem 0; }
-.tiptap blockquote { border-left: 3px solid #833AB4; padding-left: 1rem; color: #a8a8a8; margin: 1rem 0; }
-.tiptap a { color: #0095f6; text-decoration: underline; }
-.tiptap hr { border: none; border-top: 1px solid #262626; margin: 1rem 0; }
+.tiptap blockquote { border-left: 3px solid #DBDBDB; padding-left: 1rem; color: #8E8E8E; margin: 1rem 0; }
+.tiptap a { color: #00376B; }

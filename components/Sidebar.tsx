@@ -1,150 +1,124 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Scissors, PlusCircle, FileText, Zap } from 'lucide-react'
-import { clsx } from 'clsx'
+import {
+  Home, Search, PlusSquare, Film, Zap, Settings,
+  HomeIcon, SearchIcon
+} from 'lucide-react'
 
-const nav = [
-  { href: '/',            icon: Home,        label: 'Home'        },
-  { href: '/dissections', icon: Scissors,    label: 'Dissections' },
-  { href: '/scripts',     icon: FileText,    label: 'Scripts'     },
-  { href: '/streamlines', icon: Zap,         label: 'Streamlines' },
+// Instagram-style SVG icons (filled vs outline)
+const IconHome = ({ filled }: { filled: boolean }) => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill={filled ? '#262626' : 'none'} stroke={filled ? 'none' : '#262626'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/>
+    <path d="M9 21V12h6v9" fill="white" stroke={filled ? '#262626' : '#262626'} strokeWidth="2"/>
+  </svg>
+)
+const IconSearch = ({ filled }: { filled: boolean }) => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#262626" strokeWidth={filled ? 2.5 : 2} strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+  </svg>
+)
+const IconPlus = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#262626" strokeWidth="2" strokeLinecap="round">
+    <rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8M8 12h8"/>
+  </svg>
+)
+const IconReel = ({ filled }: { filled: boolean }) => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill={filled ? '#262626' : 'none'} stroke="#262626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="2" width="20" height="20" rx="2.18" fill={filled ? '#262626' : 'none'}/>
+    <path d="M7 2v20M17 2v20M2 12h20M2 7h5M17 7h5M2 17h5M17 17h5" stroke={filled ? 'white' : '#262626'} strokeWidth="1.5"/>
+  </svg>
+)
+const IconZap = ({ filled }: { filled: boolean }) => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill={filled ? '#262626' : 'none'} stroke="#262626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+  </svg>
+)
+const IconSettings = ({ filled }: { filled: boolean }) => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#262626" strokeWidth={filled ? 2.5 : 2} strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="3"/>
+    <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+  </svg>
+)
+
+const NAV = [
+  { href: '/',             label: 'Home',        Icon: IconHome    },
+  { href: '/dissections',  label: 'Dissections', Icon: IconSearch  },
+  { href: '/dissections',  label: 'Create',      Icon: IconPlus,   isCreate: true },
+  { href: '/scripts',      label: 'Scripts',     Icon: IconReel    },
+  { href: '/streamlines',  label: 'Streamlines', Icon: IconZap     },
+  { href: '/settings',     label: 'Settings',    Icon: IconSettings},
 ]
 
 export function Sidebar() {
-  const pathname = usePathname()
+  const path = usePathname()
 
   return (
     <>
-      {/* ── MOBILE: fixed bottom nav bar ───────────────────────────────── */}
-      <nav
-        className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around
-          bg-black/95 backdrop-blur-xl border-t border-ig-border h-16 px-2"
-      >
-        {/* Home */}
-        <MobileNavItem href="/" label="Home" pathname={pathname}>
-          <Home size={26} strokeWidth={pathname === '/' ? 2.5 : 1.8} />
-        </MobileNavItem>
+      {/* ── DESKTOP sidebar ── */}
+      <aside className="hidden md:flex fixed left-0 top-0 h-full z-40 flex-col
+        w-[72px] xl:w-[244px]
+        bg-white border-r border-ig-border pt-2 pb-4">
 
-        {/* Dissections */}
-        <MobileNavItem href="/dissections" label="Dissections" pathname={pathname}>
-          <Scissors size={26} strokeWidth={pathname.startsWith('/dissections') ? 2.5 : 1.8} />
-        </MobileNavItem>
-
-        {/* Add / centre button with gradient ring */}
-        <Link
-          href="/dissections"
-          className="flex items-center justify-center w-12 h-12 rounded-full
-            bg-ig-gradient p-[2px] flex-shrink-0"
-          aria-label="Dissect"
-        >
-          <span className="w-full h-full rounded-full bg-black flex items-center justify-center">
-            <PlusCircle size={26} strokeWidth={1.8} className="text-white" />
-          </span>
-        </Link>
-
-        {/* Scripts */}
-        <MobileNavItem href="/scripts" label="Scripts" pathname={pathname}>
-          <FileText size={26} strokeWidth={pathname.startsWith('/scripts') ? 2.5 : 1.8} />
-        </MobileNavItem>
-
-        {/* Streamlines */}
-        <MobileNavItem href="/streamlines" label="Streamlines" pathname={pathname}>
-          <Zap size={26} strokeWidth={pathname.startsWith('/streamlines') ? 2.5 : 1.8} />
-        </MobileNavItem>
-      </nav>
-
-      {/* ── DESKTOP: fixed left sidebar ────────────────────────────────── */}
-      <aside
-        className="hidden md:flex fixed left-0 top-0 h-full z-50 flex-col
-          w-[72px] xl:w-[245px]
-          bg-ig-bg border-r border-ig-border
-          transition-all duration-300"
-      >
         {/* Logo */}
-        <div className="px-3 xl:px-6 py-6 mb-2">
-          <div className="flex items-center gap-3">
-            <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-              style={{ background: 'linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)' }}
-            >
-              <Scissors size={16} className="text-white" />
-            </div>
-            <span className="hidden xl:block font-bold text-lg tracking-tight ig-gradient-text">
-              ContentOS
-            </span>
+        <div className="px-3 xl:px-5 py-6 mb-2">
+          <div className="xl:block hidden">
+            <span className="ig-logo">ContentOS</span>
+          </div>
+          <div className="xl:hidden flex items-center justify-center">
+            {/* Camera icon like Instagram mobile */}
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#262626" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
           </div>
         </div>
 
-        {/* Nav links */}
-        <nav className="flex-1 px-2 xl:px-3 space-y-1">
-          {nav.map(({ href, icon: Icon, label }) => {
-            const active = href === '/' ? pathname === '/' : pathname.startsWith(href)
+        {/* Nav items */}
+        <nav className="flex-1 space-y-1 px-2 xl:px-3">
+          {NAV.filter(n => !n.isCreate).map(({ href, label, Icon }) => {
+            const active = path === href || (href !== '/' && path.startsWith(href))
             return (
               <Link
-                key={href}
+                key={label}
                 href={href}
-                className={clsx(
-                  'flex items-center gap-4 px-3 py-3 rounded-xl transition-all duration-150 group relative',
-                  active
-                    ? 'bg-ig-hover text-ig-text font-semibold'
-                    : 'text-ig-muted hover:bg-ig-hover hover:text-ig-text'
-                )}
+                className={`flex items-center gap-4 px-3 py-3 rounded-xl transition-colors group
+                  ${active ? 'font-bold' : 'font-normal hover:bg-ig-hover'}`}
               >
-                <Icon
-                  size={24}
-                  strokeWidth={active ? 2.5 : 1.8}
-                  className="flex-shrink-0"
-                />
-                <span className="hidden xl:block text-sm">{label}</span>
-
-                {/* Tooltip when collapsed */}
-                <span
-                  className="xl:hidden absolute left-14 bg-ig-card border border-ig-border
-                    text-ig-text text-sm px-3 py-1.5 rounded-lg whitespace-nowrap
-                    opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 shadow-xl"
-                >
-                  {label}
-                </span>
+                <Icon filled={active} />
+                <span className="hidden xl:block text-[16px] text-ig-text">{label}</span>
               </Link>
             )
           })}
         </nav>
 
-        {/* Avatar area */}
-        <div className="px-3 xl:px-6 py-5 border-t border-ig-border">
-          <div className="flex items-center gap-3">
-            <div
-              className="w-8 h-8 rounded-full flex-shrink-0"
-              style={{ background: 'linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)' }}
-            />
-            <div className="hidden xl:block">
-              <p className="text-xs font-semibold text-ig-text">Nasir</p>
-              <p className="text-xs text-ig-faint">Creator</p>
-            </div>
-          </div>
+        {/* Profile */}
+        <div className="px-2 xl:px-3">
+          <Link href="/settings" className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-ig-hover transition-colors">
+            <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-yellow-400 to-pink-600 flex-shrink-0" />
+            <span className="hidden xl:block text-[14px] text-ig-text font-medium">Profile</span>
+          </Link>
         </div>
       </aside>
-    </>
-  )
-}
 
-function MobileNavItem({
-  href, label, pathname, children,
-}: {
-  href: string; label: string; pathname: string; children: React.ReactNode
-}) {
-  const active = href === '/' ? pathname === '/' : pathname.startsWith(href)
-  return (
-    <Link
-      href={href}
-      aria-label={label}
-      className={clsx(
-        'flex flex-col items-center justify-center gap-0.5 flex-1 h-full transition-colors',
-        active ? 'text-ig-text' : 'text-ig-muted'
-      )}
-    >
-      {children}
-    </Link>
+      {/* ── MOBILE bottom nav ── */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-ig-border
+        flex items-center justify-around h-[49px] px-2">
+        {[
+          { href: '/',            label: 'Home',    Icon: IconHome    },
+          { href: '/dissections', label: 'Search',  Icon: IconSearch  },
+          { href: '/dissections', label: 'Create',  Icon: IconPlus    },
+          { href: '/scripts',     label: 'Reels',   Icon: IconReel    },
+          { href: '/settings',    label: 'Profile', Icon: IconSettings},
+        ].map(({ href, label, Icon }) => {
+          const active = path === href || (href !== '/' && path.startsWith(href))
+          return (
+            <Link key={label} href={href} className="flex items-center justify-center w-12 h-full">
+              <Icon filled={active} />
+            </Link>
+          )
+        })}
+      </nav>
+    </>
   )
 }
