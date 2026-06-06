@@ -200,7 +200,7 @@ export function AddContentModal({ open, onClose, streamlines, onSuccess }: Props
                     </div>
                     {streamlineId && (
                       <p className="text-ig-faint text-xs mt-2">
-                        Claude will auto-generate a script in your streamline&apos;s voice after dissecting.
+                        AI will auto-generate a script in your streamline&apos;s voice after dissecting.
                       </p>
                     )}
                   </div>

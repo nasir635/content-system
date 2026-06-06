@@ -11,15 +11,16 @@ const config: Config = {
       colors: {
         ig: {
           bg: '#000000',
-          surface: '#111111',
-          card: '#1a1a1a',
+          surface: '#0a0a0a',
+          card: '#121212',
           border: '#262626',
-          hover: '#1e1e1e',
+          hover: '#1a1a1a',
           text: '#f5f5f5',
-          muted: '#a8a8a8',
-          faint: '#737373',
+          muted: '#8e8e8e',
+          faint: '#555',
           blue: '#0095f6',
-          'blue-hover': '#1877f2',
+          'blue-hover': '#1a8fd1',
+          gradient: 'linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)',
         },
       },
       fontFamily: {

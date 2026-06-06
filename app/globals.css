@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --ig-bg: #000000;
+  --ig-surface: #0a0a0a;
+  --ig-card: #121212;
+  --ig-border: #262626;
+  --ig-text: #f5f5f5;
+  --ig-muted: #8e8e8e;
+  --ig-faint: #555555;
+  --ig-blue: #0095f6;
+  --ig-blue-hover: #1a8fd1;
+}
+
 * {
   box-sizing: border-box;
   padding: 0;
