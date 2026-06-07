@@ -8,10 +8,8 @@ import * as fs from 'fs/promises'
 import * as os from 'os'
 import * as path from 'path'
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
+const genAI       = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
 const fileManager = new GoogleAIFileManager(process.env.GEMINI_API_KEY!)
-
-// ── Instagram extraction ──────────────────────────────────────────────────────
 
 function parseShortcode(url: string): string | null {
   const m = url.match(/\/(p|reel|tv|r)\/([A-Za-z0-9_-]+)\//)
@@ -19,16 +17,15 @@ function parseShortcode(url: string): string | null {
 }
 
 function decodeInstagramUrl(raw: string): string {
-  return raw.replace(/\\u0026/g, '&').replace(/\\\//g, '/').replace(/\\u003C/g, '<').replace(/\\u003E/g, '>').replace(/\\/g, '')
+  return raw
+    .replace(/\\u0026/g, '&').replace(/\\\//g, '/')
+    .replace(/\\u003C/g, '<').replace(/\\u003E/g, '>').replace(/\\/g, '')
 }
 
-async function fetchInstagramEmbed(code: string): Promise<{
-  videoUrl: string; thumbnail: string; caption: string
-}> {
-  const embedUrl = `https://www.instagram.com/p/${code}/embed/captioned/`
-  const res = await fetch(embedUrl, {
+async function fetchInstagramEmbed(code: string) {
+  const res = await fetch(`https://www.instagram.com/p/${code}/embed/captioned/`, {
     headers: {
-      'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+      'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15',
       'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
       'Accept-Language': 'en-US,en;q=0.9',
       'Referer': 'https://www.instagram.com/',
@@ -36,224 +33,172 @@ async function fetchInstagramEmbed(code: string): Promise<{
   })
   if (!res.ok) throw new Error(`Instagram embed fetch failed: ${res.status}`)
   const html = await res.text()
-
-  // Extract video_url from embedded JSON
   const videoMatch = html.match(/"video_url":"([^"]+)"/)
-  const videoUrl = videoMatch ? decodeInstagramUrl(videoMatch[1]) : ''
-
-  // Extract thumbnail
+  const videoUrl   = videoMatch ? decodeInstagramUrl(videoMatch[1]) : ''
   const thumbMatch = html.match(/"thumbnail_src":"([^"]+)"/) || html.match(/"display_url":"([^"]+)"/)
-  const thumbnail = thumbMatch ? decodeInstagramUrl(thumbMatch[1]) : ''
-
-  // Extract caption from accessibility_caption or edge_media_to_caption
-  const captionMatch = html.match(/"accessibility_caption":"([^"]*)"/) ||
-    html.match(/"text":"([^"]{10,})"/)
-  const caption = captionMatch ? decodeInstagramUrl(captionMatch[1]) : ''
-
+  const thumbnail  = thumbMatch ? decodeInstagramUrl(thumbMatch[1]) : ''
+  const capMatch   = html.match(/"accessibility_caption":"([^"]*)"/) || html.match(/"text":"([^"]{10,})"/)
+  const caption    = capMatch ? decodeInstagramUrl(capMatch[1]) : ''
   return { videoUrl, thumbnail, caption }
 }
 
-async function fetchOEmbedFallback(url: string): Promise<{ thumbnail: string; caption: string }> {
+async function fetchOEmbedFallback(url: string) {
   try {
     const res = await fetch(`https://api.instagram.com/oembed/?url=${encodeURIComponent(url)}`)
-    if (!res.ok) return { thumbnail: '', caption: '' }
-    const data = await res.json()
-    return { thumbnail: data.thumbnail_url ?? '', caption: data.title ?? '' }
-  } catch {
-    return { thumbnail: '', caption: '' }
-  }
+    if (!res.ok) return { thumbnail: '', caption: '', videoUrl: '' }
+    const d = await res.json()
+    return { thumbnail: d.thumbnail_url ?? '', caption: d.title ?? '', videoUrl: '' }
+  } catch { return { thumbnail: '', caption: '', videoUrl: '' } }
 }
 
-// ── Video download & Gemini File API upload ───────────────────────────────────
-
-async function downloadVideo(videoUrl: string): Promise<string> {
+async function downloadVideo(videoUrl: string) {
   const tmpPath = path.join(os.tmpdir(), `ig-${Date.now()}.mp4`)
   const res = await fetch(videoUrl, {
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15',
-      'Referer': 'https://www.instagram.com/',
-    },
+    headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': 'https://www.instagram.com/' },
   })
   if (!res.ok) throw new Error(`Video download failed: ${res.status}`)
-  const buffer = Buffer.from(await res.arrayBuffer())
-  await fs.writeFile(tmpPath, buffer)
+  await fs.writeFile(tmpPath, Buffer.from(await res.arrayBuffer()))
   return tmpPath
 }
 
-async function uploadToGemini(tmpPath: string): Promise<string> {
-  const uploadResult = await fileManager.uploadFile(tmpPath, {
+async function uploadToGemini(tmpPath: string) {
+  const result = await fileManager.uploadFile(tmpPath, {
     mimeType: 'video/mp4',
     displayName: `ig-video-${Date.now()}`,
   })
-
-  // Poll until ACTIVE
-  let file = uploadResult.file
+  let file = result.file
   let attempts = 0
   while (file.state === FileState.PROCESSING && attempts < 15) {
     await new Promise(r => setTimeout(r, 3000))
     file = await fileManager.getFile(file.name)
     attempts++
   }
-
-  if (file.state !== FileState.ACTIVE) {
-    throw new Error(`File not active after polling (state: ${file.state})`)
-  }
-
+  if (file.state !== FileState.ACTIVE) throw new Error(`File not active (state: ${file.state})`)
   return file.uri
 }
 
-// ── Gemini analysis ───────────────────────────────────────────────────────────
-
 async function analyseWithGemini(data: {
-  caption: string
-  url: string
-  fileUri?: string
-  streamlineRules?: string
+  caption: string; url: string; fileUri?: string; streamlineRules?: string
 }) {
   const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
 
   const jsonShape = `{
   "topic": "A concise, descriptive topic/title for this piece (max 8 words)",
   "transcript": "Full verbatim transcript of speech in the video, or empty string if none",
-  "hookAnalysis": "Detailed analysis of the opening hook — what makes it work, the psychological mechanism, why it stops the scroll",
-  "angles": [
-    {
-      "name": "Angle name (2-4 words)",
-      "description": "What this angle is and how it's used in the content",
-      "timestamp": "e.g. 0:00-0:05 if applicable",
-      "strength": "strong|medium|weak"
-    }
-  ],
+  "hookAnalysis": "Analysis of the opening hook — what makes it work and why it stops the scroll",
+  "angles": [{ "name": "Angle name", "description": "How used", "timestamp": "0:00-0:05", "strength": "strong|medium|weak" }],
   "contentType": "reel|post",
-  "emotionalDrivers": "What emotions this content triggers and why",
+  "emotionalDrivers": "What emotions this triggers and why",
   "pacing": "How the content is paced — cuts, timing, energy shifts",
-  "callToAction": "What action the content drives (implicit or explicit)"${data.streamlineRules ? `,
-  "generatedScript": "A full script for this same topic rewritten in the creator's voice using their streamline rules below"` : ''}
+  "callToAction": "What action the content drives"${data.streamlineRules ? ',\n  "generatedScript": "Full script rewritten in creator voice"' : ''}
 }`
 
   const prompt = `You are an expert content analyst specialising in Instagram reels and posts.
-Analyse this Instagram content and return a JSON object with EXACTLY this structure:
-
-${jsonShape}
-
+Analyse this Instagram content and return a JSON object with EXACTLY this structure:\n${jsonShape}\n
 ${data.caption ? `CAPTION:\n${data.caption}\n` : ''}
-${data.streamlineRules ? `STREAMLINE RULES (write the generatedScript following these EXACTLY):\n${data.streamlineRules}\n` : ''}
-
-${data.fileUri ? 'Watch the entire video above and extract the full transcript plus analysis.' : 'Analyse based on the caption only (no video available).'}
-
+${data.streamlineRules ? `STREAMLINE RULES:\n${data.streamlineRules}\n` : ''}
+${data.fileUri ? 'Watch the entire video and extract full transcript plus analysis.' : 'Analyse based on the caption only.'}
 Return ONLY valid JSON. No markdown fences. No extra text.`
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const parts: any[] = []
-
-  if (data.fileUri) {
-    parts.push({
-      fileData: {
-        mimeType: 'video/mp4',
-        fileUri: data.fileUri,
-      },
-    })
-  }
-
+  if (data.fileUri) parts.push({ fileData: { mimeType: 'video/mp4', fileUri: data.fileUri } })
   parts.push({ text: prompt })
 
-  const result = await model.generateContent({ contents: [{ role: 'user', parts }] })
-  const text = result.response.text().trim()
-
-  // Strip any accidental markdown fences
-  const cleaned = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim()
+  const result  = await model.generateContent({ contents: [{ role: 'user', parts }] })
+  const cleaned = result.response.text().replace(/^```json\n?/, '').replace(/\n?```$/, '').trim()
   return JSON.parse(cleaned)
 }
 
-// ── Route handler ─────────────────────────────────────────────────────────────
+// ── Main POST handler ─────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
+  let tmpPath: string | null = null
   try {
-    const { url, category, withFrames, streamlineId, streamlineRules } = await req.json()
+    const body = await req.json()
+    const { url, category = 'content creation tips', tags = [], streamlineRules, saveToNotion } = body
+
     if (!url) return NextResponse.json({ error: 'URL required' }, { status: 400 })
 
-    // 1. Parse shortcode
+    // 1. Get Instagram embed data
     const code = parseShortcode(url)
-    if (!code) return NextResponse.json({ error: 'Could not parse Instagram shortcode from URL' }, { status: 400 })
+    let thumbnail = '', caption = '', videoUrl = ''
 
-    // 2. Fetch Instagram embed data
-    let caption = ''
-    let thumbnail = ''
-    let videoUrl = ''
-    let fileUri: string | undefined
-
-    try {
-      const igData = await fetchInstagramEmbed(code)
-      caption   = igData.caption
-      thumbnail = igData.thumbnail
-      videoUrl  = igData.videoUrl
-    } catch (e) {
-      console.warn('Instagram embed fetch failed, trying oEmbed fallback:', e)
+    if (code) {
+      try {
+        const embed = await fetchInstagramEmbed(code)
+        thumbnail = embed.thumbnail; caption = embed.caption; videoUrl = embed.videoUrl
+      } catch {
+        const fallback = await fetchOEmbedFallback(url)
+        thumbnail = fallback.thumbnail; caption = fallback.caption
+      }
+    } else {
       const fallback = await fetchOEmbedFallback(url)
-      thumbnail = fallback.thumbnail
-      caption   = fallback.caption
+      thumbnail = fallback.thumbnail; caption = fallback.caption
     }
 
-    // 3. Download video + upload to Gemini File API
-    let tmpPath: string | undefined
-    try {
-      if (videoUrl) {
-        tmpPath  = await downloadVideo(videoUrl)
-        fileUri  = await uploadToGemini(tmpPath)
-      }
-    } catch (e) {
-      console.warn('Video download/upload failed, falling back to caption-only analysis:', e)
-      fileUri = undefined
-    } finally {
-      // Clean up tmp file
-      if (tmpPath) {
-        fs.unlink(tmpPath).catch(() => {})
-      }
+    // 2. Upload video to Gemini if available
+    let fileUri: string | undefined
+    if (videoUrl) {
+      try {
+        tmpPath = await downloadVideo(videoUrl)
+        fileUri = await uploadToGemini(tmpPath)
+      } catch { /* fall through to caption-only analysis */ }
     }
 
-    // 4. Analyse with Gemini
+    // 3. Analyse
     const analysis = await analyseWithGemini({ caption, url, fileUri, streamlineRules })
 
-    // 5. Build dissection object
+    // 4. Build Dissection
+    const now = new Date().toISOString()
     const dissection: Dissection = {
       id:               uuid(),
       url,
-      type:             analysis.contentType ?? 'reel',
-      thumbnail,
       topic:            analysis.topic ?? 'Untitled',
       caption,
-      transcript:       analysis.transcript ?? '',
-      angles:           analysis.angles ?? [],
-      hookAnalysis:     analysis.hookAnalysis ?? '',
-      scriptSuggestion: analysis.generatedScript,
       category,
-      streamlineId,
-      hasFrames:        false,
-      frameCount:       0,
-      frames:           [],
-      createdAt:        new Date().toISOString(),
+      type:             analysis.contentType ?? 'reel',
+      thumbnail,
+      tags,
+      notes:            '',
+      transcript:       analysis.transcript ?? '',
+      hookAnalysis:     analysis.hookAnalysis ?? '',
+      emotionalDrivers: analysis.emotionalDrivers ?? '',
+      pacing:           analysis.pacing ?? '',
+      callToAction:     analysis.callToAction ?? '',
+      angles:           analysis.angles ?? [],
+      scriptSuggestion: analysis.generatedScript,
+      createdAt:        now,
+      updatedAt:        now,
     }
 
-    // 6. Save to Notion
-    try {
-      const notionPage = await saveDissectionToNotion({
-        id:               dissection.id,
-        topic:            dissection.topic,
-        url:              dissection.url,
-        category:         dissection.category,
-        caption:          dissection.caption,
-        transcript:       dissection.transcript,
-        hookAnalysis:     dissection.hookAnalysis,
-        angles:           JSON.stringify(dissection.angles, null, 2),
-        scriptSuggestion: dissection.scriptSuggestion,
-      })
-      dissection.notionPageId = (notionPage as any).id
-    } catch (e) {
-      console.warn('Notion sync failed:', e)
+    // 5. Optionally save to Notion
+    if (saveToNotion) {
+      try {
+        const pageId = await saveDissectionToNotion({
+          id:              dissection.id,
+          topic:           dissection.topic,
+          url:             dissection.url,
+          category:        dissection.category,
+          caption:         dissection.caption         ?? '',
+          transcript:      dissection.transcript      ?? '',
+          hookAnalysis:    dissection.hookAnalysis     ?? '',
+          angles:          JSON.stringify(dissection.angles ?? []),
+          scriptSuggestion: dissection.scriptSuggestion,
+          streamlineId:    dissection.streamlineId,
+        })
+        dissection.notionPageId = pageId
+      } catch (e) {
+        console.error('Notion save failed:', e)
+      }
     }
 
-    return NextResponse.json(dissection)
-  } catch (e: any) {
-    console.error('Dissect error:', e)
-    return NextResponse.json({ error: e.message ?? 'Analysis failed' }, { status: 500 })
+    return NextResponse.json({ dissection })
+
+  } catch (err) {
+    console.error('Dissect API error:', err)
+    return NextResponse.json({ error: String(err) }, { status: 500 })
+  } finally {
+    if (tmpPath) fs.unlink(tmpPath).catch(() => {})
   }
 }

@@ -23,49 +23,38 @@ export const CONTENT_CATEGORIES: ContentCategory[] = [
   'content creation tips',
 ]
 
-export interface Dissection {
+// ── INSPIRATIONS ─────────────────────────────────────────────
+export interface Inspiration {
   id: string
   url: string
-  type: 'reel' | 'post'
-  thumbnail?: string
-  topic: string
-  caption: string
-  transcript: string
-  angles: AngleBreakdown[]
-  hookAnalysis: string
-  scriptSuggestion?: string
+  howToUse: string
   category: ContentCategory
-  streamlineId?: string
-  hasFrames: boolean
-  frameCount?: number
-  frames: FrameImage[]
+  tags: string[]
+  screenshots: InspirationScreenshot[]
   createdAt: string
   notionPageId?: string
 }
 
-export interface AngleBreakdown {
-  name: string
-  description: string
-  timestamp?: string
-  strength: 'strong' | 'medium' | 'weak'
-}
-
-export interface FrameImage {
+export interface InspirationScreenshot {
   id: string
-  url: string
-  timestamp: string
-  index: number
+  imageUrl: string
+  title?: string
+  note?: string
+  savedToRefs: boolean
+  refId?: string
 }
 
+// ── SCRIPTS ──────────────────────────────────────────────────
 export interface Script {
   id: string
   title: string
   category: string
   status: 'draft' | 'ready' | 'shot'
-  content: string // tiptap JSON string
+  content: string
   visualRefs: VisualRef[]
   music: MusicEntry[]
   streamlineId?: string
+  inspirationId?: string
   dissectionId?: string
   createdAt: string
   updatedAt: string
@@ -74,10 +63,11 @@ export interface Script {
 
 export interface VisualRef {
   id: string
+  referenceId?: string
   imageUrl: string
+  title?: string
   timestamp: string
   note: string
-  frameId?: string
 }
 
 export interface MusicEntry {
@@ -89,6 +79,7 @@ export interface MusicEntry {
   note?: string
 }
 
+// ── STREAMLINES ──────────────────────────────────────────────
 export interface Streamline {
   id: string
   name: string
@@ -100,16 +91,53 @@ export interface Streamline {
   exampleOpeners: string
   wordsToAvoid: string
   createdAt: string
+  updatedAt: string
 }
 
-// ── REFERENCE LIBRARY ────────────────────────────────────────
+// ── REFERENCES ───────────────────────────────────────────────
 export interface Reference {
   id: string
   title: string
-  imageUrl: string        // Vercel Blob URL or pasted URL
-  note: string            // where/how to use it
-  category: string        // free-text, user defined
+  imageUrl: string
+  note: string
+  category: string
   tags: string[]
+  sourceUrl?: string
+  createdAt: string
+  updatedAt?: string
+}
+
+// ── DISSECTIONS (legacy + active) ────────────────────────────
+export interface ContentAngle {
+  name: string
+  description: string
+  timestamp?: string
+  strength: 'strong' | 'medium' | 'weak'
+}
+export type AngleBreakdown = ContentAngle
+
+export interface Dissection {
+  id: string
+  url: string
+  topic: string
+  caption?: string
+  category: ContentCategory
+  type?: string
+  thumbnail?: string
+  tags: string[]
+  notes: string
+  transcript?: string
+  hookAnalysis?: string
+  emotionalDrivers?: string
+  pacing?: string
+  callToAction?: string
+  angles?: ContentAngle[]
+  scriptSuggestion?: string
+  streamlineId?: string
+  notionPageId?: string
+  hasFrames?: boolean
+  frameCount?: number
+  frames?: { id: string; url: string; index: number; timestamp: string; note?: string }[]
   createdAt: string
   updatedAt: string
 }

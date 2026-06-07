@@ -131,7 +131,7 @@ export function DissectionModal({ item, onClose, onUseInScript }: Props) {
                   <div>
                     <h3 className="text-xs font-bold text-ig-muted uppercase tracking-wider mb-3">Angles Breakdown</h3>
                     <div className="space-y-3">
-                      {item.angles.map((a, i) => (
+                      {(item.angles ?? []).map((a, i) => (
                         <div key={i} className="bg-ig-card border border-ig-border rounded-xl p-4">
                           <div className="flex items-start justify-between gap-3 mb-2">
                             <p className="font-semibold text-sm">{a.name}</p>
@@ -155,7 +155,7 @@ export function DissectionModal({ item, onClose, onUseInScript }: Props) {
                 <div className="space-y-3">
                   <div className="flex justify-end">
                     <button
-                      onClick={() => navigator.clipboard.writeText(item.transcript)}
+                      onClick={() => navigator.clipboard.writeText(item.transcript ?? '')}
                       className="flex items-center gap-1.5 text-xs text-ig-muted hover:text-ig-text px-3 py-1.5 rounded-lg hover:bg-ig-hover transition-colors"
                     >
                       <Copy size={12} /> Copy
@@ -170,14 +170,14 @@ export function DissectionModal({ item, onClose, onUseInScript }: Props) {
               {/* Frames tab */}
               {tab === 'frames' && (
                 <div>
-                  {item.frames.length === 0 ? (
+                  {(item.frames ?? []).length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-16 text-ig-faint">
                       <Film size={40} className="mb-3 opacity-30" />
                       <p className="text-sm">Frames are being processed…</p>
                     </div>
                   ) : (
                     <div className="columns-3 gap-3 space-y-3">
-                      {(framesExpanded ? item.frames : item.frames.slice(0, 9)).map(f => (
+                      {(framesExpanded ? (item.frames ?? []) : (item.frames ?? []).slice(0, 9)).map(f => (
                         <div key={f.id} className="relative break-inside-avoid group">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
@@ -192,12 +192,12 @@ export function DissectionModal({ item, onClose, onUseInScript }: Props) {
                       ))}
                     </div>
                   )}
-                  {item.frames.length > 9 && (
+                  {(item.frames ?? []).length > 9 && (
                     <button
                       onClick={() => setFramesExpanded(v => !v)}
                       className="mt-4 w-full flex items-center justify-center gap-2 text-ig-muted hover:text-ig-text text-sm py-3 border border-ig-border rounded-xl hover:bg-ig-hover transition-colors"
                     >
-                      {framesExpanded ? <><ChevronUp size={16} /> Show less</> : <><ChevronDown size={16} /> Show all {item.frames.length} frames</>}
+                      {framesExpanded ? <><ChevronUp size={16} /> Show less</> : <><ChevronDown size={16} /> Show all {(item.frames ?? []).length} frames</>}
                     </button>
                   )}
                 </div>

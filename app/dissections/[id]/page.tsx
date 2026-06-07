@@ -174,7 +174,7 @@ export default function DissectionDetailPage() {
         )}
 
         {/* 2. Angles */}
-        {item.angles?.length > 0 && (
+        {item.angles && item.angles.length > 0 && (
           <SectionCard title={`Angles (${item.angles.length})`}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {item.angles.map((angle, i) => {

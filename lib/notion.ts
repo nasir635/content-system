@@ -10,8 +10,8 @@ export async function saveDissectionToNotion(d: {
   id: string; topic: string; url: string; category: string;
   caption: string; transcript: string; hookAnalysis: string;
   angles: string; scriptSuggestion?: string; streamlineId?: string;
-}) {
-  return notion.pages.create({
+}): Promise<string> {
+  const page = await notion.pages.create({
     parent: { database_id: DISS_DB },
     properties: {
       Title:      { title: [{ text: { content: d.topic } }] },
@@ -34,6 +34,7 @@ export async function saveDissectionToNotion(d: {
       ] : []),
     ],
   })
+  return page.id
 }
 
 export async function saveScriptToNotion(s: {

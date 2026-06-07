@@ -112,13 +112,11 @@ export default function SettingsPage() {
           <p className="text-ig-muted text-sm">Set these in your Vercel project settings → Environment Variables:</p>
           <div className="bg-ig-surface rounded-xl p-4 font-mono text-xs space-y-1.5 text-ig-muted">
             {[
+              'ANTHROPIC_API_KEY',
               'NOTION_TOKEN',
               'NOTION_DISSECTIONS_DB_ID',
               'NOTION_SCRIPTS_DB_ID',
               'NOTION_STREAMLINES_DB_ID',
-              'ANTHROPIC_API_KEY',
-              'BRIGHTDATA_API_KEY',
-              'BRIGHTDATA_ZONE',
               'BLOB_READ_WRITE_TOKEN',
             ].map(v => <p key={v}><span className="text-ig-blue">{v}</span>=your_value</p>)}
           </div>

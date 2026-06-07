@@ -5,7 +5,7 @@
 * { box-sizing: border-box; padding: 0; margin: 0; }
 
 html, body {
-  background: #F5EFEB;
+  background: #FFFFFF;
   color: #2F4156;
   font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
   font-size: 14px;
@@ -14,108 +14,178 @@ html, body {
 
 ::-webkit-scrollbar { width: 0; height: 0; }
 
-/* Glassmorphism card overlay (image 3 style bottom panel) */
-.glass-overlay {
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255,255,255,0.5);
-  border-radius: 14px;
+/* ── GLOSSY CARD ─────────────────────────────────────────────
+   Used for content cards (dissections, scripts, references)   */
+.glossy-card {
+  background: #FFFFFF;
+  border-radius: 22px;
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow:
+    0 1px 2px  rgba(0,0,0,0.04),
+    0 4px 12px rgba(0,0,0,0.06),
+    0 16px 40px rgba(47,65,86,0.08);
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  overflow: hidden;
+}
+.glossy-card:hover {
+  transform: translateY(-5px) scale(1.01);
+  box-shadow:
+    0 2px 4px  rgba(0,0,0,0.04),
+    0 8px 24px rgba(0,0,0,0.1),
+    0 28px 56px rgba(47,65,86,0.14);
 }
 
-/* Floating glass card (image 2 style) */
+/* ── GLASS PANEL CARD (for dashboard sections) ───────────────*/
 .glass-card {
-  background: rgba(255, 255, 255, 0.72);
+  background: rgba(255,255,255,0.92);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(200,217,230,0.5);
+  border: 1px solid rgba(200,217,230,0.4);
   border-radius: 20px;
-  box-shadow: 0 4px 24px rgba(47,65,86,0.08);
+  box-shadow:
+    0 1px 3px rgba(0,0,0,0.04),
+    0 4px 16px rgba(47,65,86,0.06),
+    inset 0 1px 0 rgba(255,255,255,0.9);
   transition: transform 0.2s, box-shadow 0.2s;
 }
 .glass-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 40px rgba(47,65,86,0.14);
+  transform: translateY(-2px);
+  box-shadow:
+    0 2px 6px rgba(0,0,0,0.06),
+    0 8px 24px rgba(47,65,86,0.1),
+    inset 0 1px 0 rgba(255,255,255,0.9);
 }
 
-/* Stat card */
+/* ── STAT CARD ───────────────────────────────────────────────*/
 .stat-card {
-  background: white;
-  border-radius: 16px;
-  border: 1px solid #D0DDE6;
+  background: #FFFFFF;
+  border-radius: 18px;
+  border: 1px solid rgba(0,0,0,0.06);
   padding: 20px;
-  box-shadow: 0 2px 12px rgba(47,65,86,0.06);
+  box-shadow:
+    0 1px 3px rgba(0,0,0,0.04),
+    0 4px 16px rgba(47,65,86,0.07),
+    inset 0 1px 0 rgba(255,255,255,1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 2px 6px rgba(0,0,0,0.06),
+    0 8px 24px rgba(47,65,86,0.1),
+    inset 0 1px 0 rgba(255,255,255,1);
 }
 
-/* Pinterest masonry */
+/* ── GLOSSY BUTTON (image-2 "Reserve" style) ─────────────────*/
+.glossy-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 11px 16px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(242,246,250,0.98) 100%);
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #2F4156;
+  cursor: pointer;
+  box-shadow:
+    0 1px 3px rgba(0,0,0,0.08),
+    0 2px 8px rgba(0,0,0,0.04),
+    inset 0 1px 0 rgba(255,255,255,1);
+  transition: all 0.18s ease;
+}
+.glossy-btn:hover {
+  background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(234,241,248,1) 100%);
+  box-shadow:
+    0 2px 8px rgba(0,0,0,0.1),
+    0 4px 16px rgba(47,65,86,0.1),
+    inset 0 1px 0 rgba(255,255,255,1);
+  transform: translateY(-1px);
+}
+
+/* ── PINTEREST MASONRY ───────────────────────────────────────*/
 .my-masonry-grid {
   display: flex;
-  gap: 16px;
+  gap: 18px;
   width: 100%;
 }
 .my-masonry-grid-column {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 }
 
-/* Chip/badge */
+/* ── CHIP / BADGE ────────────────────────────────────────────*/
 .chip {
   display: inline-flex;
   align-items: center;
-  padding: 4px 10px;
+  padding: 4px 11px;
   border-radius: 9999px;
   font-size: 11px;
   font-weight: 600;
-  background: rgba(200,217,230,0.4);
+  background: rgba(200,217,230,0.35);
   color: #2F4156;
-  border: 1px solid rgba(200,217,230,0.6);
+  border: 1px solid rgba(200,217,230,0.5);
 }
 
-/* Input */
+/* ── INPUT ───────────────────────────────────────────────────*/
 .cs-input {
   width: 100%;
-  background: #F5EFEB;
-  border: 1.5px solid #C8D9E6;
-  border-radius: 10px;
+  background: #F8FAFC;
+  border: 1.5px solid #D0DDE6;
+  border-radius: 12px;
   padding: 10px 14px;
   font-size: 14px;
   color: #2F4156;
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
-.cs-input:focus { border-color: #567C8D; }
+.cs-input:focus {
+  border-color: #567C8D;
+  box-shadow: 0 0 0 3px rgba(86,124,141,0.1);
+}
 
-/* Button primary */
+/* ── PRIMARY BUTTON ──────────────────────────────────────────*/
 .cs-btn {
   background: #2F4156;
   color: white;
   font-weight: 600;
   font-size: 13px;
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 9px 18px;
   border: none;
   cursor: pointer;
-  transition: background 0.15s, transform 0.1s;
+  box-shadow: 0 2px 8px rgba(47,65,86,0.25), inset 0 1px 0 rgba(255,255,255,0.12);
+  transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
 }
-.cs-btn:hover { background: #567C8D; }
-.cs-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.cs-btn:hover {
+  background: #567C8D;
+  box-shadow: 0 4px 16px rgba(47,65,86,0.3), inset 0 1px 0 rgba(255,255,255,0.12);
+  transform: translateY(-1px);
+}
+.cs-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
 
-/* Button secondary */
+/* ── OUTLINE BUTTON ──────────────────────────────────────────*/
 .cs-btn-outline {
-  background: transparent;
+  background: #FFFFFF;
   color: #2F4156;
   font-weight: 600;
   font-size: 13px;
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 9px 18px;
-  border: 1.5px solid #C8D9E6;
+  border: 1.5px solid #D0DDE6;
   cursor: pointer;
-  transition: background 0.15s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,1);
+  transition: background 0.15s, box-shadow 0.15s;
 }
-.cs-btn-outline:hover { background: #E8F0F5; }
+.cs-btn-outline:hover {
+  background: #F0F6FA;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,1);
+}
 
-/* Tiptap */
+/* ── TIPTAP ──────────────────────────────────────────────────*/
 .tiptap { outline: none; min-height: 350px; color: #2F4156; }
 .tiptap p.is-editor-empty:first-child::before {
   color: #8EA7B5; content: attr(data-placeholder);

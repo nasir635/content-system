@@ -2,166 +2,137 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-const IconHome = ({ active }: { active: boolean }) => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill={active ? 'white' : 'none'} stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/>
-    <path d="M9 21V12h6v9" fill={active ? 'rgba(255,255,255,0.3)' : 'none'} stroke="white" strokeWidth="2"/>
+const IcoDashboard = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+    <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
   </svg>
 )
-
-const IconDissect = ({ active }: { active: boolean }) => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={active ? 2.5 : 2} strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="11" cy="11" r="8"/>
-    <path d="M21 21l-4.35-4.35"/>
+const IcoBulb = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 18h6"/><path d="M10 22h4"/>
+    <path d="M12 2a7 7 0 015 11.95V17a1 1 0 01-1 1H8a1 1 0 01-1-1v-3.05A7 7 0 0112 2z"/>
   </svg>
 )
-
-const IconScript = ({ active }: { active: boolean }) => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={active ? 2.5 : 2} strokeLinecap="round" strokeLinejoin="round">
+const IcoScript = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
     <polyline points="14 2 14 8 20 8"/>
-    <line x1="16" y1="13" x2="8" y2="13"/>
-    <line x1="16" y1="17" x2="8" y2="17"/>
-    <polyline points="10 9 9 9 8 9"/>
+    <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
   </svg>
 )
-
-const IconZap = ({ active }: { active: boolean }) => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill={active ? 'white' : 'none'} stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const IcoStreamline = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
   </svg>
 )
-
-const IconRef = ({ active }: { active: boolean }) => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={active ? 2.5 : 2} strokeLinecap="round" strokeLinejoin="round">
+const IcoRef = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect x="3" y="3" width="18" height="18" rx="2"/>
     <circle cx="8.5" cy="8.5" r="1.5"/>
     <polyline points="21 15 16 10 5 21"/>
   </svg>
 )
-
-const IconSettings = ({ active }: { active: boolean }) => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={active ? 2.5 : 2} strokeLinecap="round" strokeLinejoin="round">
+const IcoSettings = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="3"/>
     <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
   </svg>
 )
 
-const NAV = [
-  { href: '/',            label: 'Home',        Icon: IconHome     },
-  { href: '/dissections', label: 'Dissections', Icon: IconDissect  },
-  { href: '/scripts',     label: 'Scripts',     Icon: IconScript   },
-  { href: '/references',  label: 'References',  Icon: IconRef      },
-  { href: '/streamlines', label: 'Streamlines', Icon: IconZap      },
-  { href: '/settings',    label: 'Settings',    Icon: IconSettings },
+const NAV_GROUPS = [
+  {
+    label: 'OVERVIEW',
+    items: [
+      { href: '/',              label: 'Dashboard',    Icon: IcoDashboard  },
+    ],
+  },
+  {
+    label: 'CONTENT',
+    items: [
+      { href: '/inspirations',  label: 'Inspirations', Icon: IcoBulb       },
+      { href: '/scripts',       label: 'Scripts',      Icon: IcoScript     },
+      { href: '/streamlines',   label: 'Streamlines',  Icon: IcoStreamline },
+      { href: '/references',    label: 'References',   Icon: IcoRef        },
+    ],
+  },
+  {
+    label: 'TOOLS',
+    items: [
+      { href: '/settings',      label: 'Settings',     Icon: IcoSettings   },
+    ],
+  },
 ]
 
 export function Sidebar() {
-  const path = usePathname()
+  const pathname = usePathname()
 
   return (
-    <>
-      {/* ── DESKTOP sidebar ── */}
-      <aside
-        className="hidden md:flex fixed left-0 top-0 h-full z-40 flex-col w-[72px] xl:w-[240px] pt-2 pb-6"
-        style={{ background: '#2F4156' }}
-      >
-        {/* Logo */}
-        <div className="px-3 xl:px-5 py-6 mb-4">
-          <div className="hidden xl:block">
-            <span className="text-white font-bold text-[18px] tracking-tight">ContentOS</span>
-            <div className="h-0.5 w-8 mt-1 rounded-full" style={{ background: '#C8D9E6' }} />
+    <aside
+      className="fixed top-0 left-0 h-full flex flex-col z-40"
+      style={{
+        width: 200,
+        background: 'rgba(255,255,255,0.72)',
+        backdropFilter: 'blur(18px)',
+        WebkitBackdropFilter: 'blur(18px)',
+        borderRight: '1px solid rgba(208,221,230,0.6)',
+        boxShadow: '2px 0 20px rgba(47,65,86,0.06)',
+      }}
+    >
+      {/* Logo */}
+      <div className="px-5 py-5" style={{ borderBottom: '1px solid rgba(208,221,230,0.4)' }}>
+        <div className="flex items-center gap-2">
+          <div
+            className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+            style={{ background: 'linear-gradient(135deg, #2F4156 0%, #567C8D 100%)' }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
           </div>
-          <div className="xl:hidden flex items-center justify-center">
-            <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center"
-              style={{ background: 'rgba(200,217,230,0.18)' }}
-            >
-              <span className="text-white font-bold text-sm">C</span>
+          <span className="font-bold text-sm tracking-tight" style={{ color: '#2F4156' }}>
+            Content OS
+          </span>
+        </div>
+      </div>
+
+      {/* Nav groups */}
+      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5" style={{ scrollbarWidth: 'none' }}>
+        {NAV_GROUPS.map(group => (
+          <div key={group.label}>
+            <p className="px-2 mb-2 text-[9px] font-bold tracking-widest" style={{ color: '#A0B8C6' }}>
+              {group.label}
+            </p>
+            <div className="space-y-0.5">
+              {group.items.map(({ href, label, Icon }) => {
+                const active = href === '/' ? pathname === '/' : pathname.startsWith(href)
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl transition-all"
+                    style={{
+                      background: active ? 'linear-gradient(135deg, #2F4156 0%, #567C8D 100%)' : 'transparent',
+                      color: active ? '#FFFFFF' : '#567C8D',
+                      fontWeight: active ? 600 : 500,
+                      fontSize: 13,
+                    }}
+                  >
+                    <Icon />
+                    {label}
+                  </Link>
+                )
+              })}
             </div>
           </div>
-        </div>
-
-        {/* Nav items */}
-        <nav className="flex-1 space-y-1 px-2 xl:px-3">
-          {NAV.map(({ href, label, Icon }) => {
-            const active = path === href || (href !== '/' && path.startsWith(href))
-            return (
-              <Link
-                key={label}
-                href={href}
-                className="flex items-center gap-3 px-3 py-3 rounded-xl transition-all group"
-                style={{
-                  background: active ? 'rgba(255,255,255,0.15)' : 'transparent',
-                }}
-                onMouseEnter={e => {
-                  if (!active) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.08)'
-                }}
-                onMouseLeave={e => {
-                  if (!active) (e.currentTarget as HTMLElement).style.background = 'transparent'
-                }}
-              >
-                <Icon active={active} />
-                <span
-                  className="hidden xl:block text-[14px] transition-colors"
-                  style={{
-                    color: active ? '#ffffff' : 'rgba(255,255,255,0.7)',
-                    fontWeight: active ? 700 : 400,
-                  }}
-                >
-                  {label}
-                </span>
-                {active && (
-                  <div
-                    className="hidden xl:block ml-auto w-1.5 h-1.5 rounded-full flex-shrink-0"
-                    style={{ background: '#C8D9E6' }}
-                  />
-                )}
-              </Link>
-            )
-          })}
-        </nav>
-
-        {/* Profile avatar at bottom */}
-        <div className="px-2 xl:px-3">
-          <div className="flex items-center gap-3 px-3 py-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.08)' }}>
-            <div
-              className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-bold"
-              style={{ background: 'linear-gradient(135deg, #567C8D, #C8D9E6)' }}
-            >
-              N
-            </div>
-            <span className="hidden xl:block text-[13px] font-medium" style={{ color: 'rgba(255,255,255,0.8)' }}>
-              Nasir
-            </span>
-          </div>
-        </div>
-      </aside>
-
-      {/* ── MOBILE bottom nav ── */}
-      <nav
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around h-[56px] px-2"
-        style={{ background: '#2F4156', borderTop: '1px solid rgba(200,217,230,0.2)' }}
-      >
-        {NAV.map(({ href, label, Icon }) => {
-          const active = path === href || (href !== '/' && path.startsWith(href))
-          return (
-            <Link
-              key={label}
-              href={href}
-              className="flex items-center justify-center w-12 h-full relative"
-            >
-              <Icon active={active} />
-              {active && (
-                <div
-                  className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
-                  style={{ background: '#C8D9E6' }}
-                />
-              )}
-            </Link>
-          )
-        })}
+        ))}
       </nav>
-    </>
+
+      {/* Footer */}
+      <div className="px-4 py-4" style={{ borderTop: '1px solid rgba(208,221,230,0.4)' }}>
+        <p className="text-[10px] font-medium" style={{ color: '#A0B8C6' }}>Faasle Content OS</p>
+        <p className="text-[9px]" style={{ color: '#C8D9E6' }}>v1.0</p>
+      </div>
+    </aside>
   )
 }

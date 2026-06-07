@@ -5,80 +5,236 @@ import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
 import Underline from '@tiptap/extension-underline'
 import Highlight from '@tiptap/extension-highlight'
-import Image from '@tiptap/extension-image'
 import Link from '@tiptap/extension-link'
-import { motion, AnimatePresence } from 'framer-motion'
-import {
-  X, Bold, Italic, UnderlineIcon, List, ListOrdered, Quote,
-  Heading2, Heading3, Link2, ImageIcon, Highlighter,
-  Camera, Music, Plus, Trash2, ChevronDown,
-  Clock, MessageSquare, Save, CheckCircle2
-} from 'lucide-react'
-import { clsx } from 'clsx'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useStore } from '@/lib/store'
-import type { Script, VisualRef, MusicEntry } from '@/lib/types'
+import type { Script, VisualRef, MusicEntry, Reference } from '@/lib/types'
 import { v4 as uuid } from 'uuid'
 
-interface Props {
-  script: Script | null
-  open: boolean
-  onClose: () => void
+/* ── Toolbar button ─────────────────────────────────────── */
+function TB({
+  active, onMouseDown, children, title,
+}: {
+  active?: boolean; onMouseDown: () => void; children: React.ReactNode; title?: string
+}) {
+  return (
+    <button
+      type="button"
+      title={title}
+      onMouseDown={e => { e.preventDefault(); onMouseDown() }}
+      className="flex items-center justify-center rounded transition-colors"
+      style={{
+        width: 28, height: 28,
+        background: active ? '#2F4156' : 'transparent',
+        color: active ? '#FFFFFF' : '#567C8D',
+        fontSize: 13, fontWeight: active ? 700 : 500,
+      }}
+    >
+      {children}
+    </button>
+  )
 }
 
-type EditorTab = 'script' | 'visual' | 'music'
+function Sep() {
+  return <div style={{ width: 1, height: 18, background: '#D0DDE6', margin: '0 4px', flexShrink: 0 }} />
+}
 
-export function ScriptEditor({ script, open, onClose }: Props) {
-  const { updateScript, dissections } = useStore()
-  const [tab, setTab]         = useState<EditorTab>('script')
-  const [title, setTitle]     = useState(script?.title ?? '')
-  const [category, setCategory] = useState(script?.category ?? '')
-  const [status, setStatus]   = useState(script?.status ?? 'draft')
-  const [visualRefs, setVisualRefs] = useState<VisualRef[]>(script?.visualRefs ?? [])
-  const [music, setMusic]     = useState<MusicEntry[]>(script?.music ?? [])
-  const [saved, setSaved]     = useState(false)
+/* ── Reference picker modal ─────────────────────────────── */
+function RefPicker({
+  references,
+  onAdd,
+  onClose,
+}: {
+  references: Reference[]
+  onAdd: (ref: Reference) => void
+  onClose: () => void
+}) {
+  const [search, setSearch] = useState('')
+  const [filterCat, setFilterCat] = useState('')
+  const [selected, setSelected] = useState<string[]>([])
 
-  // Reset when script changes
+  const categories = Array.from(new Set(references.map(r => r.category).filter(Boolean))).sort()
+
+  const filtered = references.filter(r => {
+    const matchSearch = !search || r.title.toLowerCase().includes(search.toLowerCase()) || r.note.toLowerCase().includes(search.toLowerCase())
+    const matchCat = !filterCat || r.category === filterCat
+    return matchSearch && matchCat
+  })
+
+  function toggle(id: string) {
+    setSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
+  }
+
+  function addSelected() {
+    selected.forEach(id => {
+      const ref = references.find(r => r.id === id)
+      if (ref) onAdd(ref)
+    })
+    onClose()
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      style={{ background: 'rgba(47,65,86,0.5)', backdropFilter: 'blur(4px)' }}
+      onClick={e => { if (e.target === e.currentTarget) onClose() }}
+    >
+      <motion.div
+        initial={{ y: 30, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: 30, opacity: 0 }}
+        transition={{ type: 'spring', damping: 30, stiffness: 350 }}
+        className="w-full rounded-[20px] overflow-hidden flex flex-col"
+        style={{ maxWidth: 520, maxHeight: '80vh', background: '#F5EFEB', border: '1px solid #D0DDE6', boxShadow: '0 24px 64px rgba(47,65,86,0.25)' }}
+      >
+        <div className="flex items-center justify-between px-4 py-3 flex-shrink-0" style={{ borderBottom: '1px solid #D0DDE6' }}>
+          <h3 className="font-bold text-[14px]" style={{ color: '#2F4156' }}>Add References to Script</h3>
+          <button onClick={onClose} style={{ color: '#8EA7B5' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+
+        {/* Search + filter */}
+        <div className="px-4 pt-3 pb-2 flex-shrink-0 space-y-2">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: '#FFFFFF', border: '1.5px solid #D0DDE6' }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8EA7B5" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search references…" className="flex-1 bg-transparent outline-none text-sm" style={{ color: '#2F4156' }} />
+          </div>
+          {categories.length > 0 && (
+            <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
+              <button
+                onClick={() => setFilterCat('')}
+                className="flex-shrink-0 px-3 py-1 rounded-full text-xs font-semibold transition-all"
+                style={{ background: !filterCat ? '#2F4156' : 'rgba(200,217,230,0.3)', color: !filterCat ? '#fff' : '#567C8D', border: `1px solid ${!filterCat ? '#2F4156' : '#D0DDE6'}` }}
+              >All</button>
+              {categories.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => setFilterCat(prev => prev === cat ? '' : cat)}
+                  className="flex-shrink-0 px-3 py-1 rounded-full text-xs font-semibold capitalize transition-all"
+                  style={{ background: filterCat === cat ? '#567C8D' : 'rgba(200,217,230,0.3)', color: filterCat === cat ? '#fff' : '#567C8D', border: `1px solid ${filterCat === cat ? '#567C8D' : '#D0DDE6'}` }}
+                >{cat}</button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Grid */}
+        <div className="flex-1 overflow-y-auto px-4 pb-4">
+          {filtered.length === 0 ? (
+            <div className="flex flex-col items-center py-12 gap-2">
+              <p className="text-sm font-semibold" style={{ color: '#2F4156' }}>No references yet</p>
+              <p className="text-xs" style={{ color: '#8EA7B5' }}>Add images in the References tab first</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 gap-3">
+              {filtered.map(ref => {
+                const sel = selected.includes(ref.id)
+                return (
+                  <button
+                    key={ref.id}
+                    onClick={() => toggle(ref.id)}
+                    className="rounded-[14px] overflow-hidden text-left relative transition-all"
+                    style={{
+                      border: sel ? '2px solid #567C8D' : '1px solid #D0DDE6',
+                      background: sel ? 'rgba(86,124,141,0.06)' : '#FFFFFF',
+                    }}
+                  >
+                    <div style={{ height: 80, background: '#E8F0F5', position: 'relative' }}>
+                      {ref.imageUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={ref.imageUrl} alt={ref.title} className="w-full h-full object-cover" draggable={false} />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center" style={{ color: '#8EA7B5' }}>
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        </div>
+                      )}
+                      {sel && (
+                        <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: '#567C8D' }}>
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                      )}
+                    </div>
+                    <div className="px-2 py-2">
+                      <p className="text-xs font-semibold truncate" style={{ color: '#2F4156' }}>{ref.title}</p>
+                      {ref.category && <p className="text-[10px] capitalize truncate" style={{ color: '#8EA7B5' }}>{ref.category}</p>}
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+          )}
+        </div>
+
+        <div className="flex gap-3 px-4 py-3 flex-shrink-0" style={{ borderTop: '1px solid #D0DDE6' }}>
+          <button className="cs-btn-outline flex-1 py-2.5 rounded-[10px] text-sm font-semibold" onClick={onClose}>Cancel</button>
+          <button
+            className="cs-btn flex-1 py-2.5 rounded-[10px] text-sm"
+            onClick={addSelected}
+            disabled={selected.length === 0}
+          >
+            Add {selected.length > 0 ? `${selected.length} ` : ''}selected
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  )
+}
+
+/* ── Main ScriptEditor component ────────────────────────── */
+interface Props {
+  script: Script
+  onClose?: () => void
+}
+
+export function ScriptEditor({ script, onClose }: Props) {
+  const { updateScript, references, inspirations } = useStore()
+  const [title, setTitle]       = useState(script.title)
+  const [status, setStatus]     = useState(script.status)
+  const [visualRefs, setVisualRefs] = useState<VisualRef[]>(script.visualRefs ?? [])
+  const [music, setMusic]       = useState<MusicEntry[]>(script.music ?? [])
+  const [saved, setSaved]       = useState(false)
+  const [refPickerOpen, setRefPickerOpen] = useState(false)
+
+  const inspiration = script.inspirationId
+    ? inspirations.find(i => i.id === script.inspirationId)
+    : null
+
   useEffect(() => {
-    setTitle(script?.title ?? '')
-    setCategory(script?.category ?? '')
-    setStatus(script?.status ?? 'draft')
-    setVisualRefs(script?.visualRefs ?? [])
-    setMusic(script?.music ?? [])
-  }, [script])
+    setTitle(script.title)
+    setStatus(script.status)
+    setVisualRefs(script.visualRefs ?? [])
+    setMusic(script.music ?? [])
+  }, [script.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
-      Placeholder.configure({ placeholder: 'Start writing your script here…' }),
+      StarterKit.configure({ codeBlock: { HTMLAttributes: { class: 'code-block' } } }),
+      Placeholder.configure({ placeholder: 'Start writing your script…\n\nTip: Use / to add headings, lists, and more.' }),
       Underline,
       Highlight.configure({ multicolor: false }),
-      Image,
       Link.configure({ openOnClick: false }),
     ],
-    content: (() => {
-      try { return script?.content ? JSON.parse(script.content) : '' } catch { return script?.content ?? '' }
-    })(),
+    content: (() => { try { return script.content ? JSON.parse(script.content) : '' } catch { return script.content ?? '' } })(),
     editorProps: {
-      attributes: { class: 'tiptap prose prose-invert max-w-none focus:outline-none min-h-[400px] text-sm text-ig-text' }
+      attributes: { class: 'notion-editor focus:outline-none' },
     },
-  }, [script?.id])
+  }, [script.id])
 
   const save = useCallback(() => {
-    if (!script) return
     updateScript(script.id, {
-      title,
-      category,
-      status: status as Script['status'],
+      title, status,
       content: JSON.stringify(editor?.getJSON()),
-      visualRefs,
-      music,
+      visualRefs, music,
       updatedAt: new Date().toISOString(),
     })
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
-  }, [script, title, category, status, editor, visualRefs, music, updateScript])
+  }, [script.id, title, status, editor, visualRefs, music, updateScript])
 
-  // Keyboard save
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 's') { e.preventDefault(); save() }
@@ -87,284 +243,295 @@ export function ScriptEditor({ script, open, onClose }: Props) {
     return () => window.removeEventListener('keydown', handler)
   }, [save])
 
-  const addVisualRef = () => {
-    setVisualRefs(v => [...v, { id: uuid(), imageUrl: '', timestamp: '', note: '' }])
+  function addRef(ref: Reference) {
+    const exists = visualRefs.some(r => r.referenceId === ref.id)
+    if (exists) return
+    setVisualRefs(v => [...v, {
+      id: uuid(), referenceId: ref.id,
+      imageUrl: ref.imageUrl, title: ref.title,
+      timestamp: '', note: '',
+    }])
   }
 
-  const addMusic = () => {
+  function addMusicEntry() {
     setMusic(m => [...m, { id: uuid(), title: '', type: 'bgm', timestamp: '', note: '' }])
   }
 
-  const updateRef = (id: string, fields: Partial<VisualRef>) =>
+  function updateRef(id: string, fields: Partial<VisualRef>) {
     setVisualRefs(v => v.map(r => r.id === id ? { ...r, ...fields } : r))
+  }
 
-  const updateMusic = (id: string, fields: Partial<MusicEntry>) =>
+  function updateMusicEntry(id: string, fields: Partial<MusicEntry>) {
     setMusic(m => m.map(x => x.id === id ? { ...x, ...fields } : x))
+  }
 
-  if (!script) return null
+  const statusColors = {
+    draft: { bg: 'rgba(200,217,230,0.4)', color: '#2F4156' },
+    ready: { bg: 'rgba(86,124,141,0.7)', color: '#FFFFFF' },
+    shot:  { bg: 'rgba(47,65,86,0.85)', color: '#FFFFFF' },
+  }
 
   return (
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 bg-ig-bg flex flex-col"
-        >
-          {/* Top bar */}
-          <div className="flex items-center gap-3 px-4 sm:px-6 py-3 border-b border-ig-border flex-shrink-0 bg-ig-surface">
-            <button onClick={onClose} className="p-2 rounded-lg hover:bg-ig-hover text-ig-muted hover:text-ig-text transition-colors">
-              <X size={18} />
-            </button>
+    <div className="flex flex-col h-full overflow-hidden" style={{ background: '#F5EFEB' }}>
 
-            <input
-              value={title}
-              onChange={e => setTitle(e.target.value)}
-              placeholder="Script title…"
-              className="flex-1 bg-transparent text-ig-text font-bold text-base outline-none placeholder-ig-faint"
-            />
+      {/* ── Top bar ── */}
+      <div
+        className="flex items-center gap-3 px-4 py-3 flex-shrink-0"
+        style={{ background: 'rgba(245,239,235,0.95)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #D0DDE6' }}
+      >
+        {onClose && (
+          <button onClick={onClose} style={{ color: '#8EA7B5' }} className="flex-shrink-0">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        )}
+        <input
+          value={title}
+          onChange={e => setTitle(e.target.value)}
+          placeholder="Script title…"
+          className="flex-1 bg-transparent font-bold text-base outline-none"
+          style={{ color: '#2F4156', minWidth: 0 }}
+        />
 
-            {/* Status */}
-            <div className="relative">
-              <select
-                value={status}
-                onChange={e => setStatus(e.target.value as any)}
-                className="bg-ig-card border border-ig-border text-ig-text text-xs px-3 py-1.5 rounded-lg appearance-none outline-none cursor-pointer pr-7"
-              >
-                <option value="draft">Draft</option>
-                <option value="ready">Ready to shoot</option>
-                <option value="shot">Shot</option>
-              </select>
-              <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-ig-faint pointer-events-none" />
-            </div>
-
+        {/* Status pills */}
+        <div className="flex gap-1.5 flex-shrink-0">
+          {(['draft', 'ready', 'shot'] as const).map(s => (
             <button
-              onClick={save}
-              className={clsx(
-                'flex items-center gap-2 font-semibold text-sm px-4 py-2 rounded-xl transition-all',
-                saved
-                  ? 'bg-green-600 text-white'
-                  : 'bg-ig-blue hover:bg-ig-blue-hover text-white'
-              )}
+              key={s}
+              onClick={() => setStatus(s)}
+              className="px-3 py-1.5 rounded-full text-xs font-semibold capitalize transition-all"
+              style={{
+                background: status === s ? statusColors[s].bg : 'rgba(200,217,230,0.2)',
+                color: status === s ? statusColors[s].color : '#8EA7B5',
+                border: `1px solid ${status === s ? 'transparent' : '#D0DDE6'}`,
+              }}
             >
-              {saved ? <><CheckCircle2 size={15} /> Saved</> : <><Save size={15} /> Save</>}
+              {s === 'ready' ? 'Ready' : s}
+            </button>
+          ))}
+        </div>
+
+        <button
+          onClick={save}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex-shrink-0"
+          style={{
+            background: saved ? '#3a7d44' : '#2F4156',
+            color: '#FFFFFF',
+          }}
+        >
+          {saved ? (
+            <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg> Saved</>
+          ) : (
+            <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save</>
+          )}
+        </button>
+      </div>
+
+      {/* Inspiration tag */}
+      {inspiration && (
+        <div className="px-4 py-2 flex-shrink-0 flex items-center gap-2" style={{ borderBottom: '1px solid #D0DDE6', background: 'rgba(200,217,230,0.12)' }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#567C8D" strokeWidth="2" strokeLinecap="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 015 11.95V17a1 1 0 01-1 1H8a1 1 0 01-1-1v-3.05A7 7 0 0112 2z"/></svg>
+          <span className="text-xs" style={{ color: '#567C8D' }}>Inspired by:</span>
+          <a href={inspiration.url} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold truncate hover:underline" style={{ color: '#2F4156', maxWidth: 300 }}>
+            {inspiration.url}
+          </a>
+          <span className="text-xs capitalize" style={{ color: '#8EA7B5' }}>({inspiration.category})</span>
+        </div>
+      )}
+
+      {/* ── TipTap Toolbar ── */}
+      <div
+        className="flex items-center flex-wrap gap-0.5 px-4 py-2 flex-shrink-0"
+        style={{ background: '#FFFFFF', borderBottom: '1px solid #D0DDE6' }}
+      >
+        {/* Text type */}
+        <select
+          onChange={e => {
+            const v = e.target.value
+            if (v === 'p') editor?.chain().focus().setParagraph().run()
+            else editor?.chain().focus().toggleHeading({ level: parseInt(v) as 1|2|3 }).run()
+          }}
+          value={
+            editor?.isActive('heading', { level: 1 }) ? '1' :
+            editor?.isActive('heading', { level: 2 }) ? '2' :
+            editor?.isActive('heading', { level: 3 }) ? '3' : 'p'
+          }
+          className="text-xs rounded-lg px-2 py-1 outline-none transition-colors mr-1"
+          style={{ border: '1px solid #D0DDE6', color: '#2F4156', background: '#F5EFEB', height: 28 }}
+        >
+          <option value="p">Text</option>
+          <option value="1">Heading 1</option>
+          <option value="2">Heading 2</option>
+          <option value="3">Heading 3</option>
+        </select>
+
+        <Sep />
+
+        <TB active={editor?.isActive('bold')} onMouseDown={() => editor?.chain().focus().toggleBold().run()} title="Bold (⌘B)"><b>B</b></TB>
+        <TB active={editor?.isActive('italic')} onMouseDown={() => editor?.chain().focus().toggleItalic().run()} title="Italic (⌘I)"><i>I</i></TB>
+        <TB active={editor?.isActive('underline')} onMouseDown={() => editor?.chain().focus().toggleUnderline().run()} title="Underline (⌘U)"><u>U</u></TB>
+        <TB active={editor?.isActive('strike')} onMouseDown={() => editor?.chain().focus().toggleStrike().run()} title="Strikethrough">
+          <s>S</s>
+        </TB>
+        <TB active={editor?.isActive('highlight')} onMouseDown={() => editor?.chain().focus().toggleHighlight().run()} title="Highlight">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </TB>
+
+        <Sep />
+
+        <TB active={editor?.isActive('bulletList')} onMouseDown={() => editor?.chain().focus().toggleBulletList().run()} title="Bullet list">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4" cy="6" r="1.5" fill="currentColor"/><circle cx="4" cy="12" r="1.5" fill="currentColor"/><circle cx="4" cy="18" r="1.5" fill="currentColor"/></svg>
+        </TB>
+        <TB active={editor?.isActive('orderedList')} onMouseDown={() => editor?.chain().focus().toggleOrderedList().run()} title="Numbered list">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+        </TB>
+
+        <Sep />
+
+        <TB active={editor?.isActive('blockquote')} onMouseDown={() => editor?.chain().focus().toggleBlockquote().run()} title="Quote">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
+        </TB>
+        <TB active={editor?.isActive('code')} onMouseDown={() => editor?.chain().focus().toggleCode().run()} title="Inline code">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        </TB>
+        <TB active={editor?.isActive('codeBlock')} onMouseDown={() => editor?.chain().focus().toggleCodeBlock().run()} title="Code block">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><polyline points="8 21 12 17 16 21"/></svg>
+        </TB>
+        <TB active={false} onMouseDown={() => editor?.chain().focus().setHorizontalRule().run()} title="Divider">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="2" y1="12" x2="22" y2="12"/></svg>
+        </TB>
+
+        <Sep />
+
+        <TB active={false} onMouseDown={() => editor?.chain().focus().undo().run()} title="Undo (⌘Z)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 00-4-4H4"/></svg>
+        </TB>
+        <TB active={false} onMouseDown={() => editor?.chain().focus().redo().run()} title="Redo (⌘⇧Z)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="15 14 20 9 15 4"/><path d="M4 20v-7a4 4 0 014-4h12"/></svg>
+        </TB>
+      </div>
+
+      {/* ── Editor body ── */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-2xl mx-auto px-6 py-6">
+          <EditorContent editor={editor} />
+        </div>
+      </div>
+
+      {/* ── Music ── */}
+      <div className="flex-shrink-0" style={{ borderTop: '1px solid #D0DDE6' }}>
+        <div className="px-4 py-3">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#8EA7B5' }}>
+              Music / SFX
+            </span>
+            <button
+              onClick={addMusicEntry}
+              className="text-xs font-semibold flex items-center gap-1"
+              style={{ color: '#567C8D' }}
+            >
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add track
+            </button>
+          </div>
+          {music.length === 0 ? (
+            <p className="text-xs" style={{ color: '#A0B8C6' }}>No music added — click + Add track</p>
+          ) : (
+            <div className="space-y-2">
+              {music.map(m => (
+                <div key={m.id} className="flex items-center gap-2">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8EA7B5" strokeWidth="2" strokeLinecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                  <input value={m.title} onChange={e => updateMusicEntry(m.id, { title: e.target.value })} placeholder="Track name…" className="cs-input flex-1 text-xs py-1.5" />
+                  <select value={m.type} onChange={e => updateMusicEntry(m.id, { type: e.target.value as any })} className="cs-input text-xs py-1.5">
+                    <option value="bgm">BGM</option><option value="sfx">SFX</option><option value="transition">Transition</option>
+                  </select>
+                  <input value={m.timestamp ?? ''} onChange={e => updateMusicEntry(m.id, { timestamp: e.target.value })} placeholder="0:00" className="cs-input w-14 text-xs py-1.5 text-center" />
+                  <button onClick={() => setMusic(x => x.filter(t => t.id !== m.id))} style={{ color: '#8EA7B5' }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── Visual References ── */}
+      <div className="flex-shrink-0" style={{ borderTop: '1px solid #D0DDE6' }}>
+        <div className="px-4 py-3">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#8EA7B5' }}>
+              Visual References {visualRefs.length > 0 && `(${visualRefs.length})`}
+            </span>
+            <button
+              onClick={() => setRefPickerOpen(true)}
+              className="text-xs font-semibold flex items-center gap-1"
+              style={{ color: '#567C8D' }}
+            >
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add reference
             </button>
           </div>
 
-          <div className="flex flex-1 overflow-hidden">
-            {/* Left: tabs + content */}
-            <div className="flex-1 flex flex-col overflow-hidden">
-              {/* Tab bar */}
-              <div className="flex border-b border-ig-border px-4 sm:px-6 flex-shrink-0">
-                {[
-                  { id: 'script', label: 'Script',   icon: null },
-                  { id: 'visual', label: `Visual Refs ${visualRefs.length ? `(${visualRefs.length})` : ''}`, icon: Camera },
-                  { id: 'music',  label: `Music / SFX ${music.length ? `(${music.length})` : ''}`, icon: Music },
-                ].map(t => (
-                  <button
-                    key={t.id}
-                    onClick={() => setTab(t.id as EditorTab)}
-                    className={`px-4 py-3 text-sm font-semibold transition-colors border-b-2 -mb-px flex items-center gap-2 ${
-                      tab === t.id ? 'border-ig-text text-ig-text' : 'border-transparent text-ig-faint hover:text-ig-muted'
-                    }`}
-                  >
-                    {t.icon && <t.icon size={13} />}
-                    {t.label}
+          {visualRefs.length === 0 ? (
+            <button
+              onClick={() => setRefPickerOpen(true)}
+              className="w-full py-3 rounded-xl text-xs flex items-center justify-center gap-2 transition-all"
+              style={{ border: '1.5px dashed #D0DDE6', color: '#8EA7B5' }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              Pick references from library
+            </button>
+          ) : (
+            <div className="space-y-2 max-h-48 overflow-y-auto">
+              {visualRefs.map(ref => (
+                <div key={ref.id} className="flex items-center gap-2 p-2 rounded-xl" style={{ background: '#FFFFFF', border: '1px solid #D0DDE6' }}>
+                  <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0" style={{ background: '#E8F0F5' }}>
+                    {ref.imageUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={ref.imageUrl} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8EA7B5" strokeWidth="1.5" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold truncate" style={{ color: '#2F4156' }}>{ref.title || 'Reference'}</p>
+                    <div className="flex gap-2 mt-1">
+                      <input
+                        value={ref.timestamp}
+                        onChange={e => updateRef(ref.id, { timestamp: e.target.value })}
+                        placeholder="0:00"
+                        className="cs-input w-14 text-xs py-0.5 text-center"
+                      />
+                      <input
+                        value={ref.note}
+                        onChange={e => updateRef(ref.id, { note: e.target.value })}
+                        placeholder="Shot note…"
+                        className="cs-input flex-1 text-xs py-0.5"
+                      />
+                    </div>
+                  </div>
+                  <button onClick={() => setVisualRefs(v => v.filter(r => r.id !== ref.id))} style={{ color: '#8EA7B5', flexShrink: 0 }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                   </button>
-                ))}
-              </div>
-
-              {/* Script tab */}
-              {tab === 'script' && (
-                <div className="flex-1 overflow-hidden flex flex-col">
-                  {/* Toolbar */}
-                  <div className="flex items-center gap-0.5 px-4 sm:px-6 py-2 border-b border-ig-border flex-shrink-0 flex-wrap">
-                    {[
-                      { icon: Bold,         action: () => editor?.chain().focus().toggleBold().run(),          active: editor?.isActive('bold') },
-                      { icon: Italic,       action: () => editor?.chain().focus().toggleItalic().run(),        active: editor?.isActive('italic') },
-                      { icon: UnderlineIcon,action: () => editor?.chain().focus().toggleUnderline().run(),     active: editor?.isActive('underline') },
-                      { icon: Highlighter,  action: () => editor?.chain().focus().toggleHighlight().run(),     active: editor?.isActive('highlight') },
-                      { icon: Heading2,     action: () => editor?.chain().focus().toggleHeading({ level: 2 }).run(), active: editor?.isActive('heading', { level: 2 }) },
-                      { icon: Heading3,     action: () => editor?.chain().focus().toggleHeading({ level: 3 }).run(), active: editor?.isActive('heading', { level: 3 }) },
-                      { icon: List,         action: () => editor?.chain().focus().toggleBulletList().run(),     active: editor?.isActive('bulletList') },
-                      { icon: ListOrdered,  action: () => editor?.chain().focus().toggleOrderedList().run(),   active: editor?.isActive('orderedList') },
-                      { icon: Quote,        action: () => editor?.chain().focus().toggleBlockquote().run(),    active: editor?.isActive('blockquote') },
-                    ].map(({ icon: Icon, action, active }, i) => (
-                      <button
-                        key={i}
-                        onMouseDown={e => { e.preventDefault(); action() }}
-                        className={clsx(
-                          'p-2 rounded-lg transition-colors',
-                          active ? 'bg-white/15 text-white' : 'text-ig-muted hover:text-ig-text hover:bg-ig-hover'
-                        )}
-                      >
-                        <Icon size={15} />
-                      </button>
-                    ))}
-                  </div>
-                  <div className="flex-1 overflow-y-auto px-4 sm:px-8 py-6">
-                    <EditorContent editor={editor} />
-                  </div>
                 </div>
-              )}
-
-              {/* Visual refs tab */}
-              {tab === 'visual' && (
-                <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm text-ig-muted">Add frame images with timestamps and shot notes.</p>
-                    <button
-                      onClick={addVisualRef}
-                      className="flex items-center gap-2 bg-ig-blue hover:bg-ig-blue-hover text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors"
-                    >
-                      <Plus size={13} /> Add Reference
-                    </button>
-                  </div>
-
-                  {visualRefs.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-20 text-ig-faint">
-                      <Camera size={40} className="mb-3 opacity-30" />
-                      <p className="text-sm">No visual references yet</p>
-                      <p className="text-xs mt-1 text-ig-faint">Add frame images from your dissections or upload your own</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {visualRefs.map((ref, i) => (
-                        <div key={ref.id} className="bg-ig-card border border-ig-border rounded-xl p-4 space-y-3">
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-ig-muted">REF #{i + 1}</span>
-                            <button onClick={() => setVisualRefs(v => v.filter(r => r.id !== ref.id))} className="text-red-400 hover:text-red-300 transition-colors">
-                              <Trash2 size={14} />
-                            </button>
-                          </div>
-
-                          {/* Image upload / URL */}
-                          <div className="flex gap-3">
-                            <div className="w-24 h-24 rounded-lg bg-ig-border border border-ig-border flex-shrink-0 overflow-hidden relative">
-                              {ref.imageUrl ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img src={ref.imageUrl} alt="" className="w-full h-full object-cover" />
-                              ) : (
-                                <label className="flex flex-col items-center justify-center h-full cursor-pointer hover:bg-white/5 transition-colors gap-1">
-                                  <ImageIcon size={18} className="text-ig-faint" />
-                                  <span className="text-[9px] text-ig-faint">Upload</span>
-                                  <input type="file" accept="image/*" className="sr-only"
-                                    onChange={async e => {
-                                      const file = e.target.files?.[0]
-                                      if (!file) return
-                                      const form = new FormData()
-                                      form.append('file', file)
-                                      const res = await fetch('/api/frames/upload', { method: 'POST', body: form })
-                                      const { url } = await res.json()
-                                      updateRef(ref.id, { imageUrl: url })
-                                    }}
-                                  />
-                                </label>
-                              )}
-                            </div>
-                            <div className="flex-1 space-y-2">
-                              <div className="flex items-center gap-2 bg-ig-border rounded-lg px-3 py-2">
-                                <Clock size={13} className="text-ig-faint" />
-                                <input
-                                  value={ref.timestamp}
-                                  onChange={e => updateRef(ref.id, { timestamp: e.target.value })}
-                                  placeholder="Timestamp e.g. 0:04"
-                                  className="flex-1 bg-transparent text-sm text-ig-text placeholder-ig-faint outline-none"
-                                />
-                              </div>
-                              <div className="flex items-start gap-2 bg-ig-border rounded-lg px-3 py-2">
-                                <MessageSquare size={13} className="text-ig-faint mt-0.5" />
-                                <textarea
-                                  value={ref.note}
-                                  onChange={e => updateRef(ref.id, { note: e.target.value })}
-                                  placeholder="Shot note: how to use this frame…"
-                                  rows={2}
-                                  className="flex-1 bg-transparent text-sm text-ig-text placeholder-ig-faint outline-none resize-none"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Music tab */}
-              {tab === 'music' && (
-                <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm text-ig-muted">Add background music, SFX, or transition audio.</p>
-                    <button
-                      onClick={addMusic}
-                      className="flex items-center gap-2 bg-ig-blue hover:bg-ig-blue-hover text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors"
-                    >
-                      <Plus size={13} /> Add Track
-                    </button>
-                  </div>
-
-                  {music.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-20 text-ig-faint">
-                      <Music size={40} className="mb-3 opacity-30" />
-                      <p className="text-sm">No music or SFX added</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      {music.map((m, i) => (
-                        <div key={m.id} className="bg-ig-card border border-ig-border rounded-xl p-4 space-y-3">
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-ig-muted">TRACK #{i + 1}</span>
-                            <button onClick={() => setMusic(x => x.filter(t => t.id !== m.id))} className="text-red-400 hover:text-red-300 transition-colors">
-                              <Trash2 size={14} />
-                            </button>
-                          </div>
-                          <div className="grid grid-cols-2 gap-2">
-                            <input
-                              value={m.title}
-                              onChange={e => updateMusic(m.id, { title: e.target.value })}
-                              placeholder="Track / SFX name"
-                              className="col-span-2 bg-ig-border rounded-lg px-3 py-2 text-sm text-ig-text placeholder-ig-faint outline-none"
-                            />
-                            <input
-                              value={m.artist ?? ''}
-                              onChange={e => updateMusic(m.id, { artist: e.target.value })}
-                              placeholder="Artist (optional)"
-                              className="bg-ig-border rounded-lg px-3 py-2 text-sm text-ig-text placeholder-ig-faint outline-none"
-                            />
-                            <select
-                              value={m.type}
-                              onChange={e => updateMusic(m.id, { type: e.target.value as any })}
-                              className="bg-ig-border rounded-lg px-3 py-2 text-sm text-ig-text outline-none appearance-none cursor-pointer"
-                            >
-                              <option value="bgm">Background Music</option>
-                              <option value="sfx">SFX</option>
-                              <option value="transition">Transition</option>
-                            </select>
-                            <input
-                              value={m.timestamp ?? ''}
-                              onChange={e => updateMusic(m.id, { timestamp: e.target.value })}
-                              placeholder="Timestamp"
-                              className="bg-ig-border rounded-lg px-3 py-2 text-sm text-ig-text placeholder-ig-faint outline-none"
-                            />
-                            <input
-                              value={m.note ?? ''}
-                              onChange={e => updateMusic(m.id, { note: e.target.value })}
-                              placeholder="Note"
-                              className="bg-ig-border rounded-lg px-3 py-2 text-sm text-ig-text placeholder-ig-faint outline-none"
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
+              ))}
             </div>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+          )}
+        </div>
+      </div>
+
+      {/* Reference picker modal */}
+      <AnimatePresence>
+        {refPickerOpen && (
+          <RefPicker
+            references={references}
+            onAdd={addRef}
+            onClose={() => setRefPickerOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+    </div>
   )
 }

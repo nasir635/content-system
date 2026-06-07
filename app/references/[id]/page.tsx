@@ -42,7 +42,7 @@ export default function ReferenceDetailPage() {
     )
   }
 
-  const date = new Date(item.updatedAt).toLocaleDateString('en-US', {
+  const date = new Date(item.updatedAt ?? item.createdAt).toLocaleDateString('en-US', {
     weekday: 'long', month: 'long', day: 'numeric', year: 'numeric',
   })
 
