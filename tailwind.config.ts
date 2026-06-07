@@ -9,29 +9,35 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ig: {
-          bg:       '#FAFAFA',
-          white:    '#FFFFFF',
-          border:   '#DBDBDB',
-          text:     '#262626',
-          muted:    '#8E8E8E',
-          faint:    '#C7C7C7',
-          blue:     '#0095F6',
-          'blue-dk':'#00376B',
-          red:      '#ED4956',
-          hover:    '#F2F2F2',
-          card:     '#FFFFFF',
-          surface:  '#FAFAFA',
+        cs: {
+          navy:       '#2F4156',
+          teal:       '#567C8D',
+          sky:        '#C8D9E6',
+          beige:      '#F5EFEB',
+          white:      '#FFFFFF',
+          'sky-light':'#E8F0F5',
+          'navy-dk':  '#1a2e3d',
+          'teal-lt':  '#7A9BAD',
+          border:     '#D0DDE6',
+          muted:      '#8EA7B5',
+          card:       '#FFFFFF',
         },
       },
       fontFamily: {
-        sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+        sans: ['-apple-system', 'BlinkMacSystemFont', '"Inter"', '"Segoe UI"', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+      },
+      borderRadius: {
+        card: '20px',
+        pill: '9999px',
+      },
+      boxShadow: {
+        card:  '0 4px 24px rgba(47,65,86,0.10)',
+        float: '0 8px 40px rgba(47,65,86,0.16)',
       },
       backgroundImage: {
-        'ig-gradient': 'linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)',
+        'cs-gradient':      'linear-gradient(135deg, #C8D9E6 0%, #F5EFEB 100%)',
+        'cs-card-gradient': 'linear-gradient(160deg, #EEF4F8 0%, #F5EFEB 100%)',
       },
-      borderRadius: { ig: '8px' },
-      maxWidth: { 'ig-feed': '614px', 'ig-layout': '935px' },
     },
   },
   plugins: [],

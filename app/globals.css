@@ -5,119 +5,124 @@
 * { box-sizing: border-box; padding: 0; margin: 0; }
 
 html, body {
-  background: #FAFAFA;
-  color: #262626;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background: #F5EFEB;
+  color: #2F4156;
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
   font-size: 14px;
-  max-width: 100vw;
   overflow-x: hidden;
 }
 
-/* Instagram-style thin scrollbar */
-::-webkit-scrollbar { width: 0px; height: 0px; }
+::-webkit-scrollbar { width: 0; height: 0; }
 
-/* Story gradient ring */
-.story-ring {
-  background: linear-gradient(white, white) padding-box,
-    linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888) border-box;
-  border: 2px solid transparent;
+/* Glassmorphism card overlay (image 3 style bottom panel) */
+.glass-overlay {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255,255,255,0.5);
+  border-radius: 14px;
 }
 
-/* Gradient text for logo */
-.ig-logo {
-  background: linear-gradient(45deg, #833AB4, #FD1D1D, #F77737);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-family: 'Billabong', 'Grand Hotel', cursive, sans-serif;
-  font-size: 1.6rem;
-  line-height: 1;
+/* Floating glass card (image 2 style) */
+.glass-card {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(200,217,230,0.5);
+  border-radius: 20px;
+  box-shadow: 0 4px 24px rgba(47,65,86,0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.glass-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 40px rgba(47,65,86,0.14);
 }
 
-/* Instagram blue button */
-.ig-btn-blue {
-  background: #0095F6;
-  color: white;
-  font-weight: 600;
-  font-size: 14px;
-  border-radius: 8px;
-  padding: 7px 16px;
-  transition: background 0.15s;
+/* Stat card */
+.stat-card {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #D0DDE6;
+  padding: 20px;
+  box-shadow: 0 2px 12px rgba(47,65,86,0.06);
 }
-.ig-btn-blue:hover { background: #1877F2; }
-.ig-btn-blue:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* Ghost button */
-.ig-btn-ghost {
-  background: transparent;
-  border: 1px solid #DBDBDB;
-  color: #262626;
-  font-weight: 600;
-  font-size: 14px;
-  border-radius: 8px;
-  padding: 7px 16px;
-  transition: background 0.15s;
-}
-.ig-btn-ghost:hover { background: #F2F2F2; }
-
-/* Explore grid: no border-radius on thumbnails */
-.explore-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 3px;
-}
-.explore-grid > * { aspect-ratio: 1; }
-
-/* Post hover overlay */
-.post-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.3);
+/* Pinterest masonry */
+.my-masonry-grid {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 24px;
-  opacity: 0;
-  transition: opacity 0.15s;
-}
-.post-overlay .stat {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: white;
-  font-weight: 700;
-  font-size: 16px;
-}
-.group:hover .post-overlay { opacity: 1; }
-
-/* Input style */
-.ig-input {
+  gap: 16px;
   width: 100%;
-  background: #FAFAFA;
-  border: 1px solid #DBDBDB;
-  border-radius: 3px;
-  padding: 9px 8px;
+}
+.my-masonry-grid-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Chip/badge */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(200,217,230,0.4);
+  color: #2F4156;
+  border: 1px solid rgba(200,217,230,0.6);
+}
+
+/* Input */
+.cs-input {
+  width: 100%;
+  background: #F5EFEB;
+  border: 1.5px solid #C8D9E6;
+  border-radius: 10px;
+  padding: 10px 14px;
   font-size: 14px;
-  color: #262626;
+  color: #2F4156;
   outline: none;
   transition: border-color 0.15s;
 }
-.ig-input:focus { border-color: #A8A8A8; }
+.cs-input:focus { border-color: #567C8D; }
+
+/* Button primary */
+.cs-btn {
+  background: #2F4156;
+  color: white;
+  font-weight: 600;
+  font-size: 13px;
+  border-radius: 10px;
+  padding: 9px 18px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+.cs-btn:hover { background: #567C8D; }
+.cs-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* Button secondary */
+.cs-btn-outline {
+  background: transparent;
+  color: #2F4156;
+  font-weight: 600;
+  font-size: 13px;
+  border-radius: 10px;
+  padding: 9px 18px;
+  border: 1.5px solid #C8D9E6;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.cs-btn-outline:hover { background: #E8F0F5; }
 
 /* Tiptap */
-.tiptap { outline: none; min-height: 400px; }
+.tiptap { outline: none; min-height: 350px; color: #2F4156; }
 .tiptap p.is-editor-empty:first-child::before {
-  color: #8E8E8E;
-  content: attr(data-placeholder);
-  float: left;
-  height: 0;
-  pointer-events: none;
+  color: #8EA7B5; content: attr(data-placeholder);
+  float: left; height: 0; pointer-events: none;
 }
-.tiptap h1 { font-size: 1.6rem; font-weight: 700; margin: 1rem 0 0.5rem; }
-.tiptap h2 { font-size: 1.3rem; font-weight: 600; margin: 0.8rem 0 0.4rem; }
+.tiptap h1 { font-size: 1.5rem; font-weight: 700; margin: 1rem 0 0.5rem; }
+.tiptap h2 { font-size: 1.2rem; font-weight: 600; margin: 0.8rem 0 0.4rem; }
 .tiptap strong { font-weight: 700; }
-.tiptap em { font-style: italic; }
-.tiptap u { text-decoration: underline; }
-.tiptap ul, .tiptap ol { padding-left: 1.5rem; margin: 0.5rem 0; }
-.tiptap blockquote { border-left: 3px solid #DBDBDB; padding-left: 1rem; color: #8E8E8E; margin: 1rem 0; }
-.tiptap a { color: #00376B; }
+.tiptap blockquote { border-left: 3px solid #C8D9E6; padding-left: 1rem; color: #567C8D; margin: 1rem 0; }
+.tiptap a { color: #567C8D; }

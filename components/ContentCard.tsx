@@ -1,6 +1,4 @@
 'use client'
-import { useState } from 'react'
-import { Trash2, ExternalLink, MoreHorizontal } from 'lucide-react'
 import type { Dissection } from '@/lib/types'
 
 interface Props {
@@ -9,90 +7,136 @@ interface Props {
   onDelete?: (id: string) => void
 }
 
+const CATEGORY_GRADIENTS: Record<string, string> = {
+  'content creation tips':  'linear-gradient(135deg, #567C8D 0%, #C8D9E6 100%)',
+  'business tips':          'linear-gradient(135deg, #2F4156 0%, #567C8D 100%)',
+  'business resources':     'linear-gradient(135deg, #3d5a73 0%, #7A9BAD 100%)',
+  'ai content to recreate': 'linear-gradient(135deg, #4a6a7d 0%, #C8D9E6 100%)',
+  'cinematics references':  'linear-gradient(135deg, #1a2e3d 0%, #2F4156 100%)',
+  'art and culture recreate':'linear-gradient(135deg, #567C8D 0%, #E8F0F5 100%)',
+  'personal life recreate': 'linear-gradient(135deg, #7A9BAD 0%, #F5EFEB 100%)',
+  'random easy recreate':   'linear-gradient(135deg, #C8D9E6 0%, #F5EFEB 100%)',
+  'best people for faasle': 'linear-gradient(135deg, #2F4156 0%, #C8D9E6 100%)',
+  'claude for myself':      'linear-gradient(135deg, #567C8D 0%, #2F4156 100%)',
+}
+
+function getFallbackGradient(item: Dissection): string {
+  return CATEGORY_GRADIENTS[item.category] ?? 'linear-gradient(135deg, #C8D9E6 0%, #F5EFEB 100%)'
+}
+
 export function ContentCard({ item, onClick, onDelete }: Props) {
-  const [menuOpen, setMenuOpen] = useState(false)
+  const date = new Date(item.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 
   return (
     <div
-      className="relative group cursor-pointer overflow-hidden bg-white"
-      style={{ aspectRatio: '1' }}
+      className="relative cursor-pointer group rounded-[20px] overflow-hidden"
+      style={{
+        boxShadow: '0 4px 24px rgba(47,65,86,0.12)',
+        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+      }}
       onClick={() => onClick(item)}
+      onMouseEnter={e => {
+        const el = e.currentTarget as HTMLElement
+        el.style.transform = 'scale(1.02)'
+        el.style.boxShadow = '0 8px 40px rgba(47,65,86,0.20)'
+      }}
+      onMouseLeave={e => {
+        const el = e.currentTarget as HTMLElement
+        el.style.transform = 'scale(1)'
+        el.style.boxShadow = '0 4px 24px rgba(47,65,86,0.12)'
+      }}
     >
-      {/* Thumbnail */}
-      {item.thumbnail ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={item.thumbnail}
-          alt={item.topic}
-          className="w-full h-full object-cover"
-          draggable={false}
-        />
-      ) : (
-        <div
-          className="w-full h-full flex items-center justify-center text-white font-bold text-2xl"
-          style={{ background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F77737)' }}
-        >
-          {item.topic.charAt(0).toUpperCase()}
-        </div>
-      )}
+      {/* Full-bleed image / gradient */}
+      <div className="w-full" style={{ minHeight: '200px' }}>
+        {item.thumbnail ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={item.thumbnail}
+            alt={item.topic}
+            className="w-full h-full object-cover"
+            style={{ display: 'block', minHeight: '200px' }}
+            draggable={false}
+          />
+        ) : (
+          <div
+            className="w-full flex items-center justify-center text-white font-bold text-3xl"
+            style={{
+              background: getFallbackGradient(item),
+              minHeight: '200px',
+            }}
+          >
+            {item.topic.charAt(0).toUpperCase()}
+          </div>
+        )}
+      </div>
 
-      {/* Reel indicator (top right) */}
+      {/* Reel play icon — top right */}
       {item.type === 'reel' && (
-        <div className="absolute top-2 right-2">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+        <div
+          className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center"
+          style={{ background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(8px)' }}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="#2F4156">
             <polygon points="5 3 19 12 5 21 5 3"/>
           </svg>
         </div>
       )}
 
-      {/* Hover overlay — like Instagram Explore */}
-      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-150 flex items-center justify-center gap-5">
-        <div className="flex items-center gap-1.5 text-white font-bold text-sm">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
-            <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
-          </svg>
-          <span>{item.angles?.length ?? 0}</span>
-        </div>
-        <div className="flex items-center gap-1.5 text-white font-bold text-sm">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
-            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-          </svg>
-          <span>{item.topic.split(' ').length}</span>
-        </div>
-      </div>
-
-      {/* 3-dot menu */}
+      {/* Delete button — top left, on hover */}
       {onDelete && (
         <button
-          className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity z-10
-            w-7 h-7 rounded-full bg-black/60 flex items-center justify-center"
-          onClick={e => { e.stopPropagation(); setMenuOpen(v => !v) }}
+          className="absolute top-3 left-3 w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
+          style={{ background: 'rgba(47,65,86,0.75)', backdropFilter: 'blur(8px)' }}
+          onClick={e => { e.stopPropagation(); onDelete(item.id) }}
+          title="Delete"
         >
-          <MoreHorizontal size={14} color="white" />
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+            <path d="M10 11v6M14 11v6"/>
+          </svg>
         </button>
       )}
 
-      {menuOpen && (
-        <div
-          className="absolute top-9 left-2 z-20 bg-white border border-ig-border rounded-lg shadow-lg py-1 min-w-[140px]"
-          onClick={e => e.stopPropagation()}
+      {/* Glass overlay at bottom */}
+      <div
+        className="absolute bottom-2 left-2 right-2 px-3 py-3"
+        style={{
+          background: 'rgba(255,255,255,0.82)',
+          backdropFilter: 'blur(14px)',
+          WebkitBackdropFilter: 'blur(14px)',
+          borderRadius: '14px',
+          border: '1px solid rgba(255,255,255,0.5)',
+        }}
+      >
+        {/* Title */}
+        <p
+          className="font-bold leading-snug mb-1.5"
+          style={{
+            fontSize: '14px',
+            color: '#2F4156',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+          }}
         >
-          <a
-            href={item.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-3 py-2 text-sm text-ig-text hover:bg-ig-hover"
+          {item.topic}
+        </p>
+
+        {/* Category chip */}
+        <span className="chip mb-2 capitalize">{item.category}</span>
+
+        {/* Bottom row */}
+        <div className="flex items-center justify-between mt-1.5">
+          <span style={{ fontSize: '11px', color: '#8EA7B5' }}>{date}</span>
+          <span
+            style={{ fontSize: '12px', color: '#567C8D', fontWeight: 600 }}
           >
-            <ExternalLink size={14} /> View original
-          </a>
-          <button
-            className="flex items-center gap-2 px-3 py-2 text-sm text-red-500 hover:bg-ig-hover w-full text-left"
-            onClick={() => onDelete!(item.id)}
-          >
-            <Trash2 size={14} /> Delete
-          </button>
+            View →
+          </span>
         </div>
-      )}
+      </div>
     </div>
   )
 }

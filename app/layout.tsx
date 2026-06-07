@@ -10,10 +10,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="bg-ig-bg text-ig-text">
+      <body className="bg-cs-beige text-cs-navy">
         <Sidebar />
-        {/* Desktop: offset for left sidebar. Mobile: offset bottom for nav */}
-        <main className="md:ml-[72px] xl:ml-[244px] pb-[49px] md:pb-0 min-h-screen">
+        <main className="md:ml-[72px] xl:ml-[240px] pb-[56px] md:pb-0 min-h-screen">
           {children}
         </main>
       </body>
