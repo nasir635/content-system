@@ -55,7 +55,7 @@ export default function DissectionDetailPage() {
   })
 
   function copyScript() {
-    if (item.scriptSuggestion) {
+    if (item?.scriptSuggestion) {
       navigator.clipboard.writeText(item.scriptSuggestion)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
@@ -63,7 +63,7 @@ export default function DissectionDetailPage() {
   }
 
   function copyTranscript() {
-    navigator.clipboard.writeText(item.transcript)
+    navigator.clipboard.writeText(item?.transcript ?? '')
   }
 
   return (

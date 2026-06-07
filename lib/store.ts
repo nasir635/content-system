@@ -1,11 +1,12 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { Dissection, Script, Streamline } from './types'
+import type { Dissection, Script, Streamline, Reference } from './types'
 
 interface AppState {
   dissections: Dissection[]
   scripts: Script[]
   streamlines: Streamline[]
+  references: Reference[]
 
   addDissection: (d: Dissection) => void
   updateDissection: (id: string, d: Partial<Dissection>) => void
@@ -18,6 +19,10 @@ interface AppState {
   addStreamline: (s: Streamline) => void
   updateStreamline: (id: string, s: Partial<Streamline>) => void
   deleteStreamline: (id: string) => void
+
+  addReference: (r: Reference) => void
+  updateReference: (id: string, r: Partial<Reference>) => void
+  deleteReference: (id: string) => void
 }
 
 export const useStore = create<AppState>()(
@@ -26,6 +31,7 @@ export const useStore = create<AppState>()(
       dissections: [],
       scripts: [],
       streamlines: [],
+      references: [],
 
       addDissection: (d) => set(s => ({ dissections: [d, ...s.dissections] })),
       updateDissection: (id, d) => set(s => ({
@@ -49,6 +55,14 @@ export const useStore = create<AppState>()(
       })),
       deleteStreamline: (id) => set(s => ({
         streamlines: s.streamlines.filter(x => x.id !== id)
+      })),
+
+      addReference: (r) => set(s => ({ references: [r, ...s.references] })),
+      updateReference: (id, r) => set(s => ({
+        references: s.references.map(x => x.id === id ? { ...x, ...r } : x)
+      })),
+      deleteReference: (id) => set(s => ({
+        references: s.references.filter(x => x.id !== id)
       })),
     }),
     { name: 'content-system-store' }

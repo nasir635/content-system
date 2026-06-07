@@ -32,6 +32,14 @@ const IconZap = ({ active }: { active: boolean }) => (
   </svg>
 )
 
+const IconRef = ({ active }: { active: boolean }) => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={active ? 2.5 : 2} strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="2"/>
+    <circle cx="8.5" cy="8.5" r="1.5"/>
+    <polyline points="21 15 16 10 5 21"/>
+  </svg>
+)
+
 const IconSettings = ({ active }: { active: boolean }) => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={active ? 2.5 : 2} strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="3"/>
@@ -43,6 +51,7 @@ const NAV = [
   { href: '/',            label: 'Home',        Icon: IconHome     },
   { href: '/dissections', label: 'Dissections', Icon: IconDissect  },
   { href: '/scripts',     label: 'Scripts',     Icon: IconScript   },
+  { href: '/references',  label: 'References',  Icon: IconRef      },
   { href: '/streamlines', label: 'Streamlines', Icon: IconZap      },
   { href: '/settings',    label: 'Settings',    Icon: IconSettings },
 ]

@@ -101,3 +101,15 @@ export interface Streamline {
   wordsToAvoid: string
   createdAt: string
 }
+
+// ── REFERENCE LIBRARY ────────────────────────────────────────
+export interface Reference {
+  id: string
+  title: string
+  imageUrl: string        // Vercel Blob URL or pasted URL
+  note: string            // where/how to use it
+  category: string        // free-text, user defined
+  tags: string[]
+  createdAt: string
+  updatedAt: string
+}

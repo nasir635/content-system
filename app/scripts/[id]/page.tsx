@@ -86,6 +86,7 @@ export default function ScriptDetailPage() {
   }
 
   function cycleStatus() {
+    if (!item) return
     updateScript(item.id, {
       status: STATUS_NEXT[item.status],
       updatedAt: new Date().toISOString(),
