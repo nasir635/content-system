@@ -9,7 +9,7 @@ import Link from '@tiptap/extension-link'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useStore } from '@/lib/store'
 import { toast } from '@/lib/toast'
-import type { Script, VisualRef, MusicEntry, Reference } from '@/lib/types'
+import type { Script, VisualRef, MusicEntry, Reference, ScriptComment } from '@/lib/types'
 import { v4 as uuid } from 'uuid'
 
 /* ── Toolbar button ─────────────────────────────────────── */
@@ -241,18 +241,24 @@ interface Props {
 }
 
 export function ScriptEditor({ script, onClose }: Props) {
-  const { updateScript, references, inspirations } = useStore()
+  const { updateScript, references, inspirations, addReference } = useStore()
   const [title, setTitle]       = useState(script.title)
   const [status, setStatus]     = useState(script.status)
   const [category, setCategory] = useState(script.category)
   const [visualRefs, setVisualRefs] = useState<VisualRef[]>(script.visualRefs ?? [])
   const [music, setMusic]       = useState<MusicEntry[]>(script.music ?? [])
+  const [comments, setComments] = useState<ScriptComment[]>(script.comments ?? [])
+  const [commentText, setCommentText] = useState('')
   const [saved, setSaved]       = useState(false)
   const [refPickerOpen, setRefPickerOpen] = useState(false)
+  const [uploadingImg, setUploadingImg] = useState(false)
 
   const autoTimer  = useRef<ReturnType<typeof setTimeout> | null>(null)
   const persistRef = useRef<() => void>(() => {})
   const skipAutosave = useRef(true)
+  const imgInputRef = useRef<HTMLInputElement>(null)
+  const audioInputRef = useRef<HTMLInputElement>(null)
+  const audioTargetRef = useRef<string | null>(null)
 
   const inspiration = script.inspirationId
     ? inspirations.find(i => i.id === script.inspirationId)
@@ -265,6 +271,7 @@ export function ScriptEditor({ script, onClose }: Props) {
     setCategory(script.category)
     setVisualRefs(script.visualRefs ?? [])
     setMusic(script.music ?? [])
+    setComments(script.comments ?? [])
   }, [script.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function scheduleAutosave() {
@@ -295,10 +302,10 @@ export function ScriptEditor({ script, onClose }: Props) {
     let content = script.content
     try { if (editor && !editor.isDestroyed) content = JSON.stringify(editor.getJSON()) } catch { /* keep prior */ }
     updateScript(script.id, {
-      title, status, category, content, visualRefs, music,
+      title, status, category, content, visualRefs, music, comments,
       updatedAt: new Date().toISOString(),
     })
-  }, [script.id, title, status, category, editor, visualRefs, music, updateScript, script.content])
+  }, [script.id, title, status, category, editor, visualRefs, music, comments, updateScript, script.content])
 
   const save = useCallback(() => {
     persist()
@@ -314,7 +321,7 @@ export function ScriptEditor({ script, onClose }: Props) {
   useEffect(() => {
     if (skipAutosave.current) { skipAutosave.current = false; return }
     scheduleAutosave()
-  }, [title, status, category, visualRefs, music]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [title, status, category, visualRefs, music, comments]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Flush any pending save on unmount (e.g. navigating away).
   useEffect(() => () => {
@@ -350,6 +357,49 @@ export function ScriptEditor({ script, onClose }: Props) {
   function updateMusicEntry(id: string, fields: Partial<MusicEntry>) {
     setMusic(m => m.map(x => x.id === id ? { ...x, ...fields } : x))
   }
+
+  async function uploadFile(file: File): Promise<string> {
+    const fd = new FormData()
+    fd.append('file', file)
+    const res = await fetch('/api/references/upload', { method: 'POST', body: fd })
+    if (!res.ok) throw new Error('upload failed')
+    return (await res.json()).url as string
+  }
+
+  // Upload images directly into the script (also saved to the References library).
+  async function uploadRefImages(files: FileList) {
+    setUploadingImg(true)
+    const now = new Date().toISOString()
+    for (const file of Array.from(files)) {
+      try {
+        const url = await uploadFile(file)
+        const refId = uuid()
+        const title = file.name.replace(/\.[^.]+$/, '') || 'Uploaded image'
+        addReference({ id: refId, title, imageUrl: url, note: '', category: '', tags: [], source: 'manual', createdAt: now, updatedAt: now })
+        setVisualRefs(v => [...v, { id: uuid(), referenceId: refId, imageUrl: url, title, timestamp: '', note: '' }])
+      } catch { toast('Image upload failed', 'error') }
+    }
+    setUploadingImg(false)
+  }
+
+  function beginAudioUpload(id: string) { audioTargetRef.current = id; audioInputRef.current?.click() }
+  async function handleAudioFile(files: FileList) {
+    const file = files[0]; const id = audioTargetRef.current
+    if (!file || !id) return
+    try {
+      const url = await uploadFile(file)
+      updateMusicEntry(id, { audioUrl: url, title: music.find(m => m.id === id)?.title || file.name.replace(/\.[^.]+$/, '') })
+      toast('Track uploaded')
+    } catch { toast('Track upload failed', 'error') }
+    audioTargetRef.current = null
+  }
+
+  function addComment() {
+    if (!commentText.trim()) return
+    setComments(c => [...c, { id: uuid(), text: commentText.trim(), createdAt: new Date().toISOString() }])
+    setCommentText('')
+  }
+  function deleteComment(id: string) { setComments(c => c.filter(x => x.id !== id)) }
 
   const statusColors = {
     draft: { bg: 'rgba(200,217,230,0.4)', color: '#33475B' },
@@ -505,117 +555,143 @@ export function ScriptEditor({ script, onClose }: Props) {
         </TB>
       </div>
 
-      {/* ── Editor body ── */}
+      {/* ── Editor body + sections (scroll together) ── */}
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-2xl mx-auto px-6 py-6">
           <EditorContent editor={editor} />
         </div>
-      </div>
 
-      {/* ── Music ── */}
-      <div className="flex-shrink-0" style={{ borderTop: '1px solid #DFE3EB' }}>
-        <div className="px-4 py-3">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#7C98B6' }}>
-              Music / SFX
-            </span>
-            <button
-              onClick={addMusicEntry}
-              className="text-xs font-semibold flex items-center gap-1"
-              style={{ color: '#516F90' }}
-            >
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              Add track
-            </button>
-          </div>
-          {music.length === 0 ? (
-            <p className="text-xs" style={{ color: '#99ACC2' }}>No music added — click + Add track</p>
-          ) : (
-            <div className="space-y-2">
-              {music.map(m => (
-                <div key={m.id} className="flex items-center gap-2">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#7C98B6" strokeWidth="2" strokeLinecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-                  <input value={m.title} onChange={e => updateMusicEntry(m.id, { title: e.target.value })} placeholder="Track name…" className="cs-input flex-1 text-xs py-1.5" />
-                  <select value={m.type} onChange={e => updateMusicEntry(m.id, { type: e.target.value as any })} className="cs-input text-xs py-1.5">
-                    <option value="bgm">BGM</option><option value="sfx">SFX</option><option value="transition">Transition</option>
-                  </select>
-                  <input value={m.timestamp ?? ''} onChange={e => updateMusicEntry(m.id, { timestamp: e.target.value })} placeholder="0:00" className="cs-input w-14 text-xs py-1.5 text-center" />
-                  <button onClick={() => setMusic(x => x.filter(t => t.id !== m.id))} style={{ color: '#7C98B6' }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                  </button>
-                </div>
-              ))}
+        <div className="max-w-2xl mx-auto px-6 pb-10 space-y-4">
+
+          {/* Music / SFX */}
+          <div className="rounded-lg" style={{ border: '1px solid #DFE3EB', background: '#FFFFFF' }}>
+            <div className="flex items-center justify-between px-4 py-2.5" style={{ borderBottom: music.length ? '1px solid #EAF0F6' : 'none' }}>
+              <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#7C98B6' }}>Music / SFX</span>
+              <button onClick={addMusicEntry} className="text-xs font-semibold flex items-center gap-1" style={{ color: '#516F90' }}>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add track
+              </button>
             </div>
-          )}
-        </div>
-      </div>
-
-      {/* ── Visual References ── */}
-      <div className="flex-shrink-0" style={{ borderTop: '1px solid #DFE3EB' }}>
-        <div className="px-4 py-3">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#7C98B6' }}>
-              Visual References {visualRefs.length > 0 && `(${visualRefs.length})`}
-            </span>
-            <button
-              onClick={() => setRefPickerOpen(true)}
-              className="text-xs font-semibold flex items-center gap-1"
-              style={{ color: '#516F90' }}
-            >
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              Add reference
-            </button>
-          </div>
-
-          {visualRefs.length === 0 ? (
-            <button
-              onClick={() => setRefPickerOpen(true)}
-              className="w-full py-3 rounded-lg text-xs flex items-center justify-center gap-2 transition-all"
-              style={{ border: '1.5px dashed #DFE3EB', color: '#7C98B6' }}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-              Pick references from library
-            </button>
-          ) : (
-            <div className="space-y-2 max-h-48 overflow-y-auto">
-              {visualRefs.map(ref => (
-                <div key={ref.id} className="flex items-center gap-2 p-2 rounded-lg" style={{ background: '#FFFFFF', border: '1px solid #DFE3EB' }}>
-                  <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0" style={{ background: '#EAF0F6' }}>
-                    {ref.imageUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={ref.imageUrl} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7C98B6" strokeWidth="1.5" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <div className="p-3">
+              {music.length === 0 ? (
+                <p className="text-xs" style={{ color: '#99ACC2' }}>No music yet — add a track, then upload the audio file.</p>
+              ) : (
+                <div className="space-y-2.5">
+                  {music.map(m => (
+                    <div key={m.id} className="space-y-1.5">
+                      <div className="flex items-center gap-2">
+                        <input value={m.title} onChange={e => updateMusicEntry(m.id, { title: e.target.value })} placeholder="Track name…" className="cs-input flex-1 text-xs py-1.5" />
+                        <select value={m.type} onChange={e => updateMusicEntry(m.id, { type: e.target.value as MusicEntry['type'] })} className="cs-input text-xs py-1.5" style={{ width: 'auto' }}>
+                          <option value="bgm">BGM</option><option value="sfx">SFX</option><option value="transition">Transition</option>
+                        </select>
+                        <input value={m.timestamp ?? ''} onChange={e => updateMusicEntry(m.id, { timestamp: e.target.value })} placeholder="0:00" className="cs-input w-14 text-xs py-1.5 text-center" />
+                        <button onClick={() => beginAudioUpload(m.id)} title="Upload audio file" className="flex-shrink-0" style={{ color: m.audioUrl ? '#00A4BD' : '#516F90' }}>
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        </button>
+                        <button onClick={() => setMusic(x => x.filter(t => t.id !== m.id))} className="flex-shrink-0" style={{ color: '#99ACC2' }}>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
                       </div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold truncate" style={{ color: '#33475B' }}>{ref.title || 'Reference'}</p>
-                    <div className="flex gap-2 mt-1">
-                      <input
-                        value={ref.timestamp}
-                        onChange={e => updateRef(ref.id, { timestamp: e.target.value })}
-                        placeholder="0:00"
-                        className="cs-input w-14 text-xs py-0.5 text-center"
-                      />
-                      <input
-                        value={ref.note}
-                        onChange={e => updateRef(ref.id, { note: e.target.value })}
-                        placeholder="Shot note…"
-                        className="cs-input flex-1 text-xs py-0.5"
-                      />
+                      {m.audioUrl && <audio controls src={m.audioUrl} style={{ width: '100%', height: 34 }} />}
                     </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Visual References */}
+          <div className="rounded-lg" style={{ border: '1px solid #DFE3EB', background: '#FFFFFF' }}>
+            <div className="flex items-center justify-between px-4 py-2.5" style={{ borderBottom: visualRefs.length ? '1px solid #EAF0F6' : 'none' }}>
+              <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#7C98B6' }}>
+                Visual References {visualRefs.length > 0 && `(${visualRefs.length})`}
+              </span>
+              <div className="flex items-center gap-3">
+                <button onClick={() => imgInputRef.current?.click()} className="text-xs font-semibold flex items-center gap-1" style={{ color: '#516F90' }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  {uploadingImg ? 'Uploading…' : 'Upload'}
+                </button>
+                <button onClick={() => setRefPickerOpen(true)} className="text-xs font-semibold flex items-center gap-1" style={{ color: '#516F90' }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  Library
+                </button>
+              </div>
+            </div>
+            <div className="p-3">
+              {visualRefs.length === 0 ? (
+                <div className="flex gap-2">
+                  <button onClick={() => imgInputRef.current?.click()} className="flex-1 py-3 rounded-lg text-xs flex items-center justify-center gap-2" style={{ border: '1.5px dashed #DFE3EB', color: '#7C98B6' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    Upload image
+                  </button>
+                  <button onClick={() => setRefPickerOpen(true)} className="flex-1 py-3 rounded-lg text-xs flex items-center justify-center gap-2" style={{ border: '1.5px dashed #DFE3EB', color: '#7C98B6' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    Pick from library
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {visualRefs.map(ref => (
+                    <div key={ref.id} className="flex items-center gap-2 p-2 rounded-lg" style={{ background: '#F5F8FA', border: '1px solid #DFE3EB' }}>
+                      <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0" style={{ background: '#EAF0F6' }}>
+                        {ref.imageUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={ref.imageUrl} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7C98B6" strokeWidth="1.5" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold truncate" style={{ color: '#33475B' }}>{ref.title || 'Reference'}</p>
+                        <div className="flex gap-2 mt-1">
+                          <input value={ref.timestamp} onChange={e => updateRef(ref.id, { timestamp: e.target.value })} placeholder="0:00" className="cs-input w-14 text-xs py-0.5 text-center" />
+                          <input value={ref.note} onChange={e => updateRef(ref.id, { note: e.target.value })} placeholder="Shot note…" className="cs-input flex-1 text-xs py-0.5" />
+                        </div>
+                      </div>
+                      <button onClick={() => setVisualRefs(v => v.filter(r => r.id !== ref.id))} className="flex-shrink-0" style={{ color: '#99ACC2' }}>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Comments */}
+          <div className="rounded-lg" style={{ border: '1px solid #DFE3EB', background: '#FFFFFF' }}>
+            <div className="px-4 py-2.5" style={{ borderBottom: '1px solid #EAF0F6' }}>
+              <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#7C98B6' }}>
+                Comments {comments.length > 0 && `(${comments.length})`}
+              </span>
+            </div>
+            <div className="p-3 space-y-2">
+              {comments.map(c => (
+                <div key={c.id} className="group flex items-start gap-2 px-3 py-2 rounded-md" style={{ background: '#F5F8FA', border: '1px solid #DFE3EB' }}>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs" style={{ color: '#33475B', whiteSpace: 'pre-wrap' }}>{c.text}</p>
+                    <p className="text-[10px] mt-1" style={{ color: '#99ACC2' }}>{new Date(c.createdAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</p>
                   </div>
-                  <button onClick={() => setVisualRefs(v => v.filter(r => r.id !== ref.id))} style={{ color: '#7C98B6', flexShrink: 0 }}>
+                  <button onClick={() => deleteComment(c.id)} className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" style={{ color: '#99ACC2' }}>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                   </button>
                 </div>
               ))}
+              <div className="flex items-center gap-2">
+                <input value={commentText} onChange={e => setCommentText(e.target.value)} onKeyDown={e => e.key === 'Enter' && addComment()} placeholder="Add a comment…" className="cs-input flex-1 text-xs" />
+                <button className="cs-btn flex-shrink-0" style={{ fontSize: 12, padding: '7px 14px' }} onClick={addComment} disabled={!commentText.trim()}>Post</button>
+              </div>
             </div>
-          )}
+          </div>
+
         </div>
       </div>
+
+      {/* Hidden upload inputs */}
+      <input ref={imgInputRef} type="file" accept="image/*" multiple className="hidden" onChange={e => { if (e.target.files) uploadRefImages(e.target.files); e.target.value = '' }} />
+      <input ref={audioInputRef} type="file" accept="audio/*" className="hidden" onChange={e => { if (e.target.files) handleAudioFile(e.target.files); e.target.value = '' }} />
 
       {/* Reference picker modal */}
       <AnimatePresence>

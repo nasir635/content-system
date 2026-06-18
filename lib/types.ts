@@ -47,6 +47,12 @@ export interface InspirationScreenshot {
 }
 
 // ── SCRIPTS ──────────────────────────────────────────────────
+export interface ScriptComment {
+  id: string
+  text: string
+  createdAt: string
+}
+
 export interface Script {
   id: string
   title: string
@@ -55,6 +61,7 @@ export interface Script {
   content: string
   visualRefs: VisualRef[]
   music: MusicEntry[]
+  comments?: ScriptComment[]
   inspirationId?: string
   createdAt: string
   updatedAt: string
@@ -76,6 +83,7 @@ export interface MusicEntry {
   type: 'bgm' | 'sfx' | 'transition'
   timestamp?: string
   note?: string
+  audioUrl?: string
 }
 
 // ── CONTENT PLANNER ──────────────────────────────────────────

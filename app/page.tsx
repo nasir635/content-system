@@ -235,6 +235,7 @@ export default function HomePage() {
           refs.forEach(addReference)
           setAddOpen(false)
           toast('Inspiration saved')
+          router.push(`/inspirations/${inspiration.id}`)
         }}
       />
     </div>

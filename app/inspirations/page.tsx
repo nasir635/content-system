@@ -160,6 +160,7 @@ export default function InspirationsPage() {
           refs.forEach(addReference)
           setAddOpen(false)
           toast('Inspiration saved')
+          router.push(`/inspirations/${inspiration.id}`)
         }}
       />
     </div>
