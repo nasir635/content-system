@@ -1,11 +1,18 @@
 'use client'
 import { useState } from 'react'
-import { Settings, Cloud, CloudOff, Database, Download, CheckCircle2, Loader2 } from 'lucide-react'
+import { Settings, Cloud, CloudOff, Database, Download, CheckCircle2, Loader2, Briefcase, Lock, LogOut } from 'lucide-react'
 import { useStore } from '@/lib/store'
 
 export default function SettingsPage() {
-  const { inspirations, scripts, categories, references, cloud, loaded } = useStore()
+  const { inspirations, scripts, categories, references, settings, cloud, loaded, updateSettings } = useStore()
   const [refreshing, setRefreshing] = useState(false)
+
+  // password change
+  const [current, setCurrent] = useState('')
+  const [next, setNext] = useState('')
+  const [confirm, setConfirm] = useState('')
+  const [pwMsg, setPwMsg] = useState<{ ok: boolean; text: string } | null>(null)
+  const [pwBusy, setPwBusy] = useState(false)
 
   async function checkNow() {
     setRefreshing(true)
@@ -14,14 +21,41 @@ export default function SettingsPage() {
   }
 
   function exportData() {
-    const data = { inspirations, scripts, categories, references, plans: useStore.getState().plans, exportedAt: new Date().toISOString() }
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    const data = { ...useStore.getState(), exportedAt: new Date().toISOString() }
+    const payload = {
+      inspirations: data.inspirations, scripts: data.scripts, categories: data.categories,
+      references: data.references, plans: data.plans, settings: data.settings, exportedAt: data.exportedAt,
+    }
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
     a.download = `contentos-backup-${new Date().toISOString().slice(0, 10)}.json`
     a.click()
     URL.revokeObjectURL(url)
+  }
+
+  async function changePassword(e: React.FormEvent) {
+    e.preventDefault()
+    setPwMsg(null)
+    if (next.length < 6) { setPwMsg({ ok: false, text: 'New password must be at least 6 characters.' }); return }
+    if (next !== confirm) { setPwMsg({ ok: false, text: 'New passwords do not match.' }); return }
+    setPwBusy(true)
+    try {
+      const res = await fetch('/api/auth', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'change', current, next }),
+      })
+      const d = await res.json()
+      if (!res.ok || !d.ok) { setPwMsg({ ok: false, text: d.error || 'Could not change password.' }) }
+      else { setPwMsg({ ok: true, text: 'Password updated.' }); setCurrent(''); setNext(''); setConfirm('') }
+    } catch { setPwMsg({ ok: false, text: 'Network error.' }) }
+    setPwBusy(false)
+  }
+
+  async function logout() {
+    await fetch('/api/auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'logout' }) })
+    window.location.href = '/login'
   }
 
   const counts = [
@@ -40,6 +74,59 @@ export default function SettingsPage() {
       </div>
 
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+
+        {/* Workspace */}
+        <div className="glass-card p-6 space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#E8F0F5' }}>
+              <Briefcase size={18} style={{ color: '#567C8D' }} />
+            </div>
+            <div>
+              <h2 className="font-bold" style={{ color: '#2F4156' }}>Workspace</h2>
+              <p className="text-xs" style={{ color: '#8EA7B5' }}>Name your portal and yourself — used across the app</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-semibold uppercase tracking-wider mb-1.5 block" style={{ color: '#8EA7B5' }}>Portal name</label>
+              <input className="cs-input" value={settings.portalName} onChange={e => updateSettings({ portalName: e.target.value })} placeholder="Content OS" />
+            </div>
+            <div>
+              <label className="text-xs font-semibold uppercase tracking-wider mb-1.5 block" style={{ color: '#8EA7B5' }}>Your name</label>
+              <input className="cs-input" value={settings.ownerName} onChange={e => updateSettings({ ownerName: e.target.value })} placeholder="e.g. Nasir" />
+            </div>
+          </div>
+          <p className="text-[11px]" style={{ color: '#A0B8C6' }}>Saved automatically.</p>
+        </div>
+
+        {/* Security */}
+        <div className="glass-card p-6 space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #2F4156 0%, #567C8D 100%)' }}>
+              <Lock size={18} className="text-white" />
+            </div>
+            <div>
+              <h2 className="font-bold" style={{ color: '#2F4156' }}>Security</h2>
+              <p className="text-xs" style={{ color: '#8EA7B5' }}>Change the password that protects this portal</p>
+            </div>
+          </div>
+          <form onSubmit={changePassword} className="space-y-3">
+            <input type="password" className="cs-input" value={current} onChange={e => setCurrent(e.target.value)} placeholder="Current password" autoComplete="current-password" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <input type="password" className="cs-input" value={next} onChange={e => setNext(e.target.value)} placeholder="New password" autoComplete="new-password" />
+              <input type="password" className="cs-input" value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="Confirm new password" autoComplete="new-password" />
+            </div>
+            {pwMsg && <p className="text-xs font-medium" style={{ color: pwMsg.ok ? '#3a7d44' : '#B04A4A' }}>{pwMsg.text}</p>}
+            <div className="flex gap-3">
+              <button type="button" onClick={logout} className="cs-btn-outline py-2.5 px-4 rounded-[10px] text-sm font-semibold flex items-center gap-2">
+                <LogOut size={14} /> Log out
+              </button>
+              <button type="submit" disabled={pwBusy || !current || !next} className="cs-btn flex-1 py-2.5 rounded-[10px] text-sm">
+                {pwBusy ? 'Saving…' : 'Update password'}
+              </button>
+            </div>
+          </form>
+        </div>
 
         {/* Storage & Sync */}
         <div className="glass-card p-6 space-y-5">
@@ -68,14 +155,7 @@ export default function SettingsPage() {
           ) : (
             <div className="rounded-xl px-4 py-4 space-y-2" style={{ background: 'rgba(176,74,74,0.08)', border: '1px solid rgba(176,74,74,0.2)' }}>
               <p className="text-sm font-semibold" style={{ color: '#B04A4A' }}>Cloud sync not connected — saving to this browser only</p>
-              <p className="text-xs leading-relaxed" style={{ color: '#567C8D' }}>
-                To sync across devices, connect a free Vercel Blob store:
-              </p>
-              <ol className="text-xs leading-relaxed list-decimal pl-4 space-y-0.5" style={{ color: '#567C8D' }}>
-                <li>Open your project on <span className="font-semibold">vercel.com</span> → <span className="font-semibold">Storage</span></li>
-                <li>Create / connect a <span className="font-semibold">Blob</span> store to this project</li>
-                <li>Redeploy — Vercel injects the token automatically</li>
-              </ol>
+              <p className="text-xs leading-relaxed" style={{ color: '#567C8D' }}>Connect a Vercel Blob store in your project&apos;s Storage tab, then redeploy.</p>
             </div>
           )}
 
@@ -113,7 +193,7 @@ export default function SettingsPage() {
 
         <div className="flex items-center justify-center gap-1.5 pt-2" style={{ color: '#A0B8C6' }}>
           <Settings size={12} />
-          <span className="text-[11px]">Faasle Content OS · v2.0</span>
+          <span className="text-[11px]">{settings.portalName || 'Content OS'} · v2.1</span>
         </div>
       </div>
     </div>

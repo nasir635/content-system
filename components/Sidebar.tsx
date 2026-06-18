@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useStore } from '@/lib/store'
 
 const IcoDashboard = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -79,6 +80,7 @@ const NAV_GROUPS = [
 
 export function Sidebar() {
   const pathname = usePathname()
+  const portalName = useStore(s => s.settings.portalName) || 'Content OS'
 
   return (
     <aside
@@ -103,8 +105,8 @@ export function Sidebar() {
               <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
             </svg>
           </div>
-          <span className="font-bold text-sm tracking-tight" style={{ color: '#2F4156' }}>
-            Content OS
+          <span className="font-bold text-sm tracking-tight truncate" style={{ color: '#2F4156' }}>
+            {portalName}
           </span>
         </div>
       </div>

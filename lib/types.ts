@@ -106,6 +106,17 @@ export interface Reference {
   updatedAt?: string
 }
 
+// ── WORKSPACE SETTINGS (editable branding) ───────────────────
+export interface AppSettings {
+  portalName: string
+  ownerName: string
+}
+
+export const DEFAULT_SETTINGS: AppSettings = {
+  portalName: 'Content OS',
+  ownerName: '',
+}
+
 // ── PERSISTED APP STATE (cloud sync payload) ─────────────────
 export interface AppData {
   inspirations: Inspiration[]
@@ -113,4 +124,5 @@ export interface AppData {
   categories: Category[]
   references: Reference[]
   plans: PlanEntry[]
+  settings: AppSettings
 }

@@ -1,5 +1,6 @@
 import { create } from 'zustand'
-import type { Script, Category, Reference, Inspiration, PlanEntry, AppData } from './types'
+import type { Script, Category, Reference, Inspiration, PlanEntry, AppData, AppSettings } from './types'
+import { DEFAULT_SETTINGS } from './types'
 
 const SEED_DATE = '2026-01-01T00:00:00.000Z'
 
@@ -37,6 +38,8 @@ interface AppState extends AppData {
   addPlan:    (p: PlanEntry) => void
   updatePlan: (id: string, p: Partial<PlanEntry>) => void
   deletePlan: (id: string) => void
+
+  updateSettings: (s: Partial<AppSettings>) => void
 }
 
 const LS_KEY = 'content-system-store'
@@ -48,6 +51,7 @@ function snapshot(s: AppState): AppData {
     categories:   s.categories,
     references:   s.references,
     plans:        s.plans,
+    settings:     s.settings,
   }
 }
 
@@ -78,6 +82,7 @@ function normalize(d: any): AppData { // eslint-disable-line @typescript-eslint/
     references:   Array.isArray(d?.references) ? d.references : [],
     plans:        Array.isArray(d?.plans) ? d.plans : [],
     categories,
+    settings:     { ...DEFAULT_SETTINGS, ...(d?.settings ?? {}) },
   }
 }
 
@@ -113,6 +118,7 @@ export const useStore = create<AppState>()((set, get) => ({
   categories:   DEFAULT_CATEGORIES,
   references:   [],
   plans:        [],
+  settings:     DEFAULT_SETTINGS,
   loaded:  false,
   syncing: false,
   cloud:   false,
@@ -182,6 +188,8 @@ export const useStore = create<AppState>()((set, get) => ({
   deletePlan: (id) => set(s => ({
     plans: s.plans.filter(x => x.id !== id),
   })),
+
+  updateSettings: (patch) => set(s => ({ settings: { ...s.settings, ...patch } })),
 }))
 
 // Persist on every change once hydration is done: localStorage immediately,

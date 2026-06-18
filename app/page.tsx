@@ -56,7 +56,7 @@ const QA_ICONS: Record<string, React.ReactNode> = {
 }
 
 export default function HomePage() {
-  const { inspirations, scripts, references, categories, addInspiration, addReference } = useStore()
+  const { inspirations, scripts, references, categories, settings, addInspiration, addReference } = useStore()
   const [addOpen, setAddOpen] = useState(false)
   const router = useRouter()
 
@@ -91,7 +91,9 @@ export default function HomePage() {
       <div className="sticky top-0 z-30 flex items-center justify-between px-5 py-4"
         style={{ background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #D0DDE6' }}>
         <div>
-          <h1 className="font-bold text-[18px]" style={{ color: '#2F4156' }}>Welcome back, Nasir</h1>
+          <h1 className="font-bold text-[18px]" style={{ color: '#2F4156' }}>
+            {settings.ownerName ? `Welcome back, ${settings.ownerName}` : 'Welcome back'}
+          </h1>
           <p className="text-xs mt-0.5" style={{ color: '#8EA7B5' }}>{today}</p>
         </div>
         <button className="cs-btn flex items-center gap-2" onClick={() => setAddOpen(true)}>

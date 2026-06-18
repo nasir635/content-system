@@ -10,7 +10,7 @@ export default function InspirationDetailPage() {
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
   const {
-    inspirations, scripts, references,
+    inspirations, scripts, references, categories,
     updateInspiration, deleteInspiration, addReference, addScript,
   } = useStore()
 
@@ -26,6 +26,11 @@ export default function InspirationDetailPage() {
   const [howTo, setHowTo] = useState(item?.howToUse ?? '')
   const [uploading, setUploading] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
+
+  const [editingMeta, setEditingMeta] = useState(false)
+  const [mTitle, setMTitle] = useState(item?.title ?? '')
+  const [mCategory, setMCategory] = useState(item?.category ?? '')
+  const [mTags, setMTags] = useState((item?.tags ?? []).join(', '))
 
   useEffect(() => {
     if (!selectedScriptId && linkedScripts.length) setSelectedScriptId(linkedScripts[0].id)
@@ -65,6 +70,22 @@ export default function InspirationDetailPage() {
   function saveHowTo() {
     updateInspiration(item!.id, { howToUse: howTo, updatedAt: new Date().toISOString() })
     setEditingHowTo(false)
+  }
+
+  function startMeta() {
+    setMTitle(item!.title ?? '')
+    setMCategory(item!.category ?? '')
+    setMTags((item!.tags ?? []).join(', '))
+    setEditingMeta(true)
+  }
+  function saveMeta() {
+    updateInspiration(item!.id, {
+      title: mTitle.trim() || undefined,
+      category: mCategory,
+      tags: mTags.split(',').map(t => t.trim()).filter(Boolean),
+      updatedAt: new Date().toISOString(),
+    })
+    setEditingMeta(false)
   }
 
   async function handleAddShots(files: FileList) {
@@ -140,16 +161,44 @@ export default function InspirationDetailPage() {
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 space-y-5">
 
-        {/* Source link */}
+        {/* Source link + meta */}
         <div className="glass-card p-5">
-          <div className="flex items-center gap-2 mb-3 flex-wrap">
-            <span className="chip capitalize">{item.category}</span>
-            {item.tags.map(t => (
-              <span key={t} className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(86,124,141,0.12)', color: '#567C8D' }}>#{t.replace(/^#/, '')}</span>
-            ))}
+          <div className="flex items-start justify-between gap-3 mb-3">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="chip capitalize">{item.category || 'uncategorized'}</span>
+              {item.tags.map(t => (
+                <span key={t} className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(86,124,141,0.12)', color: '#567C8D' }}>#{t.replace(/^#/, '')}</span>
+              ))}
+            </div>
+            {!editingMeta
+              ? <button className="text-xs font-semibold flex-shrink-0" style={{ color: '#567C8D' }} onClick={startMeta}>Edit</button>
+              : <button className="text-xs font-semibold flex-shrink-0" style={{ color: '#567C8D' }} onClick={saveMeta}>Save</button>}
           </div>
+
+          {editingMeta ? (
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-semibold uppercase tracking-wider mb-1.5 block" style={{ color: '#8EA7B5' }}>Title</label>
+                <input className="cs-input" value={mTitle} onChange={e => setMTitle(e.target.value)} placeholder="Optional title" />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-semibold uppercase tracking-wider mb-1.5 block" style={{ color: '#8EA7B5' }}>Category</label>
+                  <select className="cs-input" value={mCategory} onChange={e => setMCategory(e.target.value)}>
+                    <option value="">Uncategorized</option>
+                    {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold uppercase tracking-wider mb-1.5 block" style={{ color: '#8EA7B5' }}>Tags</label>
+                  <input className="cs-input" value={mTags} onChange={e => setMTags(e.target.value)} placeholder="comma, separated" />
+                </div>
+              </div>
+            </div>
+          ) : null}
+
           <a href={item.url} target="_blank" rel="noopener noreferrer"
-            className="flex items-center gap-2 text-sm font-semibold hover:underline break-all" style={{ color: '#2F4156' }}>
+            className="flex items-center gap-2 text-sm font-semibold hover:underline break-all mt-3" style={{ color: '#2F4156' }}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#567C8D" strokeWidth="2" strokeLinecap="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
             {item.url}
           </a>
