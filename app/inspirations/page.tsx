@@ -20,7 +20,7 @@ function label(i: Inspiration): string {
 function InspirationCard({ item, onClick, onDelete }: {
   item: Inspiration; onClick: () => void; onDelete: (id: string) => void
 }) {
-  const cover = item.screenshots?.[0]?.imageUrl
+  const cover = item.coverImage || item.screenshots?.[0]?.imageUrl
   const date = new Date(item.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
   return (
     <div className="glossy-card cursor-pointer group" onClick={onClick}>

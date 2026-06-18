@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useStore } from '@/lib/store'
 import { ScriptEditor } from '@/components/ScriptEditor'
+import { CoverImage } from '@/components/CoverImage'
 import type { Reference, Script } from '@/lib/types'
 import { v4 as uuid } from 'uuid'
 
@@ -160,6 +161,13 @@ export default function InspirationDetailPage() {
       </div>
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 space-y-5">
+
+        {/* Cover */}
+        <CoverImage
+          value={item.coverImage}
+          onChange={(url) => updateInspiration(item.id, { coverImage: url, updatedAt: new Date().toISOString() })}
+          onRemove={() => updateInspiration(item.id, { coverImage: undefined, updatedAt: new Date().toISOString() })}
+        />
 
         {/* Source link + meta */}
         <div className="glass-card p-5">

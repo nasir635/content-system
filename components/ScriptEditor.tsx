@@ -9,6 +9,7 @@ import Link from '@tiptap/extension-link'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useStore } from '@/lib/store'
 import { toast } from '@/lib/toast'
+import { CoverImage } from '@/components/CoverImage'
 import type { Script, VisualRef, MusicEntry, Reference, ScriptComment } from '@/lib/types'
 import { v4 as uuid } from 'uuid'
 
@@ -249,6 +250,7 @@ export function ScriptEditor({ script, onClose }: Props) {
   const [music, setMusic]       = useState<MusicEntry[]>(script.music ?? [])
   const [comments, setComments] = useState<ScriptComment[]>(script.comments ?? [])
   const [commentText, setCommentText] = useState('')
+  const [cover, setCover] = useState(script.coverImage ?? '')
   const [saved, setSaved]       = useState(false)
   const [refPickerOpen, setRefPickerOpen] = useState(false)
   const [uploadingImg, setUploadingImg] = useState(false)
@@ -272,6 +274,7 @@ export function ScriptEditor({ script, onClose }: Props) {
     setVisualRefs(script.visualRefs ?? [])
     setMusic(script.music ?? [])
     setComments(script.comments ?? [])
+    setCover(script.coverImage ?? '')
   }, [script.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function scheduleAutosave() {
@@ -302,10 +305,10 @@ export function ScriptEditor({ script, onClose }: Props) {
     let content = script.content
     try { if (editor && !editor.isDestroyed) content = JSON.stringify(editor.getJSON()) } catch { /* keep prior */ }
     updateScript(script.id, {
-      title, status, category, content, visualRefs, music, comments,
+      title, status, category, content, coverImage: cover || undefined, visualRefs, music, comments,
       updatedAt: new Date().toISOString(),
     })
-  }, [script.id, title, status, category, editor, visualRefs, music, comments, updateScript, script.content])
+  }, [script.id, title, status, category, cover, editor, visualRefs, music, comments, updateScript, script.content])
 
   const save = useCallback(() => {
     persist()
@@ -321,7 +324,7 @@ export function ScriptEditor({ script, onClose }: Props) {
   useEffect(() => {
     if (skipAutosave.current) { skipAutosave.current = false; return }
     scheduleAutosave()
-  }, [title, status, category, visualRefs, music, comments]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [title, status, category, cover, visualRefs, music, comments]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Flush any pending save on unmount (e.g. navigating away).
   useEffect(() => () => {
@@ -557,7 +560,10 @@ export function ScriptEditor({ script, onClose }: Props) {
 
       {/* ── Editor body + sections (scroll together) ── */}
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-2xl mx-auto px-6 py-6">
+        <div className="max-w-2xl mx-auto px-6 pt-5">
+          <CoverImage value={cover} onChange={setCover} onRemove={() => setCover('')} />
+        </div>
+        <div className="max-w-2xl mx-auto px-6 pt-5 pb-6">
           <EditorContent editor={editor} />
         </div>
 

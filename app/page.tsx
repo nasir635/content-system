@@ -23,7 +23,7 @@ function inspoLabel(i: Inspiration): string {
 }
 
 function MiniCard({ item, onClick }: { item: Inspiration; onClick: () => void }) {
-  const cover = item.screenshots?.[0]?.imageUrl
+  const cover = item.coverImage || item.screenshots?.[0]?.imageUrl
   const label = inspoLabel(item)
   return (
     <button onClick={onClick}

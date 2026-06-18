@@ -47,18 +47,23 @@ export function ScriptCard({ script, onClick, onDelete }: Props) {
   return (
     <div className="glossy-card cursor-pointer group" onClick={() => onClick?.(script)}>
 
-      {/* ── GRADIENT section ── */}
+      {/* ── COVER / GRADIENT section ── */}
       <div
         className="relative flex items-center justify-center"
         style={{ background: getGradient(script.category), minHeight: 210 }}
       >
-        {/* Watermark icon */}
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1" strokeLinecap="round">
-          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-          <polyline points="14 2 14 8 20 8"/>
-          <line x1="16" y1="13" x2="8" y2="13"/>
-          <line x1="16" y1="17" x2="8" y2="17"/>
-        </svg>
+        {script.coverImage ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={script.coverImage} alt={script.title} className="absolute inset-0 w-full h-full object-cover" draggable={false} />
+        ) : (
+          /* Watermark icon */
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1" strokeLinecap="round">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+        )}
 
         {/* Scrim */}
         <div

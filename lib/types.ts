@@ -32,6 +32,7 @@ export interface Inspiration {
   howToUse: string
   category: string
   tags: string[]
+  coverImage?: string
   screenshots: InspirationScreenshot[]
   createdAt: string
   updatedAt?: string
@@ -59,6 +60,7 @@ export interface Script {
   category: string
   status: 'draft' | 'ready' | 'shot'
   content: string
+  coverImage?: string
   visualRefs: VisualRef[]
   music: MusicEntry[]
   comments?: ScriptComment[]
