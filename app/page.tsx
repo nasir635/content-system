@@ -48,8 +48,15 @@ function MiniCard({ item, onClick }: { item: Inspiration; onClick: () => void })
   )
 }
 
+const QA_ICONS: Record<string, React.ReactNode> = {
+  inspiration: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#567C8D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 015 11.95V17a1 1 0 01-1 1H8a1 1 0 01-1-1v-3.05A7 7 0 0112 2z"/></svg>,
+  script: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#567C8D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>,
+  reference: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#567C8D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>,
+  planner: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#567C8D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
+}
+
 export default function HomePage() {
-  const { inspirations, scripts, references, streamlines, addInspiration, addReference } = useStore()
+  const { inspirations, scripts, references, categories, addInspiration, addReference } = useStore()
   const [addOpen, setAddOpen] = useState(false)
   const router = useRouter()
 
@@ -70,6 +77,13 @@ export default function HomePage() {
     router.push(`/scripts/${s.id}`)
   }
 
+  const quickActions = [
+    { key: 'inspiration', label: 'Add Inspiration',   action: () => setAddOpen(true) },
+    { key: 'script',      label: 'New Script',         action: newScript },
+    { key: 'reference',   label: 'Browse References',  action: () => router.push('/references') },
+    { key: 'planner',     label: 'Open Planner',       action: () => router.push('/planner') },
+  ]
+
   return (
     <div className="min-h-screen" style={{ background: '#FFFFFF' }}>
 
@@ -77,7 +91,7 @@ export default function HomePage() {
       <div className="sticky top-0 z-30 flex items-center justify-between px-5 py-4"
         style={{ background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #D0DDE6' }}>
         <div>
-          <h1 className="font-bold text-[18px]" style={{ color: '#2F4156' }}>Welcome back, Nasir 👋</h1>
+          <h1 className="font-bold text-[18px]" style={{ color: '#2F4156' }}>Welcome back, Nasir</h1>
           <p className="text-xs mt-0.5" style={{ color: '#8EA7B5' }}>{today}</p>
         </div>
         <button className="cs-btn flex items-center gap-2" onClick={() => setAddOpen(true)}>
@@ -108,7 +122,7 @@ export default function HomePage() {
             <div className="glass-card p-5">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="font-bold text-[15px]" style={{ color: '#2F4156' }}>Recent Inspirations</h2>
-                <button className="text-xs font-semibold" style={{ color: '#567C8D' }} onClick={() => router.push('/inspirations')}>See all →</button>
+                <button className="text-xs font-semibold" style={{ color: '#567C8D' }} onClick={() => router.push('/inspirations')}>See all</button>
               </div>
               {recent.length === 0 ? (
                 <div className="flex flex-col items-center py-10 gap-3 text-center">
@@ -160,46 +174,47 @@ export default function HomePage() {
             <div className="glass-card p-5">
               <h2 className="font-bold text-[15px] mb-4" style={{ color: '#2F4156' }}>Quick Actions</h2>
               <div className="space-y-2">
-                {([
-                  { label: 'Add Inspiration',   icon: '💡', action: () => setAddOpen(true) },
-                  { label: 'New Script',        icon: '✍️', action: newScript },
-                  { label: 'Browse References', icon: '🖼️', action: () => router.push('/references') },
-                  { label: 'Streamlines',       icon: '⚡', action: () => router.push('/streamlines') },
-                ] as { label: string; icon: string; action: () => void }[]).map(({ label, icon, action }) => (
-                  <button key={label}
+                {quickActions.map(({ key, label, action }) => (
+                  <button key={key}
                     className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all"
                     style={{ background: '#F5F8FA', border: '1px solid #E0EAF0' }}
                     onClick={action}
                     onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#E8F0F5' }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#F5F8FA' }}
                   >
-                    <span style={{ fontSize: 16 }}>{icon}</span>
+                    <span className="flex-shrink-0">{QA_ICONS[key]}</span>
                     <span className="text-sm font-semibold" style={{ color: '#2F4156' }}>{label}</span>
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Streamlines snapshot */}
+            {/* Content Categories snapshot */}
             <div className="glass-card p-5">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="font-bold text-[15px]" style={{ color: '#2F4156' }}>Streamlines</h2>
-                <button className="text-xs font-semibold" style={{ color: '#567C8D' }} onClick={() => router.push('/streamlines')}>See all →</button>
+                <h2 className="font-bold text-[15px]" style={{ color: '#2F4156' }}>Content Categories</h2>
+                <button className="text-xs font-semibold" style={{ color: '#567C8D' }} onClick={() => router.push('/categories')}>Manage</button>
               </div>
-              {streamlines.length === 0 ? (
-                <p className="text-xs text-center py-4" style={{ color: '#A0B8C6' }}>No streamlines yet.</p>
+              {categories.length === 0 ? (
+                <p className="text-xs text-center py-4" style={{ color: '#A0B8C6' }}>No categories yet.</p>
               ) : (
-                <div className="space-y-2">
-                  {streamlines.slice(0, 4).map(st => (
-                    <button key={st.id}
-                      className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-left"
-                      style={{ background: '#F5F8FA', border: '1px solid #E0EAF0' }}
-                      onClick={() => router.push('/streamlines')}
-                    >
-                      <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: '#567C8D' }} />
-                      <span className="text-xs font-semibold truncate" style={{ color: '#2F4156' }}>{st.name}</span>
-                    </button>
-                  ))}
+                <div className="space-y-1.5">
+                  {categories.map(c => {
+                    const count = scripts.filter(s => s.category === c.name).length
+                    return (
+                      <button key={c.id}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left transition-all"
+                        style={{ background: '#F5F8FA', border: '1px solid #E0EAF0' }}
+                        onClick={() => router.push(`/scripts?category=${encodeURIComponent(c.name)}`)}
+                        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#E8F0F5' }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#F5F8FA' }}
+                      >
+                        <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: c.color }} />
+                        <span className="text-xs font-semibold truncate flex-1" style={{ color: '#2F4156' }}>{c.name}</span>
+                        <span className="text-xs font-bold flex-shrink-0" style={{ color: '#8EA7B5' }}>{count}</span>
+                      </button>
+                    )
+                  })}
                 </div>
               )}
             </div>

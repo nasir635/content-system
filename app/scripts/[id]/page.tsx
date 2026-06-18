@@ -190,7 +190,7 @@ export default function ScriptDetailPage() {
           <SectionCard title="Script">
             <div className="flex items-center justify-between mb-3">
               <p className="text-xs" style={{ color: '#8EA7B5' }}>
-                {item.streamlineId ? 'Generated with streamline' : 'Written manually'}
+                {item.category ? `Category: ${item.category}` : 'No category'}
                 {inspiration && ' · From inspiration'}
               </p>
               <button className="cs-btn py-1.5 px-4 text-xs" onClick={copyContent}>

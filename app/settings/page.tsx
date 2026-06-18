@@ -4,7 +4,7 @@ import { Settings, Cloud, CloudOff, Database, Download, CheckCircle2, Loader2 } 
 import { useStore } from '@/lib/store'
 
 export default function SettingsPage() {
-  const { inspirations, scripts, streamlines, references, cloud, loaded } = useStore()
+  const { inspirations, scripts, categories, references, cloud, loaded } = useStore()
   const [refreshing, setRefreshing] = useState(false)
 
   async function checkNow() {
@@ -14,7 +14,7 @@ export default function SettingsPage() {
   }
 
   function exportData() {
-    const data = { inspirations, scripts, streamlines, references, exportedAt: new Date().toISOString() }
+    const data = { inspirations, scripts, categories, references, plans: useStore.getState().plans, exportedAt: new Date().toISOString() }
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -28,7 +28,7 @@ export default function SettingsPage() {
     { label: 'Inspirations', value: inspirations.length },
     { label: 'Scripts', value: scripts.length },
     { label: 'References', value: references.length },
-    { label: 'Streamlines', value: streamlines.length },
+    { label: 'Categories', value: categories.length },
   ]
 
   return (

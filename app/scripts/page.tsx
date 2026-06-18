@@ -1,5 +1,5 @@
 'use client'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Masonry from 'react-masonry-css'
 import { useStore } from '@/lib/store'
@@ -16,17 +16,24 @@ const BREAKPOINT_COLS = {
 const STATUSES = ['draft', 'ready', 'shot'] as const
 
 export default function ScriptsPage() {
-  const { scripts, addScript, deleteScript } = useStore()
+  const { scripts, categories, addScript, deleteScript } = useStore()
   const [search, setSearch]           = useState('')
   const [filterStatus, setFilterStatus] = useState('')
+  const [filterCat, setFilterCat]     = useState('')
   const router = useRouter()
+
+  useEffect(() => {
+    const c = new URLSearchParams(window.location.search).get('category')
+    if (c) setFilterCat(c)
+  }, [])
 
   const filtered = useMemo(() => {
     let s = scripts
     if (search)       s = s.filter(x => x.title.toLowerCase().includes(search.toLowerCase()))
     if (filterStatus) s = s.filter(x => x.status === filterStatus)
+    if (filterCat)    s = s.filter(x => x.category === filterCat)
     return s
-  }, [scripts, search, filterStatus])
+  }, [scripts, search, filterStatus, filterCat])
 
   function createNew() {
     const now = new Date().toISOString()
@@ -119,6 +126,33 @@ export default function ScriptsPage() {
             </button>
           ))}
         </div>
+
+        {/* Category filter pills */}
+        {categories.length > 0 && (
+          <div className="px-5 pb-3 max-w-5xl mx-auto flex items-center gap-2 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+            <button
+              onClick={() => setFilterCat('')}
+              className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
+              style={{ background: !filterCat ? '#2F4156' : 'rgba(200,217,230,0.3)', color: !filterCat ? '#FFFFFF' : '#567C8D', border: `1px solid ${!filterCat ? '#2F4156' : '#D0DDE6'}` }}
+            >
+              All categories
+            </button>
+            {categories.map(c => {
+              const active = filterCat === c.name
+              return (
+                <button
+                  key={c.id}
+                  onClick={() => setFilterCat(prev => prev === c.name ? '' : c.name)}
+                  className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
+                  style={{ background: active ? `${c.color}1A` : 'rgba(200,217,230,0.3)', color: active ? c.color : '#567C8D', border: `1px solid ${active ? `${c.color}55` : '#D0DDE6'}` }}
+                >
+                  <span className="rounded-full" style={{ width: 7, height: 7, background: c.color }} />
+                  {c.name}
+                </button>
+              )
+            })}
+          </div>
+        )}
       </div>
 
       {/* ── CONTENT ── */}

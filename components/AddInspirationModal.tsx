@@ -1,9 +1,9 @@
 'use client'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, ChevronDown, Check, Upload, Loader2 } from 'lucide-react'
-import { CONTENT_CATEGORIES } from '@/lib/types'
-import type { ContentCategory, Inspiration, InspirationScreenshot, Reference } from '@/lib/types'
+import type { Inspiration, InspirationScreenshot, Reference } from '@/lib/types'
+import { useStore } from '@/lib/store'
 import { v4 as uuid } from 'uuid'
 
 interface Props {
@@ -13,9 +13,9 @@ interface Props {
 }
 
 function CustomSelect({ value, onChange, options }: {
-  value: ContentCategory
-  onChange: (v: ContentCategory) => void
-  options: ContentCategory[]
+  value: string
+  onChange: (v: string) => void
+  options: string[]
 }) {
   const [open, setOpen] = useState(false)
   return (
@@ -67,9 +67,10 @@ function CustomSelect({ value, onChange, options }: {
 }
 
 export function AddInspirationModal({ open, onClose, onSuccess }: Props) {
+  const categories = useStore(s => s.categories)
   const [url, setUrl]           = useState('')
   const [howToUse, setHowToUse] = useState('')
-  const [category, setCategory] = useState<ContentCategory>('content creation tips')
+  const [category, setCategory] = useState<string>('')
   const [tags, setTags]         = useState('')
   const [screenshots, setScreenshots] = useState<Array<{
     id: string; file?: File; preview: string; blobUrl: string
@@ -78,8 +79,12 @@ export function AddInspirationModal({ open, onClose, onSuccess }: Props) {
   const [saving, setSaving] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
+  useEffect(() => {
+    if (!category && categories.length) setCategory(categories[0].name)
+  }, [categories, category])
+
   function reset() {
-    setUrl(''); setHowToUse(''); setCategory('content creation tips')
+    setUrl(''); setHowToUse(''); setCategory(categories[0]?.name ?? '')
     setTags(''); setScreenshots([]); setSaving(false)
   }
 
@@ -212,7 +217,7 @@ export function AddInspirationModal({ open, onClose, onSuccess }: Props) {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-semibold uppercase tracking-wider mb-2 block" style={{ color: '#8EA7B5' }}>Category *</label>
-                  <CustomSelect value={category} onChange={setCategory} options={CONTENT_CATEGORIES as unknown as ContentCategory[]} />
+                  <CustomSelect value={category} onChange={setCategory} options={categories.map(c => c.name)} />
                 </div>
                 <div>
                   <label className="text-xs font-semibold uppercase tracking-wider mb-2 block" style={{ color: '#8EA7B5' }}>Tags</label>

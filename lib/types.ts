@@ -1,26 +1,27 @@
-export type ContentCategory =
-  | 'best people for faasle'
-  | 'business resources'
-  | 'art and culture recreate'
-  | 'personal life recreate'
-  | 'random easy recreate'
-  | 'cinematics references'
-  | 'claude for myself'
-  | 'ai content to recreate'
-  | 'business tips'
-  | 'content creation tips'
+// ── CONTENT CATEGORIES ───────────────────────────────────────
+// User-defined content categories (formerly "streamlines"). Each holds the
+// rules and shot guidance for that kind of content. Scripts are tagged with a
+// category by name; the script count per category is derived, not stored.
+export interface Category {
+  id: string
+  name: string
+  description: string
+  rules: string
+  shotTypes: string
+  color: string
+  createdAt: string
+  updatedAt?: string
+}
 
-export const CONTENT_CATEGORIES: ContentCategory[] = [
-  'best people for faasle',
-  'business resources',
-  'art and culture recreate',
-  'personal life recreate',
-  'random easy recreate',
-  'cinematics references',
-  'claude for myself',
-  'ai content to recreate',
-  'business tips',
-  'content creation tips',
+export const CATEGORY_COLORS = [
+  '#2F4156', // navy
+  '#567C8D', // teal
+  '#9A7BB0', // violet
+  '#CC785C', // clay
+  '#7FA37E', // sage
+  '#C2A14D', // ochre
+  '#6E94A6', // steel
+  '#B5836B', // terracotta
 ]
 
 // ── INSPIRATIONS ─────────────────────────────────────────────
@@ -29,7 +30,7 @@ export interface Inspiration {
   url: string
   title?: string
   howToUse: string
-  category: ContentCategory
+  category: string
   tags: string[]
   screenshots: InspirationScreenshot[]
   createdAt: string
@@ -54,7 +55,6 @@ export interface Script {
   content: string
   visualRefs: VisualRef[]
   music: MusicEntry[]
-  streamlineId?: string
   inspirationId?: string
   createdAt: string
   updatedAt: string
@@ -78,17 +78,15 @@ export interface MusicEntry {
   note?: string
 }
 
-// ── STREAMLINES ──────────────────────────────────────────────
-export interface Streamline {
+// ── CONTENT PLANNER ──────────────────────────────────────────
+export interface PlanEntry {
   id: string
-  name: string
-  description: string
-  voiceRules: string
-  scriptRules: string
-  tone: string
-  contentStyle: string
-  exampleOpeners: string
-  wordsToAvoid: string
+  date: string          // 'YYYY-MM-DD'
+  categoryId: string
+  title: string
+  note?: string
+  scriptId?: string
+  status: 'planned' | 'posted'
   createdAt: string
   updatedAt?: string
 }
@@ -112,6 +110,7 @@ export interface Reference {
 export interface AppData {
   inspirations: Inspiration[]
   scripts: Script[]
-  streamlines: Streamline[]
+  categories: Category[]
   references: Reference[]
+  plans: PlanEntry[]
 }

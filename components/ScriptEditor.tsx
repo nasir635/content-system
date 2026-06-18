@@ -1,5 +1,5 @@
 'use client'
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
@@ -184,6 +184,55 @@ function RefPicker({
   )
 }
 
+/* ── Category dropdown ──────────────────────────────────── */
+function CategoryDropdown({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const categories = useStore(s => s.categories)
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  const current = categories.find(c => c.name === value)
+
+  useEffect(() => {
+    function handle(e: MouseEvent) { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false) }
+    document.addEventListener('mousedown', handle)
+    return () => document.removeEventListener('mousedown', handle)
+  }, [])
+
+  return (
+    <div ref={ref} className="relative">
+      <button type="button" onClick={() => setOpen(o => !o)}
+        className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold transition-colors"
+        style={{ background: current ? `${current.color}14` : 'rgba(200,217,230,0.3)', color: current ? current.color : '#8EA7B5', border: `1px solid ${current ? `${current.color}33` : '#D0DDE6'}` }}>
+        {current && <span className="rounded-full" style={{ width: 7, height: 7, background: current.color }} />}
+        {current ? current.name : 'Set category'}
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform .15s' }}><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.12 }}
+            className="absolute left-0 mt-1.5 rounded-xl overflow-hidden z-50" style={{ minWidth: 180, background: '#FFFFFF', border: '1px solid #D0DDE6', boxShadow: '0 8px 28px rgba(47,65,86,0.16)', maxHeight: 240, overflowY: 'auto' }}>
+            {value && (
+              <button type="button" onClick={() => { onChange(''); setOpen(false) }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-left transition-colors" style={{ color: '#8EA7B5' }}
+                onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#F7F9FB'} onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}>
+                Clear category
+              </button>
+            )}
+            {categories.map(c => (
+              <button key={c.id} type="button" onClick={() => { onChange(c.name); setOpen(false) }}
+                className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-left transition-colors"
+                style={{ background: c.name === value ? '#F7F9FB' : 'transparent', color: '#2F4156' }}
+                onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#F7F9FB'} onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = c.name === value ? '#F7F9FB' : 'transparent'}>
+                <span className="rounded-full flex-shrink-0" style={{ width: 8, height: 8, background: c.color }} />
+                {c.name}
+              </button>
+            ))}
+            {categories.length === 0 && <p className="px-3 py-2 text-xs" style={{ color: '#A0B8C6' }}>No categories yet</p>}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
 /* ── Main ScriptEditor component ────────────────────────── */
 interface Props {
   script: Script
@@ -194,6 +243,7 @@ export function ScriptEditor({ script, onClose }: Props) {
   const { updateScript, references, inspirations } = useStore()
   const [title, setTitle]       = useState(script.title)
   const [status, setStatus]     = useState(script.status)
+  const [category, setCategory] = useState(script.category)
   const [visualRefs, setVisualRefs] = useState<VisualRef[]>(script.visualRefs ?? [])
   const [music, setMusic]       = useState<MusicEntry[]>(script.music ?? [])
   const [saved, setSaved]       = useState(false)
@@ -206,6 +256,7 @@ export function ScriptEditor({ script, onClose }: Props) {
   useEffect(() => {
     setTitle(script.title)
     setStatus(script.status)
+    setCategory(script.category)
     setVisualRefs(script.visualRefs ?? [])
     setMusic(script.music ?? [])
   }, [script.id]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -226,14 +277,14 @@ export function ScriptEditor({ script, onClose }: Props) {
 
   const save = useCallback(() => {
     updateScript(script.id, {
-      title, status,
+      title, status, category,
       content: JSON.stringify(editor?.getJSON()),
       visualRefs, music,
       updatedAt: new Date().toISOString(),
     })
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
-  }, [script.id, title, status, editor, visualRefs, music, updateScript])
+  }, [script.id, title, status, category, editor, visualRefs, music, updateScript])
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -324,6 +375,15 @@ export function ScriptEditor({ script, onClose }: Props) {
             <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save</>
           )}
         </button>
+      </div>
+
+      {/* Category */}
+      <div className="px-4 py-2 flex-shrink-0 flex items-center gap-2" style={{ borderBottom: '1px solid #D0DDE6', background: '#FFFFFF' }}>
+        <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#8EA7B5' }}>Category</span>
+        <CategoryDropdown
+          value={category}
+          onChange={(v) => { setCategory(v); updateScript(script.id, { category: v, updatedAt: new Date().toISOString() }) }}
+        />
       </div>
 
       {/* Inspiration tag */}
