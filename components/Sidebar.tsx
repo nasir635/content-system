@@ -86,12 +86,9 @@ export function Sidebar() {
     <aside
       className="fixed top-0 left-0 h-full flex flex-col z-40"
       style={{
-        width: 200,
-        background: 'rgba(255,255,255,0.72)',
-        backdropFilter: 'blur(18px)',
-        WebkitBackdropFilter: 'blur(18px)',
-        borderRight: '1px solid rgba(208,221,230,0.6)',
-        boxShadow: '2px 0 20px rgba(47,65,86,0.06)',
+        width: 220,
+        background: '#FFFFFF',
+        borderRight: '1px solid #DFE3EB',
       }}
     >
       {/* Logo */}
@@ -99,13 +96,13 @@ export function Sidebar() {
         <div className="flex items-center gap-2">
           <div
             className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-            style={{ background: 'linear-gradient(135deg, #2F4156 0%, #567C8D 100%)' }}
+            style={{ background: 'linear-gradient(135deg, #33475B 0%, #516F90 100%)' }}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
               <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
             </svg>
           </div>
-          <span className="font-bold text-sm tracking-tight truncate" style={{ color: '#2F4156' }}>
+          <span className="font-bold text-sm tracking-tight truncate" style={{ color: '#33475B' }}>
             {portalName}
           </span>
         </div>
@@ -115,7 +112,7 @@ export function Sidebar() {
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5" style={{ scrollbarWidth: 'none' }}>
         {NAV_GROUPS.map(group => (
           <div key={group.label}>
-            <p className="px-2 mb-2 text-[9px] font-bold tracking-widest" style={{ color: '#A0B8C6' }}>
+            <p className="px-2 mb-2 text-[9px] font-bold tracking-widest" style={{ color: '#99ACC2' }}>
               {group.label}
             </p>
             <div className="space-y-0.5">
@@ -125,10 +122,10 @@ export function Sidebar() {
                   <Link
                     key={href}
                     href={href}
-                    className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl transition-all"
+                    className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-colors"
                     style={{
-                      background: active ? 'linear-gradient(135deg, #2F4156 0%, #567C8D 100%)' : 'transparent',
-                      color: active ? '#FFFFFF' : '#567C8D',
+                      background: active ? '#FFF1ED' : 'transparent',
+                      color: active ? '#FF7A59' : '#516F90',
                       fontWeight: active ? 600 : 500,
                       fontSize: 13,
                     }}
@@ -145,8 +142,8 @@ export function Sidebar() {
 
       {/* Footer */}
       <div className="px-4 py-4" style={{ borderTop: '1px solid rgba(208,221,230,0.4)' }}>
-        <p className="text-[10px] font-medium" style={{ color: '#A0B8C6' }}>Faasle Content OS</p>
-        <p className="text-[9px]" style={{ color: '#C8D9E6' }}>v1.0</p>
+        <p className="text-[10px] font-medium" style={{ color: '#99ACC2' }}>Faasle Content OS</p>
+        <p className="text-[9px]" style={{ color: '#CBD6E2' }}>v1.0</p>
       </div>
     </aside>
   )

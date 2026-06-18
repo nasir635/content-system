@@ -4,195 +4,168 @@
 
 * { box-sizing: border-box; padding: 0; margin: 0; }
 
+:root {
+  --bg: #F5F8FA;
+  --card: #FFFFFF;
+  --border: #DFE3EB;
+  --border-strong: #CBD6E2;
+  --text: #33475B;
+  --text-2: #516F90;
+  --muted: #7C98B6;
+  --faint: #99ACC2;
+  --primary: #FF7A59;
+  --primary-hover: #FF8F73;
+  --accent: #00A4BD;
+}
+
 html, body {
-  background: #FFFFFF;
-  color: #2F4156;
-  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
   overflow-x: hidden;
 }
 
-::-webkit-scrollbar { width: 0; height: 0; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: #D5DCE5; border-radius: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
 
-/* ── GLOSSY CARD ─────────────────────────────────────────────
-   Used for content cards (dissections, scripts, references)   */
+/* ── CARD (content cards: scripts, references, inspirations) ── */
 .glossy-card {
-  background: #FFFFFF;
-  border-radius: 22px;
-  border: 1px solid rgba(0,0,0,0.06);
-  box-shadow:
-    0 1px 2px  rgba(0,0,0,0.04),
-    0 4px 12px rgba(0,0,0,0.06),
-    0 16px 40px rgba(47,65,86,0.08);
-  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  background: var(--card);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 2px rgba(45, 62, 80, 0.04);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
   overflow: hidden;
 }
 .glossy-card:hover {
-  transform: translateY(-5px) scale(1.01);
-  box-shadow:
-    0 2px 4px  rgba(0,0,0,0.04),
-    0 8px 24px rgba(0,0,0,0.1),
-    0 28px 56px rgba(47,65,86,0.14);
+  border-color: var(--border-strong);
+  box-shadow: 0 6px 18px rgba(45, 62, 80, 0.10);
+  transform: translateY(-2px);
 }
 
-/* ── GLASS PANEL CARD (for dashboard sections) ───────────────*/
+/* ── PANEL CARD (dashboard / detail sections) ── */
 .glass-card {
-  background: rgba(255,255,255,0.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(200,217,230,0.4);
-  border-radius: 20px;
-  box-shadow:
-    0 1px 3px rgba(0,0,0,0.04),
-    0 4px 16px rgba(47,65,86,0.06),
-    inset 0 1px 0 rgba(255,255,255,0.9);
-  transition: transform 0.2s, box-shadow 0.2s;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(45, 62, 80, 0.04);
+  transition: box-shadow 0.15s ease;
 }
-.glass-card:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 2px 6px rgba(0,0,0,0.06),
-    0 8px 24px rgba(47,65,86,0.1),
-    inset 0 1px 0 rgba(255,255,255,0.9);
-}
+.glass-card:hover { box-shadow: 0 4px 14px rgba(45, 62, 80, 0.07); }
 
-/* ── STAT CARD ───────────────────────────────────────────────*/
+/* ── STAT CARD ── */
 .stat-card {
-  background: #FFFFFF;
-  border-radius: 18px;
-  border: 1px solid rgba(0,0,0,0.06);
-  padding: 20px;
-  box-shadow:
-    0 1px 3px rgba(0,0,0,0.04),
-    0 4px 16px rgba(47,65,86,0.07),
-    inset 0 1px 0 rgba(255,255,255,1);
-  transition: transform 0.2s, box-shadow 0.2s;
+  background: var(--card);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  padding: 18px 20px;
+  box-shadow: 0 1px 2px rgba(45, 62, 80, 0.04);
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
 }
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 2px 6px rgba(0,0,0,0.06),
-    0 8px 24px rgba(47,65,86,0.1),
-    inset 0 1px 0 rgba(255,255,255,1);
-}
+.stat-card:hover { box-shadow: 0 4px 14px rgba(45, 62, 80, 0.08); transform: translateY(-1px); }
 
-/* ── GLOSSY BUTTON (image-2 "Reserve" style) ─────────────────*/
+/* ── SECONDARY BUTTON (card actions) ── */
 .glossy-btn {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding: 11px 16px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(242,246,250,0.98) 100%);
-  border: 1px solid rgba(0,0,0,0.1);
-  border-radius: 14px;
+  padding: 9px 16px;
+  background: #FFFFFF;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
   font-size: 13px;
   font-weight: 600;
-  color: #2F4156;
+  color: var(--text);
   cursor: pointer;
-  box-shadow:
-    0 1px 3px rgba(0,0,0,0.08),
-    0 2px 8px rgba(0,0,0,0.04),
-    inset 0 1px 0 rgba(255,255,255,1);
-  transition: all 0.18s ease;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
-.glossy-btn:hover {
-  background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(234,241,248,1) 100%);
-  box-shadow:
-    0 2px 8px rgba(0,0,0,0.1),
-    0 4px 16px rgba(47,65,86,0.1),
-    inset 0 1px 0 rgba(255,255,255,1);
-  transform: translateY(-1px);
-}
+.glossy-btn:hover { background: #F5F8FA; border-color: #B8C4D6; }
 
-/* ── PINTEREST MASONRY ───────────────────────────────────────*/
-.my-masonry-grid {
-  display: flex;
-  gap: 18px;
-  width: 100%;
-}
-.my-masonry-grid-column {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
+/* ── MASONRY ── */
+.my-masonry-grid { display: flex; gap: 16px; width: 100%; }
+.my-masonry-grid-column { display: flex; flex-direction: column; gap: 16px; }
 
-/* ── CHIP / BADGE ────────────────────────────────────────────*/
+/* ── CHIP / BADGE ── */
 .chip {
   display: inline-flex;
   align-items: center;
-  padding: 4px 11px;
-  border-radius: 9999px;
+  padding: 3px 10px;
+  border-radius: 6px;
   font-size: 11px;
   font-weight: 600;
-  background: rgba(200,217,230,0.35);
-  color: #2F4156;
-  border: 1px solid rgba(200,217,230,0.5);
+  background: #EAF0F6;
+  color: var(--text-2);
+  border: 1px solid var(--border);
 }
 
-/* ── INPUT ───────────────────────────────────────────────────*/
+/* ── INPUT ── */
 .cs-input {
   width: 100%;
-  background: #F8FAFC;
-  border: 1.5px solid #D0DDE6;
-  border-radius: 12px;
-  padding: 10px 14px;
+  background: #FFFFFF;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  padding: 10px 13px;
   font-size: 14px;
-  color: #2F4156;
+  color: var(--text);
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
+.cs-input::placeholder { color: var(--faint); }
 .cs-input:focus {
-  border-color: #567C8D;
-  box-shadow: 0 0 0 3px rgba(86,124,141,0.1);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(255, 122, 89, 0.15);
 }
 
-/* ── PRIMARY BUTTON ──────────────────────────────────────────*/
+/* ── PRIMARY BUTTON (orange CTA, HubSpot-style) ── */
 .cs-btn {
-  background: #2F4156;
-  color: white;
+  background: var(--primary);
+  color: #FFFFFF;
   font-weight: 600;
   font-size: 13px;
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 9px 18px;
   border: none;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(47,65,86,0.25), inset 0 1px 0 rgba(255,255,255,0.12);
-  transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+  box-shadow: 0 1px 2px rgba(45, 62, 80, 0.10);
+  transition: background 0.15s, box-shadow 0.15s, transform 0.05s;
 }
-.cs-btn:hover {
-  background: #567C8D;
-  box-shadow: 0 4px 16px rgba(47,65,86,0.3), inset 0 1px 0 rgba(255,255,255,0.12);
-  transform: translateY(-1px);
-}
-.cs-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+.cs-btn:hover { background: var(--primary-hover); box-shadow: 0 2px 8px rgba(255, 122, 89, 0.30); }
+.cs-btn:active { transform: translateY(1px); }
+.cs-btn:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
 
-/* ── OUTLINE BUTTON ──────────────────────────────────────────*/
+/* ── OUTLINE BUTTON ── */
 .cs-btn-outline {
   background: #FFFFFF;
-  color: #2F4156;
+  color: var(--text);
   font-weight: 600;
   font-size: 13px;
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 9px 18px;
-  border: 1.5px solid #D0DDE6;
+  border: 1px solid var(--border-strong);
   cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,1);
-  transition: background 0.15s, box-shadow 0.15s;
+  transition: background 0.15s, border-color 0.15s;
 }
-.cs-btn-outline:hover {
-  background: #F0F6FA;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,1);
-}
+.cs-btn-outline:hover { background: #F5F8FA; border-color: #B8C4D6; }
 
-/* ── TIPTAP ──────────────────────────────────────────────────*/
-.tiptap { outline: none; min-height: 350px; color: #2F4156; }
-.tiptap p.is-editor-empty:first-child::before {
-  color: #8EA7B5; content: attr(data-placeholder);
+/* ── EDITOR (TipTap / ProseMirror) ── */
+.ProseMirror, .notion-editor { outline: none; min-height: 320px; color: var(--text); font-size: 15px; line-height: 1.7; }
+.ProseMirror p { margin: 0.35rem 0; }
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: var(--faint); content: attr(data-placeholder);
   float: left; height: 0; pointer-events: none;
 }
-.tiptap h1 { font-size: 1.5rem; font-weight: 700; margin: 1rem 0 0.5rem; }
-.tiptap h2 { font-size: 1.2rem; font-weight: 600; margin: 0.8rem 0 0.4rem; }
-.tiptap strong { font-weight: 700; }
-.tiptap blockquote { border-left: 3px solid #C8D9E6; padding-left: 1rem; color: #567C8D; margin: 1rem 0; }
-.tiptap a { color: #567C8D; }
+.ProseMirror h1 { font-size: 1.6rem; font-weight: 700; margin: 1.1rem 0 0.5rem; color: var(--text); }
+.ProseMirror h2 { font-size: 1.3rem; font-weight: 700; margin: 0.9rem 0 0.4rem; color: var(--text); }
+.ProseMirror h3 { font-size: 1.1rem; font-weight: 600; margin: 0.8rem 0 0.3rem; color: var(--text); }
+.ProseMirror strong { font-weight: 700; }
+.ProseMirror ul, .ProseMirror ol { padding-left: 1.4rem; margin: 0.4rem 0; }
+.ProseMirror blockquote { border-left: 3px solid var(--border-strong); padding-left: 1rem; color: var(--text-2); margin: 0.8rem 0; }
+.ProseMirror a { color: var(--accent); text-decoration: underline; }
+.ProseMirror code { background: #EAF0F6; padding: 0.1rem 0.3rem; border-radius: 4px; font-size: 0.9em; }
+.ProseMirror mark { background: #FFE9B0; border-radius: 2px; }
+.ProseMirror hr { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }

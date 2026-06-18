@@ -66,10 +66,10 @@ export default function SettingsPage() {
   ]
 
   return (
-    <div className="min-h-screen" style={{ background: '#F5EFEB' }}>
-      <div className="sticky top-0 z-30" style={{ background: 'rgba(245,239,235,0.94)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #D0DDE6' }}>
+    <div className="min-h-screen" style={{ background: '#F5F8FA' }}>
+      <div className="sticky top-0 z-30" style={{ background: 'rgba(245,239,235,0.94)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #DFE3EB' }}>
         <div className="max-w-2xl mx-auto px-4 sm:px-6 py-4">
-          <h1 className="font-bold text-[18px]" style={{ color: '#2F4156' }}>Settings</h1>
+          <h1 className="font-bold text-[18px]" style={{ color: '#33475B' }}>Settings</h1>
         </div>
       </div>
 
@@ -78,36 +78,36 @@ export default function SettingsPage() {
         {/* Workspace */}
         <div className="glass-card p-6 space-y-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#E8F0F5' }}>
-              <Briefcase size={18} style={{ color: '#567C8D' }} />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#EAF0F6' }}>
+              <Briefcase size={18} style={{ color: '#516F90' }} />
             </div>
             <div>
-              <h2 className="font-bold" style={{ color: '#2F4156' }}>Workspace</h2>
-              <p className="text-xs" style={{ color: '#8EA7B5' }}>Name your portal and yourself — used across the app</p>
+              <h2 className="font-bold" style={{ color: '#33475B' }}>Workspace</h2>
+              <p className="text-xs" style={{ color: '#7C98B6' }}>Name your portal and yourself — used across the app</p>
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-semibold uppercase tracking-wider mb-1.5 block" style={{ color: '#8EA7B5' }}>Portal name</label>
+              <label className="text-xs font-semibold uppercase tracking-wider mb-1.5 block" style={{ color: '#7C98B6' }}>Portal name</label>
               <input className="cs-input" value={settings.portalName} onChange={e => updateSettings({ portalName: e.target.value })} placeholder="Content OS" />
             </div>
             <div>
-              <label className="text-xs font-semibold uppercase tracking-wider mb-1.5 block" style={{ color: '#8EA7B5' }}>Your name</label>
+              <label className="text-xs font-semibold uppercase tracking-wider mb-1.5 block" style={{ color: '#7C98B6' }}>Your name</label>
               <input className="cs-input" value={settings.ownerName} onChange={e => updateSettings({ ownerName: e.target.value })} placeholder="e.g. Nasir" />
             </div>
           </div>
-          <p className="text-[11px]" style={{ color: '#A0B8C6' }}>Saved automatically.</p>
+          <p className="text-[11px]" style={{ color: '#99ACC2' }}>Saved automatically.</p>
         </div>
 
         {/* Security */}
         <div className="glass-card p-6 space-y-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #2F4156 0%, #567C8D 100%)' }}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #33475B 0%, #516F90 100%)' }}>
               <Lock size={18} className="text-white" />
             </div>
             <div>
-              <h2 className="font-bold" style={{ color: '#2F4156' }}>Security</h2>
-              <p className="text-xs" style={{ color: '#8EA7B5' }}>Change the password that protects this portal</p>
+              <h2 className="font-bold" style={{ color: '#33475B' }}>Security</h2>
+              <p className="text-xs" style={{ color: '#7C98B6' }}>Change the password that protects this portal</p>
             </div>
           </div>
           <form onSubmit={changePassword} className="space-y-3">
@@ -131,31 +131,31 @@ export default function SettingsPage() {
         {/* Storage & Sync */}
         <div className="glass-card p-6 space-y-5">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #2F4156 0%, #567C8D 100%)' }}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #33475B 0%, #516F90 100%)' }}>
               {cloud ? <Cloud size={18} className="text-white" /> : <CloudOff size={18} className="text-white" />}
             </div>
             <div>
-              <h2 className="font-bold" style={{ color: '#2F4156' }}>Storage &amp; Sync</h2>
-              <p className="text-xs" style={{ color: '#8EA7B5' }}>Where your portal data lives</p>
+              <h2 className="font-bold" style={{ color: '#33475B' }}>Storage &amp; Sync</h2>
+              <p className="text-xs" style={{ color: '#7C98B6' }}>Where your portal data lives</p>
             </div>
           </div>
 
           {!loaded ? (
-            <div className="flex items-center gap-2 text-sm" style={{ color: '#8EA7B5' }}>
+            <div className="flex items-center gap-2 text-sm" style={{ color: '#7C98B6' }}>
               <Loader2 size={15} className="animate-spin" /> Checking…
             </div>
           ) : cloud ? (
             <div className="flex items-start gap-2 rounded-xl px-4 py-3" style={{ background: 'rgba(58,125,68,0.1)', border: '1px solid rgba(58,125,68,0.25)' }}>
               <CheckCircle2 size={16} style={{ color: '#3a7d44', flexShrink: 0, marginTop: 1 }} />
               <div>
-                <p className="text-sm font-semibold" style={{ color: '#2F4156' }}>Cloud sync is active</p>
-                <p className="text-xs mt-0.5" style={{ color: '#567C8D' }}>Your data is saved online and loads on any device you open this URL from.</p>
+                <p className="text-sm font-semibold" style={{ color: '#33475B' }}>Cloud sync is active</p>
+                <p className="text-xs mt-0.5" style={{ color: '#516F90' }}>Your data is saved online and loads on any device you open this URL from.</p>
               </div>
             </div>
           ) : (
             <div className="rounded-xl px-4 py-4 space-y-2" style={{ background: 'rgba(176,74,74,0.08)', border: '1px solid rgba(176,74,74,0.2)' }}>
               <p className="text-sm font-semibold" style={{ color: '#B04A4A' }}>Cloud sync not connected — saving to this browser only</p>
-              <p className="text-xs leading-relaxed" style={{ color: '#567C8D' }}>Connect a Vercel Blob store in your project&apos;s Storage tab, then redeploy.</p>
+              <p className="text-xs leading-relaxed" style={{ color: '#516F90' }}>Connect a Vercel Blob store in your project&apos;s Storage tab, then redeploy.</p>
             </div>
           )}
 
@@ -168,20 +168,20 @@ export default function SettingsPage() {
         {/* Data */}
         <div className="glass-card p-6 space-y-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#E8F0F5' }}>
-              <Database size={18} style={{ color: '#567C8D' }} />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#EAF0F6' }}>
+              <Database size={18} style={{ color: '#516F90' }} />
             </div>
             <div>
-              <h2 className="font-bold" style={{ color: '#2F4156' }}>Your Data</h2>
-              <p className="text-xs" style={{ color: '#8EA7B5' }}>A snapshot of everything in your portal</p>
+              <h2 className="font-bold" style={{ color: '#33475B' }}>Your Data</h2>
+              <p className="text-xs" style={{ color: '#7C98B6' }}>A snapshot of everything in your portal</p>
             </div>
           </div>
 
           <div className="grid grid-cols-4 gap-3">
             {counts.map(c => (
-              <div key={c.label} className="rounded-xl px-3 py-3 text-center" style={{ background: '#FFFFFF', border: '1px solid #D0DDE6' }}>
-                <p className="text-2xl font-bold" style={{ color: '#2F4156' }}>{c.value}</p>
-                <p className="text-[10px] mt-0.5" style={{ color: '#8EA7B5' }}>{c.label}</p>
+              <div key={c.label} className="rounded-xl px-3 py-3 text-center" style={{ background: '#FFFFFF', border: '1px solid #DFE3EB' }}>
+                <p className="text-2xl font-bold" style={{ color: '#33475B' }}>{c.value}</p>
+                <p className="text-[10px] mt-0.5" style={{ color: '#7C98B6' }}>{c.label}</p>
               </div>
             ))}
           </div>
@@ -191,7 +191,7 @@ export default function SettingsPage() {
           </button>
         </div>
 
-        <div className="flex items-center justify-center gap-1.5 pt-2" style={{ color: '#A0B8C6' }}>
+        <div className="flex items-center justify-center gap-1.5 pt-2" style={{ color: '#99ACC2' }}>
           <Settings size={12} />
           <span className="text-[11px]">{settings.portalName || 'Content OS'} · v2.1</span>
         </div>

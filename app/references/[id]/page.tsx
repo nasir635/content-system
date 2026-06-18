@@ -6,7 +6,7 @@ import { useStore } from '@/lib/store'
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="glass-card p-5">
-      <h3 className="font-bold text-[13px] uppercase tracking-wider mb-4" style={{ color: '#8EA7B5' }}>
+      <h3 className="font-bold text-[13px] uppercase tracking-wider mb-4" style={{ color: '#7C98B6' }}>
         {title}
       </h3>
       {children}
@@ -28,15 +28,15 @@ export default function ReferenceDetailPage() {
 
   if (!item) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4" style={{ background: '#F5EFEB' }}>
-        <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: '#E8F0F5' }}>
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#567C8D" strokeWidth="1.5" strokeLinecap="round">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4" style={{ background: '#F5F8FA' }}>
+        <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: '#EAF0F6' }}>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#516F90" strokeWidth="1.5" strokeLinecap="round">
             <circle cx="12" cy="12" r="10"/>
             <line x1="12" y1="8" x2="12" y2="12"/>
             <line x1="12" y1="16" x2="12.01" y2="16"/>
           </svg>
         </div>
-        <p className="font-bold text-lg" style={{ color: '#2F4156' }}>Reference not found</p>
+        <p className="font-bold text-lg" style={{ color: '#33475B' }}>Reference not found</p>
         <button className="cs-btn" onClick={() => router.push('/references')}>← Back to References</button>
       </div>
     )
@@ -71,7 +71,7 @@ export default function ReferenceDetailPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: '#F5EFEB' }}>
+    <div className="min-h-screen" style={{ background: '#F5F8FA' }}>
 
       {/* ── TOP BAR ── */}
       <div
@@ -80,21 +80,21 @@ export default function ReferenceDetailPage() {
           background: 'rgba(245,239,235,0.94)',
           backdropFilter: 'blur(12px)',
           WebkitBackdropFilter: 'blur(12px)',
-          borderBottom: '1px solid #D0DDE6',
+          borderBottom: '1px solid #DFE3EB',
         }}
       >
         <button
           className="flex items-center gap-2 font-semibold text-sm"
-          style={{ color: '#567C8D' }}
+          style={{ color: '#516F90' }}
           onClick={() => router.push('/references')}
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#567C8D" strokeWidth="2.5" strokeLinecap="round">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#516F90" strokeWidth="2.5" strokeLinecap="round">
             <polyline points="15 18 9 12 15 6"/>
           </svg>
           Back
         </button>
 
-        <h1 className="font-bold text-sm text-center flex-1 px-4 truncate" style={{ color: '#2F4156' }}>
+        <h1 className="font-bold text-sm text-center flex-1 px-4 truncate" style={{ color: '#33475B' }}>
           {item.title}
         </h1>
 
@@ -102,7 +102,7 @@ export default function ReferenceDetailPage() {
           <button
             onClick={startEdit}
             className="text-xs font-semibold px-3 py-1.5 rounded-full"
-            style={{ background: 'rgba(86,124,141,0.15)', color: '#567C8D' }}
+            style={{ background: 'rgba(86,124,141,0.15)', color: '#516F90' }}
           >
             Edit
           </button>
@@ -144,7 +144,7 @@ export default function ReferenceDetailPage() {
           ) : (
             <div
               className="relative w-full flex items-center justify-center"
-              style={{ minHeight: 240, background: 'linear-gradient(135deg, #C8D9E6 0%, #567C8D 100%)' }}
+              style={{ minHeight: 240, background: 'linear-gradient(135deg, #CBD6E2 0%, #516F90 100%)' }}
             >
               <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1" strokeLinecap="round">
                 <rect x="3" y="3" width="18" height="18" rx="2"/>
@@ -164,7 +164,7 @@ export default function ReferenceDetailPage() {
           {editing ? (
             <div className="space-y-3">
               <div>
-                <label className="text-xs font-semibold uppercase tracking-wider mb-1.5 block" style={{ color: '#8EA7B5' }}>Title</label>
+                <label className="text-xs font-semibold uppercase tracking-wider mb-1.5 block" style={{ color: '#7C98B6' }}>Title</label>
                 <input
                   className="cs-input"
                   value={titleVal}
@@ -172,7 +172,7 @@ export default function ReferenceDetailPage() {
                 />
               </div>
               <div>
-                <label className="text-xs font-semibold uppercase tracking-wider mb-1.5 block" style={{ color: '#8EA7B5' }}>Note</label>
+                <label className="text-xs font-semibold uppercase tracking-wider mb-1.5 block" style={{ color: '#7C98B6' }}>Note</label>
                 <textarea
                   className="cs-input resize-none"
                   rows={4}
@@ -182,7 +182,7 @@ export default function ReferenceDetailPage() {
                 />
               </div>
               <div>
-                <label className="text-xs font-semibold uppercase tracking-wider mb-1.5 block" style={{ color: '#8EA7B5' }}>Category</label>
+                <label className="text-xs font-semibold uppercase tracking-wider mb-1.5 block" style={{ color: '#7C98B6' }}>Category</label>
                 <input
                   className="cs-input"
                   value={catVal}
@@ -198,9 +198,9 @@ export default function ReferenceDetailPage() {
           ) : (
             <>
               {item.note ? (
-                <p className="text-sm leading-relaxed" style={{ color: '#2F4156' }}>{item.note}</p>
+                <p className="text-sm leading-relaxed" style={{ color: '#33475B' }}>{item.note}</p>
               ) : (
-                <p className="text-sm" style={{ color: '#8EA7B5' }}>No notes yet. Tap Edit to add where / how you plan to use this.</p>
+                <p className="text-sm" style={{ color: '#7C98B6' }}>No notes yet. Tap Edit to add where / how you plan to use this.</p>
               )}
             </>
           )}
@@ -225,9 +225,9 @@ export default function ReferenceDetailPage() {
               { k: 'Added',    v: date },
               { k: 'Tags',     v: item.tags.join(', ') || '—' },
             ].map(({ k, v }) => (
-              <div key={k} className="flex justify-between py-3" style={{ borderBottom: '1px solid #E8F0F5' }}>
-                <span className="text-xs" style={{ color: '#8EA7B5' }}>{k}</span>
-                <span className="text-sm font-medium capitalize" style={{ color: '#2F4156' }}>{v}</span>
+              <div key={k} className="flex justify-between py-3" style={{ borderBottom: '1px solid #EAF0F6' }}>
+                <span className="text-xs" style={{ color: '#7C98B6' }}>{k}</span>
+                <span className="text-sm font-medium capitalize" style={{ color: '#33475B' }}>{v}</span>
               </div>
             ))}
           </div>

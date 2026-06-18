@@ -26,12 +26,12 @@ function CustomSelect({ value, onChange, options }: {
         className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium border transition-all"
         style={{
           background: '#FFFFFF',
-          border: `1.5px solid ${open ? '#567C8D' : '#D0DDE6'}`,
-          color: '#2F4156',
+          border: `1.5px solid ${open ? '#516F90' : '#DFE3EB'}`,
+          color: '#33475B',
         }}
       >
         <span className="capitalize truncate">{value}</span>
-        <ChevronDown size={14} style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform .2s', color: '#8EA7B5', flexShrink: 0 }} />
+        <ChevronDown size={14} style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform .2s', color: '#7C98B6', flexShrink: 0 }} />
       </button>
       <AnimatePresence>
         {open && (
@@ -41,7 +41,7 @@ function CustomSelect({ value, onChange, options }: {
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.1 }}
             className="absolute left-0 right-0 mt-1 rounded-xl z-50 overflow-hidden"
-            style={{ background: '#FFFFFF', border: '1.5px solid #D0DDE6', boxShadow: '0 8px 32px rgba(47,65,86,0.18)', maxHeight: 220, overflowY: 'auto' }}
+            style={{ background: '#FFFFFF', border: '1.5px solid #DFE3EB', boxShadow: '0 8px 32px rgba(47,65,86,0.18)', maxHeight: 220, overflowY: 'auto' }}
           >
             {options.map(opt => (
               <button
@@ -51,12 +51,12 @@ function CustomSelect({ value, onChange, options }: {
                 className="w-full flex items-center justify-between px-3 py-2.5 text-sm capitalize text-left transition-colors"
                 style={{
                   background: opt === value ? 'rgba(86,124,141,0.08)' : 'transparent',
-                  color: opt === value ? '#2F4156' : '#567C8D',
+                  color: opt === value ? '#33475B' : '#516F90',
                   fontWeight: opt === value ? 600 : 400,
                 }}
               >
                 <span>{opt}</span>
-                {opt === value && <Check size={13} style={{ color: '#567C8D', flexShrink: 0 }} />}
+                {opt === value && <Check size={13} style={{ color: '#516F90', flexShrink: 0 }} />}
               </button>
             ))}
           </motion.div>
@@ -176,12 +176,12 @@ export function AddInspirationModal({ open, onClose, onSuccess }: Props) {
             exit={{ y: 40, opacity: 0, scale: 0.97 }}
             transition={{ type: 'spring', damping: 30, stiffness: 350 }}
             className="w-full max-w-lg rounded-[24px] overflow-hidden"
-            style={{ background: '#F5EFEB', border: '1px solid #D0DDE6', boxShadow: '0 24px 64px rgba(47,65,86,0.25)', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}
+            style={{ background: '#F5F8FA', border: '1px solid #DFE3EB', boxShadow: '0 24px 64px rgba(47,65,86,0.25)', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4 flex-shrink-0" style={{ borderBottom: '1px solid #D0DDE6' }}>
-              <h2 className="font-bold text-[15px]" style={{ color: '#2F4156' }}>Add Inspiration</h2>
-              <button onClick={() => { reset(); onClose() }} style={{ color: '#8EA7B5' }}>
+            <div className="flex items-center justify-between px-5 py-4 flex-shrink-0" style={{ borderBottom: '1px solid #DFE3EB' }}>
+              <h2 className="font-bold text-[15px]" style={{ color: '#33475B' }}>Add Inspiration</h2>
+              <button onClick={() => { reset(); onClose() }} style={{ color: '#7C98B6' }}>
                 <X size={18} />
               </button>
             </div>
@@ -191,7 +191,7 @@ export function AddInspirationModal({ open, onClose, onSuccess }: Props) {
 
               {/* URL */}
               <div>
-                <label className="text-xs font-semibold uppercase tracking-wider mb-2 block" style={{ color: '#8EA7B5' }}>Video URL *</label>
+                <label className="text-xs font-semibold uppercase tracking-wider mb-2 block" style={{ color: '#7C98B6' }}>Video URL *</label>
                 <input
                   value={url}
                   onChange={e => setUrl(e.target.value)}
@@ -203,7 +203,7 @@ export function AddInspirationModal({ open, onClose, onSuccess }: Props) {
 
               {/* How to use */}
               <div>
-                <label className="text-xs font-semibold uppercase tracking-wider mb-2 block" style={{ color: '#8EA7B5' }}>How I'll use this *</label>
+                <label className="text-xs font-semibold uppercase tracking-wider mb-2 block" style={{ color: '#7C98B6' }}>How I'll use this *</label>
                 <textarea
                   value={howToUse}
                   onChange={e => setHowToUse(e.target.value)}
@@ -216,11 +216,11 @@ export function AddInspirationModal({ open, onClose, onSuccess }: Props) {
               {/* Category + Tags */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-semibold uppercase tracking-wider mb-2 block" style={{ color: '#8EA7B5' }}>Category *</label>
+                  <label className="text-xs font-semibold uppercase tracking-wider mb-2 block" style={{ color: '#7C98B6' }}>Category *</label>
                   <CustomSelect value={category} onChange={setCategory} options={categories.map(c => c.name)} />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold uppercase tracking-wider mb-2 block" style={{ color: '#8EA7B5' }}>Tags</label>
+                  <label className="text-xs font-semibold uppercase tracking-wider mb-2 block" style={{ color: '#7C98B6' }}>Tags</label>
                   <input
                     value={tags}
                     onChange={e => setTags(e.target.value)}
@@ -232,9 +232,9 @@ export function AddInspirationModal({ open, onClose, onSuccess }: Props) {
 
               {/* Screenshots */}
               <div>
-                <label className="text-xs font-semibold uppercase tracking-wider mb-1 block" style={{ color: '#8EA7B5' }}>
+                <label className="text-xs font-semibold uppercase tracking-wider mb-1 block" style={{ color: '#7C98B6' }}>
                   Screenshots from video
-                  <span className="ml-1 font-normal normal-case" style={{ color: '#A0B8C6' }}>— also saved to your References library</span>
+                  <span className="ml-1 font-normal normal-case" style={{ color: '#99ACC2' }}>— also saved to your References library</span>
                 </label>
 
                 <input
@@ -249,10 +249,10 @@ export function AddInspirationModal({ open, onClose, onSuccess }: Props) {
                 <button
                   onClick={() => fileRef.current?.click()}
                   className="w-full flex flex-col items-center justify-center gap-2 py-5 rounded-[14px] transition-all"
-                  style={{ background: '#FFFFFF', border: '1.5px dashed #D0DDE6' }}
+                  style={{ background: '#FFFFFF', border: '1.5px dashed #DFE3EB' }}
                 >
-                  <Upload size={20} style={{ color: '#8EA7B5' }} />
-                  <span className="text-xs font-semibold" style={{ color: '#8EA7B5' }}>
+                  <Upload size={20} style={{ color: '#7C98B6' }} />
+                  <span className="text-xs font-semibold" style={{ color: '#7C98B6' }}>
                     Click to upload screenshots (multiple)
                   </span>
                 </button>
@@ -264,9 +264,9 @@ export function AddInspirationModal({ open, onClose, onSuccess }: Props) {
                       <div
                         key={s.id}
                         className="flex gap-3 p-3 rounded-xl"
-                        style={{ background: '#FFFFFF', border: '1px solid #D0DDE6' }}
+                        style={{ background: '#FFFFFF', border: '1px solid #DFE3EB' }}
                       >
-                        <div className="relative flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden" style={{ background: '#E8F0F5' }}>
+                        <div className="relative flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden" style={{ background: '#EAF0F6' }}>
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img src={s.preview} alt="" className="w-full h-full object-cover" />
                           {s.uploading && (
@@ -291,7 +291,7 @@ export function AddInspirationModal({ open, onClose, onSuccess }: Props) {
                         </div>
                         <button
                           onClick={() => setScreenshots(prev => prev.filter(x => x.id !== s.id))}
-                          style={{ color: '#8EA7B5', flexShrink: 0 }}
+                          style={{ color: '#7C98B6', flexShrink: 0 }}
                           className="self-start"
                         >
                           <X size={14} />
@@ -304,7 +304,7 @@ export function AddInspirationModal({ open, onClose, onSuccess }: Props) {
             </div>
 
             {/* Footer */}
-            <div className="flex gap-3 px-5 py-4 flex-shrink-0" style={{ borderTop: '1px solid #D0DDE6' }}>
+            <div className="flex gap-3 px-5 py-4 flex-shrink-0" style={{ borderTop: '1px solid #DFE3EB' }}>
               <button className="cs-btn-outline flex-1 py-2.5 rounded-[10px] text-sm font-semibold" onClick={() => { reset(); onClose() }}>
                 Cancel
               </button>

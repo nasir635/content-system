@@ -2,22 +2,22 @@
 import type { Script } from '@/lib/types'
 
 const STATUS_STYLES = {
-  draft:  { label: 'Draft',          bg: 'rgba(200,217,230,0.35)', color: '#2F4156' },
+  draft:  { label: 'Draft',          bg: 'rgba(200,217,230,0.35)', color: '#33475B' },
   ready:  { label: 'Ready to Shoot', bg: 'rgba(86,124,141,0.55)',  color: '#FFFFFF' },
   shot:   { label: 'Shot ✓',        bg: 'rgba(47,65,86,0.70)',    color: '#FFFFFF' },
 }
 
 function getGradient(category: string): string {
   const map: Record<string, string> = {
-    'content creation tips':  'linear-gradient(160deg, #567C8D 0%, #C8D9E6 100%)',
-    'business tips':          'linear-gradient(160deg, #2F4156 0%, #567C8D 100%)',
-    'short-form':             'linear-gradient(160deg, #3d5a73 0%, #7A9BAD 100%)',
-    'long-form':              'linear-gradient(160deg, #4a6a7d 0%, #C8D9E6 100%)',
-    'cold open':              'linear-gradient(160deg, #1a2e3d 0%, #2F4156 100%)',
-    'voiceover':              'linear-gradient(160deg, #567C8D 0%, #E8F0F5 100%)',
-    'personal':               'linear-gradient(160deg, #7A9BAD 0%, #C8D9E6 100%)',
+    'content creation tips':  'linear-gradient(160deg, #516F90 0%, #CBD6E2 100%)',
+    'business tips':          'linear-gradient(160deg, #33475B 0%, #516F90 100%)',
+    'short-form':             'linear-gradient(160deg, #33475B 0%, #516F90 100%)',
+    'long-form':              'linear-gradient(160deg, #33475B 0%, #CBD6E2 100%)',
+    'cold open':              'linear-gradient(160deg, #213343 0%, #33475B 100%)',
+    'voiceover':              'linear-gradient(160deg, #516F90 0%, #EAF0F6 100%)',
+    'personal':               'linear-gradient(160deg, #516F90 0%, #CBD6E2 100%)',
   }
-  return map[category?.toLowerCase()] ?? 'linear-gradient(160deg, #2F4156 0%, #567C8D 100%)'
+  return map[category?.toLowerCase()] ?? 'linear-gradient(160deg, #33475B 0%, #516F90 100%)'
 }
 
 interface Props {
@@ -118,7 +118,7 @@ export function ScriptCard({ script, onClick, onDelete }: Props) {
             className="mb-3 leading-relaxed"
             style={{
               fontSize: 12,
-              color: '#6B8FA3',
+              color: '#516F90',
               display: '-webkit-box',
               WebkitLineClamp: 2,
               WebkitBoxOrient: 'vertical',
@@ -131,7 +131,7 @@ export function ScriptCard({ script, onClick, onDelete }: Props) {
 
         <div className="flex items-center justify-between mb-3">
           <span className="chip capitalize">{script.category}</span>
-          <span style={{ fontSize: 11, color: '#A0B8C6' }}>{date}</span>
+          <span style={{ fontSize: 11, color: '#99ACC2' }}>{date}</span>
         </div>
 
         <button

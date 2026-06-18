@@ -28,7 +28,7 @@ export function ReferenceCard({ item, onClick, onDelete }: Props) {
           <div
             className="w-full flex items-center justify-center"
             style={{
-              background: 'linear-gradient(160deg, #C8D9E6 0%, #567C8D 100%)',
+              background: 'linear-gradient(160deg, #CBD6E2 0%, #516F90 100%)',
               minHeight: 210,
             }}
           >
@@ -85,7 +85,7 @@ export function ReferenceCard({ item, onClick, onDelete }: Props) {
             className="mb-3 leading-relaxed"
             style={{
               fontSize: 12,
-              color: '#6B8FA3',
+              color: '#516F90',
               display: '-webkit-box',
               WebkitLineClamp: 2,
               WebkitBoxOrient: 'vertical',
@@ -101,7 +101,7 @@ export function ReferenceCard({ item, onClick, onDelete }: Props) {
             ? <span className="chip capitalize">{item.category}</span>
             : <span />
           }
-          <span style={{ fontSize: 11, color: '#A0B8C6' }}>{date}</span>
+          <span style={{ fontSize: 11, color: '#99ACC2' }}>{date}</span>
         </div>
 
         <button className="glossy-btn" onClick={e => { e.stopPropagation(); onClick(item) }}>

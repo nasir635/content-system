@@ -1,7 +1,10 @@
 import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
 import './globals.css'
 import { Shell } from '@/components/Shell'
 import { StoreHydrator } from '@/components/StoreHydrator'
+
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' })
 
 export const metadata: Metadata = {
   title: 'Content OS',
@@ -10,8 +13,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className="bg-white text-cs-navy">
+    <html lang="en" className={inter.variable}>
+      <body>
         <StoreHydrator />
         <Shell>{children}</Shell>
       </body>

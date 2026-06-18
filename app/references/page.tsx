@@ -91,7 +91,7 @@ export default function ReferencesPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: '#F5EFEB' }}>
+    <div className="min-h-screen" style={{ background: '#F5F8FA' }}>
 
       {/* ── TOP HEADER ── */}
       <div
@@ -100,17 +100,17 @@ export default function ReferencesPage() {
           background: 'rgba(245,239,235,0.94)',
           backdropFilter: 'blur(12px)',
           WebkitBackdropFilter: 'blur(12px)',
-          borderBottom: '1px solid #D0DDE6',
+          borderBottom: '1px solid #DFE3EB',
         }}
       >
         <div className="flex items-center justify-between px-5 py-4 max-w-5xl mx-auto">
-          <h1 className="font-bold text-[18px]" style={{ color: '#2F4156' }}>References</h1>
+          <h1 className="font-bold text-[18px]" style={{ color: '#33475B' }}>References</h1>
           <div className="flex items-center gap-3">
             <div
               className="flex items-center gap-2 px-3 py-2 rounded-xl"
-              style={{ background: '#FFFFFF', border: '1.5px solid #D0DDE6', minWidth: 180 }}
+              style={{ background: '#FFFFFF', border: '1.5px solid #DFE3EB', minWidth: 180 }}
             >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8EA7B5" strokeWidth="2" strokeLinecap="round">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7C98B6" strokeWidth="2" strokeLinecap="round">
                 <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
               </svg>
               <input
@@ -118,11 +118,11 @@ export default function ReferencesPage() {
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Search references…"
                 className="flex-1 bg-transparent outline-none text-sm"
-                style={{ color: '#2F4156' }}
+                style={{ color: '#33475B' }}
               />
               {search && (
                 <button onClick={() => setSearch('')}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8EA7B5" strokeWidth="2.5" strokeLinecap="round">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#7C98B6" strokeWidth="2.5" strokeLinecap="round">
                     <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
                   </svg>
                 </button>
@@ -144,9 +144,9 @@ export default function ReferencesPage() {
               onClick={() => setFilterCat('')}
               className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
               style={{
-                background: !filterCat ? '#2F4156' : 'rgba(200,217,230,0.3)',
-                color:      !filterCat ? '#FFFFFF'  : '#567C8D',
-                border:     `1px solid ${!filterCat ? '#2F4156' : '#D0DDE6'}`,
+                background: !filterCat ? '#33475B' : 'rgba(200,217,230,0.3)',
+                color:      !filterCat ? '#FFFFFF'  : '#516F90',
+                border:     `1px solid ${!filterCat ? '#33475B' : '#DFE3EB'}`,
               }}
             >
               All
@@ -157,9 +157,9 @@ export default function ReferencesPage() {
                 onClick={() => setFilterCat(prev => prev === cat ? '' : cat)}
                 className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold capitalize transition-all"
                 style={{
-                  background: filterCat === cat ? '#567C8D' : 'rgba(200,217,230,0.3)',
-                  color:      filterCat === cat ? '#FFFFFF'  : '#567C8D',
-                  border:     `1px solid ${filterCat === cat ? '#567C8D' : '#D0DDE6'}`,
+                  background: filterCat === cat ? '#516F90' : 'rgba(200,217,230,0.3)',
+                  color:      filterCat === cat ? '#FFFFFF'  : '#516F90',
+                  border:     `1px solid ${filterCat === cat ? '#516F90' : '#DFE3EB'}`,
                 }}
               >
                 {cat}
@@ -173,17 +173,17 @@ export default function ReferencesPage() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6">
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center py-32 gap-3 text-center">
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: '#E8F0F5' }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#567C8D" strokeWidth="1.5" strokeLinecap="round">
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: '#EAF0F6' }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#516F90" strokeWidth="1.5" strokeLinecap="round">
                 <rect x="3" y="3" width="18" height="18" rx="2"/>
                 <circle cx="8.5" cy="8.5" r="1.5"/>
                 <polyline points="21 15 16 10 5 21"/>
               </svg>
             </div>
-            <p className="text-sm font-semibold" style={{ color: '#2F4156' }}>
+            <p className="text-sm font-semibold" style={{ color: '#33475B' }}>
               {references.length === 0 ? 'No references yet' : 'No results'}
             </p>
-            <p className="text-xs" style={{ color: '#8EA7B5' }}>
+            <p className="text-xs" style={{ color: '#7C98B6' }}>
               {references.length === 0 ? 'Save images here with notes on how to use them.' : 'Try clearing the filter.'}
             </p>
             {references.length === 0 && (
@@ -218,18 +218,18 @@ export default function ReferencesPage() {
           <div
             className="w-full max-w-lg rounded-[24px] overflow-hidden"
             style={{
-              background: '#F5EFEB',
-              border: '1px solid #D0DDE6',
+              background: '#F5F8FA',
+              border: '1px solid #DFE3EB',
               boxShadow: '0 24px 64px rgba(47,65,86,0.25)',
             }}
           >
             {/* Modal header */}
             <div
               className="flex items-center justify-between px-5 py-4"
-              style={{ borderBottom: '1px solid #D0DDE6' }}
+              style={{ borderBottom: '1px solid #DFE3EB' }}
             >
-              <h2 className="font-bold text-[15px]" style={{ color: '#2F4156' }}>Add Reference</h2>
-              <button onClick={resetForm} style={{ color: '#8EA7B5' }}>
+              <h2 className="font-bold text-[15px]" style={{ color: '#33475B' }}>Add Reference</h2>
+              <button onClick={resetForm} style={{ color: '#7C98B6' }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                   <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
                 </svg>
@@ -240,7 +240,7 @@ export default function ReferencesPage() {
 
               {/* Image upload / URL */}
               <div>
-                <label className="text-xs font-semibold uppercase tracking-wider mb-2 block" style={{ color: '#8EA7B5' }}>Image</label>
+                <label className="text-xs font-semibold uppercase tracking-wider mb-2 block" style={{ color: '#7C98B6' }}>Image</label>
                 <input
                   ref={fileRef}
                   type="file"
@@ -272,17 +272,17 @@ export default function ReferencesPage() {
                     <button
                       onClick={() => fileRef.current?.click()}
                       className="flex-1 flex flex-col items-center justify-center gap-2 rounded-[14px] py-6 transition-all"
-                      style={{ background: '#FFFFFF', border: '1.5px dashed #D0DDE6' }}
+                      style={{ background: '#FFFFFF', border: '1.5px dashed #DFE3EB' }}
                     >
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8EA7B5" strokeWidth="1.5" strokeLinecap="round">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7C98B6" strokeWidth="1.5" strokeLinecap="round">
                         <rect x="3" y="3" width="18" height="18" rx="2"/>
                         <circle cx="8.5" cy="8.5" r="1.5"/>
                         <polyline points="21 15 16 10 5 21"/>
                       </svg>
-                      <span className="text-xs font-semibold" style={{ color: '#8EA7B5' }}>Upload image</span>
+                      <span className="text-xs font-semibold" style={{ color: '#7C98B6' }}>Upload image</span>
                     </button>
                     <div className="flex-1 flex flex-col gap-1">
-                      <label className="text-xs" style={{ color: '#8EA7B5' }}>Or paste URL</label>
+                      <label className="text-xs" style={{ color: '#7C98B6' }}>Or paste URL</label>
                       <input
                         className="cs-input"
                         placeholder="https://…"
@@ -297,7 +297,7 @@ export default function ReferencesPage() {
 
               {/* Title */}
               <div>
-                <label className="text-xs font-semibold uppercase tracking-wider mb-2 block" style={{ color: '#8EA7B5' }}>Title *</label>
+                <label className="text-xs font-semibold uppercase tracking-wider mb-2 block" style={{ color: '#7C98B6' }}>Title *</label>
                 <input
                   className="cs-input"
                   placeholder="e.g. Cinematic close-up shot"
@@ -308,7 +308,7 @@ export default function ReferencesPage() {
 
               {/* Note */}
               <div>
-                <label className="text-xs font-semibold uppercase tracking-wider mb-2 block" style={{ color: '#8EA7B5' }}>Note — where / how to use it</label>
+                <label className="text-xs font-semibold uppercase tracking-wider mb-2 block" style={{ color: '#7C98B6' }}>Note — where / how to use it</label>
                 <textarea
                   className="cs-input resize-none"
                   rows={3}
@@ -320,7 +320,7 @@ export default function ReferencesPage() {
 
               {/* Category */}
               <div>
-                <label className="text-xs font-semibold uppercase tracking-wider mb-2 block" style={{ color: '#8EA7B5' }}>Category</label>
+                <label className="text-xs font-semibold uppercase tracking-wider mb-2 block" style={{ color: '#7C98B6' }}>Category</label>
                 <input
                   className="cs-input"
                   placeholder="e.g. cinematics, lighting, transitions…"
@@ -337,7 +337,7 @@ export default function ReferencesPage() {
 
               {/* Tags */}
               <div>
-                <label className="text-xs font-semibold uppercase tracking-wider mb-2 block" style={{ color: '#8EA7B5' }}>Tags (comma separated)</label>
+                <label className="text-xs font-semibold uppercase tracking-wider mb-2 block" style={{ color: '#7C98B6' }}>Tags (comma separated)</label>
                 <input
                   className="cs-input"
                   placeholder="e.g. close-up, product, dramatic"
@@ -348,7 +348,7 @@ export default function ReferencesPage() {
             </div>
 
             {/* Footer */}
-            <div className="flex gap-3 px-5 py-4" style={{ borderTop: '1px solid #D0DDE6' }}>
+            <div className="flex gap-3 px-5 py-4" style={{ borderTop: '1px solid #DFE3EB' }}>
               <button className="cs-btn-outline flex-1 py-2.5 rounded-[10px] text-sm font-semibold" onClick={resetForm}>Cancel</button>
               <button
                 className="cs-btn flex-1 py-2.5 rounded-[10px] text-sm"
