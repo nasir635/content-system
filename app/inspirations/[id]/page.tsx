@@ -70,6 +70,8 @@ export default function InspirationDetailPage() {
   async function handleAddShots(files: FileList) {
     setUploading(true)
     const now = new Date().toISOString()
+    const newShots: { id: string; imageUrl: string; title: string; note: string; savedToRefs: boolean; refId: string }[] = []
+
     for (const file of Array.from(files)) {
       let imageUrl = ''
       try {
@@ -100,11 +102,13 @@ export default function InspirationDetailPage() {
         updatedAt: now,
       }
       addReference(ref)
+      newShots.push({ id: refId, imageUrl, title: '', note: '', savedToRefs: true, refId })
+    }
+
+    // Merge all new shots in a single update (avoids stale-closure clobbering).
+    if (newShots.length) {
       updateInspiration(item!.id, {
-        screenshots: [
-          ...item!.screenshots,
-          { id: refId, imageUrl, title: '', note: '', savedToRefs: true, refId },
-        ],
+        screenshots: [...item!.screenshots, ...newShots],
         updatedAt: now,
       })
     }
