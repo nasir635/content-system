@@ -24,7 +24,8 @@ export default function SettingsPage() {
     const data = { ...useStore.getState(), exportedAt: new Date().toISOString() }
     const payload = {
       inspirations: data.inspirations, scripts: data.scripts, categories: data.categories,
-      references: data.references, plans: data.plans, settings: data.settings, exportedAt: data.exportedAt,
+      references: data.references, plans: data.plans, timeBlocks: data.timeBlocks, todos: data.todos,
+      settings: data.settings, exportedAt: data.exportedAt,
     }
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)

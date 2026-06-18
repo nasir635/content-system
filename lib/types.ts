@@ -117,6 +117,24 @@ export const DEFAULT_SETTINGS: AppSettings = {
   ownerName: '',
 }
 
+// ── DAILY: TIMETABLE + TO-DOS ────────────────────────────────
+export interface TimeBlock {
+  id: string
+  date: string          // 'YYYY-MM-DD'
+  start: string         // 'HH:MM' (may be empty until set)
+  end?: string
+  title: string
+  done: boolean
+  createdAt: string
+}
+
+export interface TodoItem {
+  id: string
+  text: string
+  done: boolean
+  createdAt: string
+}
+
 // ── PERSISTED APP STATE (cloud sync payload) ─────────────────
 export interface AppData {
   inspirations: Inspiration[]
@@ -124,5 +142,7 @@ export interface AppData {
   categories: Category[]
   references: Reference[]
   plans: PlanEntry[]
+  timeBlocks: TimeBlock[]
+  todos: TodoItem[]
   settings: AppSettings
 }

@@ -47,12 +47,18 @@ const IcoCalendar = () => (
     <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
   </svg>
 )
+const IcoToday = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/>
+  </svg>
+)
 
 const NAV_GROUPS = [
   {
     label: 'OVERVIEW',
     items: [
       { href: '/',              label: 'Dashboard',    Icon: IcoDashboard  },
+      { href: '/today',         label: 'Today',        Icon: IcoToday      },
     ],
   },
   {

@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { Script, Category, Reference, Inspiration, PlanEntry, AppData, AppSettings } from './types'
+import type { Script, Category, Reference, Inspiration, PlanEntry, TimeBlock, TodoItem, AppData, AppSettings } from './types'
 import { DEFAULT_SETTINGS } from './types'
 
 const SEED_DATE = '2026-01-01T00:00:00.000Z'
@@ -39,6 +39,14 @@ interface AppState extends AppData {
   updatePlan: (id: string, p: Partial<PlanEntry>) => void
   deletePlan: (id: string) => void
 
+  addTimeBlock:    (b: TimeBlock) => void
+  updateTimeBlock: (id: string, b: Partial<TimeBlock>) => void
+  deleteTimeBlock: (id: string) => void
+
+  addTodo:    (t: TodoItem) => void
+  updateTodo: (id: string, t: Partial<TodoItem>) => void
+  deleteTodo: (id: string) => void
+
   updateSettings: (s: Partial<AppSettings>) => void
 }
 
@@ -51,6 +59,8 @@ function snapshot(s: AppState): AppData {
     categories:   s.categories,
     references:   s.references,
     plans:        s.plans,
+    timeBlocks:   s.timeBlocks,
+    todos:        s.todos,
     settings:     s.settings,
   }
 }
@@ -81,6 +91,8 @@ function normalize(d: any): AppData { // eslint-disable-line @typescript-eslint/
     scripts:      Array.isArray(d?.scripts) ? d.scripts : [],
     references:   Array.isArray(d?.references) ? d.references : [],
     plans:        Array.isArray(d?.plans) ? d.plans : [],
+    timeBlocks:   Array.isArray(d?.timeBlocks) ? d.timeBlocks : [],
+    todos:        Array.isArray(d?.todos) ? d.todos : [],
     categories,
     settings:     { ...DEFAULT_SETTINGS, ...(d?.settings ?? {}) },
   }
@@ -118,6 +130,8 @@ export const useStore = create<AppState>()((set, get) => ({
   categories:   DEFAULT_CATEGORIES,
   references:   [],
   plans:        [],
+  timeBlocks:   [],
+  todos:        [],
   settings:     DEFAULT_SETTINGS,
   loaded:  false,
   syncing: false,
@@ -187,6 +201,22 @@ export const useStore = create<AppState>()((set, get) => ({
   })),
   deletePlan: (id) => set(s => ({
     plans: s.plans.filter(x => x.id !== id),
+  })),
+
+  addTimeBlock: (b) => set(s => ({ timeBlocks: [...s.timeBlocks, b] })),
+  updateTimeBlock: (id, b) => set(s => ({
+    timeBlocks: s.timeBlocks.map(x => x.id === id ? { ...x, ...b } : x),
+  })),
+  deleteTimeBlock: (id) => set(s => ({
+    timeBlocks: s.timeBlocks.filter(x => x.id !== id),
+  })),
+
+  addTodo: (t) => set(s => ({ todos: [...s.todos, t] })),
+  updateTodo: (id, t) => set(s => ({
+    todos: s.todos.map(x => x.id === id ? { ...x, ...t } : x),
+  })),
+  deleteTodo: (id) => set(s => ({
+    todos: s.todos.filter(x => x.id !== id),
   })),
 
   updateSettings: (patch) => set(s => ({ settings: { ...s.settings, ...patch } })),
