@@ -33,41 +33,31 @@ git commit -m "Initial ContentOS"
 
 ---
 
-## Step 4 — Set up Bright Data
-1. Go to **brightdata.com** → Sign up (free trial available)
-2. Create a new zone: **Web Unlocker** → name it `instagram_scraper`
-3. Copy your **API Key** from the dashboard
+## Step 4 — Get your Google Gemini API key
+1. Go to **aistudio.google.com/app/apikey** → Create API key
+2. Copy it — this powers the AI video analysis and script generation
 
 ---
 
-## Step 5 — Get your Anthropic API key
-1. Go to **console.anthropic.com** → API Keys → Create key
-2. Copy it (starts with `sk-ant-`)
-
----
-
-## Step 6 — Deploy to Vercel
+## Step 5 — Deploy to Vercel
 1. Go to **vercel.com** → Sign up with GitHub
 2. Click **New Project** → Import your `content-system` repo
 3. Before deploying, click **Environment Variables** and add:
 
 | Variable | Value |
 |---|---|
+| `GEMINI_API_KEY` | Your Google Gemini key |
 | `NOTION_TOKEN` | Your Notion integration token |
-| `NOTION_DISSECTIONS_DB_ID` | Leave blank for now — add after Step 7 |
+| `NOTION_DISSECTIONS_DB_ID` | Leave blank for now — add after Step 6 |
 | `NOTION_SCRIPTS_DB_ID` | Leave blank for now |
 | `NOTION_STREAMLINES_DB_ID` | Leave blank for now |
-| `ANTHROPIC_API_KEY` | Your Anthropic key |
-| `BRIGHTDATA_API_KEY` | Your Bright Data API key |
-| `BRIGHTDATA_ZONE` | `instagram_scraper` |
-| `BLOB_READ_WRITE_TOKEN` | See below |
 
-4. For `BLOB_READ_WRITE_TOKEN`: In Vercel, go to **Storage** → **Create Blob Store** → copy the token
+4. For image/frame uploads, go to **Storage** → **Create Blob Store** → connect it to this project. Vercel auto-injects `BLOB_READ_WRITE_TOKEN` — you don't set it manually.
 5. Click **Deploy**
 
 ---
 
-## Step 7 — Create Notion databases (one-time)
+## Step 6 — Create Notion databases (one-time)
 1. Open your deployed app (e.g. `your-app.vercel.app`)
 2. Go to **Settings** tab
 3. Paste your Notion token and parent page ID
@@ -78,7 +68,7 @@ git commit -m "Initial ContentOS"
 
 ---
 
-## Step 8 — You're live!
+## Step 7 — You're live!
 Open your Vercel URL on any device. Start dissecting content.
 
 ---
