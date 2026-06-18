@@ -113,6 +113,7 @@ export function AddInspirationModal({ open, onClose, onSuccess }: Props) {
 
     const parsedTags = tags.split(',').map(t => t.trim()).filter(Boolean)
     const now = new Date().toISOString()
+    const inspirationId = uuid()
 
     const screenshotData: InspirationScreenshot[] = screenshots.map(s => ({
       id: s.id,
@@ -120,9 +121,10 @@ export function AddInspirationModal({ open, onClose, onSuccess }: Props) {
       title: s.title,
       note: s.note,
       savedToRefs: true,
+      refId: s.id,
     }))
 
-    // Build references from screenshots
+    // Build references from screenshots — linked back to this inspiration.
     const refs: Reference[] = screenshots.map(s => ({
       id: s.id,
       title: s.title || 'Inspiration screenshot',
@@ -130,19 +132,22 @@ export function AddInspirationModal({ open, onClose, onSuccess }: Props) {
       note: s.note,
       category: category,
       tags: parsedTags,
-      source: 'inspiration' as const,
+      source: 'inspiration',
+      inspirationId,
+      sourceUrl: url.trim(),
       createdAt: now,
       updatedAt: now,
     }))
 
     const inspiration: Inspiration = {
-      id: uuid(),
+      id: inspirationId,
       url: url.trim(),
       howToUse: howToUse.trim(),
       category,
       tags: parsedTags,
       screenshots: screenshotData,
       createdAt: now,
+      updatedAt: now,
     }
 
     onSuccess(inspiration, refs)

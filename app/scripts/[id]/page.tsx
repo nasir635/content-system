@@ -32,10 +32,11 @@ function SectionCard({ title, children }: { title: string; children: React.React
 export default function ScriptDetailPage() {
   const { id }   = useParams<{ id: string }>()
   const router   = useRouter()
-  const { scripts, updateScript } = useStore()
+  const { scripts, updateScript, inspirations } = useStore()
   const [copied, setCopied] = useState(false)
 
   const item = scripts.find(s => s.id === id)
+  const inspiration = item?.inspirationId ? inspirations.find(i => i.id === item.inspirationId) : null
 
   if (!item) {
     return (
@@ -190,7 +191,7 @@ export default function ScriptDetailPage() {
             <div className="flex items-center justify-between mb-3">
               <p className="text-xs" style={{ color: '#8EA7B5' }}>
                 {item.streamlineId ? 'Generated with streamline' : 'Written manually'}
-                {item.dissectionId && ' · From dissection'}
+                {inspiration && ' · From inspiration'}
               </p>
               <button className="cs-btn py-1.5 px-4 text-xs" onClick={copyContent}>
                 {copied ? '✓ Copied!' : 'Copy Script'}
@@ -291,21 +292,18 @@ export default function ScriptDetailPage() {
             </svg>
             Advance to {STATUS_NEXT[item.status]}
           </button>
-          {item.notionPageId && (
-            <a
-              href={`https://notion.so/${item.notionPageId}`}
-              target="_blank"
-              rel="noopener noreferrer"
+          {inspiration && (
+            <button
+              onClick={() => router.push(`/inspirations/${inspiration.id}`)}
               className="cs-btn-outline flex items-center gap-2 py-2 px-4 rounded-[10px]"
               style={{ fontSize: 13 }}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2F4156" strokeWidth="2" strokeLinecap="round">
-                <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
-                <polyline points="15 3 21 3 21 9"/>
-                <line x1="10" y1="14" x2="21" y2="3"/>
+                <path d="M9 18h6"/><path d="M10 22h4"/>
+                <path d="M12 2a7 7 0 015 11.95V17a1 1 0 01-1 1H8a1 1 0 01-1-1v-3.05A7 7 0 0112 2z"/>
               </svg>
-              View in Notion
-            </a>
+              View inspiration
+            </button>
           )}
         </div>
 

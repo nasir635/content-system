@@ -27,12 +27,13 @@ export const CONTENT_CATEGORIES: ContentCategory[] = [
 export interface Inspiration {
   id: string
   url: string
+  title?: string
   howToUse: string
   category: ContentCategory
   tags: string[]
   screenshots: InspirationScreenshot[]
   createdAt: string
-  notionPageId?: string
+  updatedAt?: string
 }
 
 export interface InspirationScreenshot {
@@ -55,10 +56,8 @@ export interface Script {
   music: MusicEntry[]
   streamlineId?: string
   inspirationId?: string
-  dissectionId?: string
   createdAt: string
   updatedAt: string
-  notionPageId?: string
 }
 
 export interface VisualRef {
@@ -91,7 +90,7 @@ export interface Streamline {
   exampleOpeners: string
   wordsToAvoid: string
   createdAt: string
-  updatedAt: string
+  updatedAt?: string
 }
 
 // ── REFERENCES ───────────────────────────────────────────────
@@ -103,41 +102,16 @@ export interface Reference {
   category: string
   tags: string[]
   sourceUrl?: string
+  source?: 'manual' | 'inspiration'
+  inspirationId?: string
   createdAt: string
   updatedAt?: string
 }
 
-// ── DISSECTIONS (legacy + active) ────────────────────────────
-export interface ContentAngle {
-  name: string
-  description: string
-  timestamp?: string
-  strength: 'strong' | 'medium' | 'weak'
-}
-export type AngleBreakdown = ContentAngle
-
-export interface Dissection {
-  id: string
-  url: string
-  topic: string
-  caption?: string
-  category: ContentCategory
-  type?: string
-  thumbnail?: string
-  tags: string[]
-  notes: string
-  transcript?: string
-  hookAnalysis?: string
-  emotionalDrivers?: string
-  pacing?: string
-  callToAction?: string
-  angles?: ContentAngle[]
-  scriptSuggestion?: string
-  streamlineId?: string
-  notionPageId?: string
-  hasFrames?: boolean
-  frameCount?: number
-  frames?: { id: string; url: string; index: number; timestamp: string; note?: string }[]
-  createdAt: string
-  updatedAt: string
+// ── PERSISTED APP STATE (cloud sync payload) ─────────────────
+export interface AppData {
+  inspirations: Inspiration[]
+  scripts: Script[]
+  streamlines: Streamline[]
+  references: Reference[]
 }

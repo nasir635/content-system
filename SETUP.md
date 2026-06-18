@@ -1,84 +1,53 @@
 # ContentOS — Setup & Deploy Guide
 
-## What you're deploying
-A full Next.js app that runs on Vercel. Instagram dissection, script studio, streamlines, and a dashboard — all styled like Instagram, data saved in Notion.
+## What this is
+A personal content portal that runs on Vercel. Save **Inspirations** (a reel or
+any link + how you'll use it + reference shots), write your own **Scripts** in a
+Notion-style editor, and keep a **References** library — everything cross-linked
+and synced. No Notion, no AI keys. Data is stored online by the app itself, so
+you can open it from any device.
 
 ---
 
-## Step 1 — Get a GitHub account (if you don't have one)
-Go to **github.com** → Sign up (free). You need this to deploy to Vercel.
+## Step 1 — Push to GitHub (already done)
+This repo lives at **github.com/nasir635/content-system** and auto-deploys to
+Vercel on every push to `main`.
 
----
-
-## Step 2 — Push this code to GitHub
-1. Install Git if you don't have it: **git-scm.com**
-2. Open terminal in the `content-system` folder
-3. Run:
+To work on it locally:
 ```bash
-git init
-git add .
-git commit -m "Initial ContentOS"
-```
-4. On GitHub, click **New Repository** → name it `content-system` → Create
-5. Follow the "push existing repo" commands GitHub shows you
-
----
-
-## Step 3 — Set up Notion
-1. Go to **notion.so/my-integrations** → New Integration → name it "ContentOS" → Submit
-2. Copy the **Internal Integration Token** (starts with `secret_`)
-3. Create a new Notion page called "ContentOS" — this is where the databases will live
-4. Open that page → click `...` → `Add connections` → add your integration
-5. Copy the **Page ID** from the URL: `notion.so/YOUR-PAGE-ID-HERE`
-
----
-
-## Step 4 — Get your Google Gemini API key
-1. Go to **aistudio.google.com/app/apikey** → Create API key
-2. Copy it — this powers the AI video analysis and script generation
-
----
-
-## Step 5 — Deploy to Vercel
-1. Go to **vercel.com** → Sign up with GitHub
-2. Click **New Project** → Import your `content-system` repo
-3. Before deploying, click **Environment Variables** and add:
-
-| Variable | Value |
-|---|---|
-| `GEMINI_API_KEY` | Your Google Gemini key |
-| `NOTION_TOKEN` | Your Notion integration token |
-| `NOTION_DISSECTIONS_DB_ID` | Leave blank for now — add after Step 6 |
-| `NOTION_SCRIPTS_DB_ID` | Leave blank for now |
-| `NOTION_STREAMLINES_DB_ID` | Leave blank for now |
-
-4. For image/frame uploads, go to **Storage** → **Create Blob Store** → connect it to this project. Vercel auto-injects `BLOB_READ_WRITE_TOKEN` — you don't set it manually.
-5. Click **Deploy**
-
----
-
-## Step 6 — Create Notion databases (one-time)
-1. Open your deployed app (e.g. `your-app.vercel.app`)
-2. Go to **Settings** tab
-3. Paste your Notion token and parent page ID
-4. Click **Create Notion Databases**
-5. Copy the 3 database IDs it shows you
-6. Go back to Vercel → Project Settings → Environment Variables
-7. Add the 3 database IDs → **Redeploy**
-
----
-
-## Step 7 — You're live!
-Open your Vercel URL on any device. Start dissecting content.
-
----
-
-## Running locally (optional)
-```bash
+git clone https://github.com/nasir635/content-system.git
 cd content-system
 npm install
-cp .env.example .env.local
-# fill in .env.local with your keys
-npm run dev
-# Open http://localhost:3000
+npm run dev      # http://localhost:3000
 ```
+
+---
+
+## Step 2 — Deploy on Vercel (already connected)
+The repo is linked to the Vercel project `content-system`. Pushing to `main`
+builds and deploys automatically — no env vars are required for the app to run.
+
+Live URL: **content-system-six.vercel.app**
+
+---
+
+## Step 3 — Turn on cross-device sync (one-time, ~2 min)
+By default the portal saves to the browser you're using. To sync your data
+across devices, connect a free **Vercel Blob** store:
+
+1. Go to **vercel.com** → your **content-system** project → **Storage**
+2. Click **Create Database** → choose **Blob** → connect it to this project
+3. Vercel automatically adds the `BLOB_READ_WRITE_TOKEN` env var and triggers a
+   redeploy
+4. Open the app → **Settings** → it should now say **“Cloud sync is active”**
+
+That's it. From then on, your inspirations, scripts, and references load on any
+device where you open the URL. Uploaded images are stored in the same Blob store.
+
+> Note: the portal has no login — anyone with the URL can view and edit it. Keep
+> the link private, or ask to add a password if you want access control.
+
+---
+
+## Backups
+Settings → **Export backup (JSON)** downloads everything in one file at any time.

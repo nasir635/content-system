@@ -2,8 +2,9 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useStore } from '@/lib/store'
-import { AddContentModal } from '@/components/AddContentModal'
-import type { Dissection } from '@/lib/types'
+import { AddInspirationModal } from '@/components/AddInspirationModal'
+import type { Inspiration, Script } from '@/lib/types'
+import { v4 as uuid } from 'uuid'
 
 function StatCard({ value, label, accent }: { value: number; label: string; accent?: string }) {
   return (
@@ -14,7 +15,15 @@ function StatCard({ value, label, accent }: { value: number; label: string; acce
   )
 }
 
-function MiniCard({ item, onClick }: { item: Dissection; onClick: () => void }) {
+function inspoLabel(i: Inspiration): string {
+  if (i.title) return i.title
+  if (i.howToUse) return i.howToUse
+  try { return new URL(i.url).hostname.replace('www.', '') } catch { return i.url }
+}
+
+function MiniCard({ item, onClick }: { item: Inspiration; onClick: () => void }) {
+  const cover = item.screenshots?.[0]?.imageUrl
+  const label = inspoLabel(item)
   return (
     <button onClick={onClick}
       className="flex-shrink-0 rounded-[16px] overflow-hidden cursor-pointer relative"
@@ -22,17 +31,17 @@ function MiniCard({ item, onClick }: { item: Dissection; onClick: () => void }) 
       onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1.03)' }}
       onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)' }}
     >
-      {item.thumbnail
+      {cover
         // eslint-disable-next-line @next/next/no-img-element
-        ? <img src={item.thumbnail} alt={item.topic} className="w-full h-full object-cover" draggable={false} />
+        ? <img src={cover} alt={label} className="w-full h-full object-cover" draggable={false} />
         : <div className="w-full h-full flex items-center justify-center text-white font-bold text-2xl"
             style={{ background: 'linear-gradient(135deg, #567C8D 0%, #C8D9E6 100%)' }}>
-            {item.topic.charAt(0).toUpperCase()}
+            {label.charAt(0).toUpperCase()}
           </div>
       }
       <div className="absolute bottom-0 left-0 right-0 px-2 py-2"
         style={{ background: 'rgba(255,255,255,0.88)', backdropFilter: 'blur(10px)' }}>
-        <p className="font-semibold leading-tight truncate" style={{ fontSize: 11, color: '#2F4156' }}>{item.topic}</p>
+        <p className="font-semibold leading-tight truncate" style={{ fontSize: 11, color: '#2F4156' }}>{label}</p>
         <p className="capitalize truncate" style={{ fontSize: 10, color: '#8EA7B5', marginTop: 2 }}>{item.category}</p>
       </div>
     </button>
@@ -40,16 +49,26 @@ function MiniCard({ item, onClick }: { item: Dissection; onClick: () => void }) 
 }
 
 export default function HomePage() {
-  const { dissections, scripts, streamlines, addDissection } = useStore()
+  const { inspirations, scripts, references, streamlines, addInspiration, addReference } = useStore()
   const [addOpen, setAddOpen] = useState(false)
   const router = useRouter()
 
-  const draftCount   = scripts.filter(s => s.status === 'draft').length
   const readyCount   = scripts.filter(s => s.status === 'ready').length
   const shotCount    = scripts.filter(s => s.status === 'shot').length
+  const draftCount   = scripts.filter(s => s.status === 'draft').length
   const totalScripts = scripts.length
-  const recent       = dissections.slice(0, 6)
+  const recent       = inspirations.slice(0, 6)
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+
+  function newScript() {
+    const now = new Date().toISOString()
+    const s: Script = {
+      id: uuid(), title: 'Untitled Script', category: '', status: 'draft',
+      content: '', visualRefs: [], music: [], createdAt: now, updatedAt: now,
+    }
+    useStore.getState().addScript(s)
+    router.push(`/scripts/${s.id}`)
+  }
 
   return (
     <div className="min-h-screen" style={{ background: '#FFFFFF' }}>
@@ -65,7 +84,7 @@ export default function HomePage() {
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
-          Add Content
+          Add Inspiration
         </button>
       </div>
 
@@ -73,10 +92,10 @@ export default function HomePage() {
 
         {/* Stats row */}
         <div className="flex gap-3 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
-          <StatCard value={dissections.length} label="Dissections"    accent="#567C8D" />
-          <StatCard value={scripts.length}     label="Scripts"        accent="#2F4156" />
+          <StatCard value={inspirations.length} label="Inspirations"   accent="#567C8D" />
+          <StatCard value={scripts.length}      label="Scripts"        accent="#2F4156" />
           <StatCard value={readyCount}          label="Ready to Shoot" accent="#7A9BAD" />
-          <StatCard value={shotCount}           label="Shot"           accent="#C8D9E6" />
+          <StatCard value={references.length}   label="References"     accent="#C8D9E6" />
         </div>
 
         {/* Two-column grid */}
@@ -85,22 +104,22 @@ export default function HomePage() {
           {/* LEFT — 2/3 */}
           <div className="lg:col-span-2 space-y-5">
 
-            {/* Recent Dissections */}
+            {/* Recent Inspirations */}
             <div className="glass-card p-5">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="font-bold text-[15px]" style={{ color: '#2F4156' }}>Recent Dissections</h2>
-                <button className="text-xs font-semibold" style={{ color: '#567C8D' }} onClick={() => router.push('/dissections')}>See all →</button>
+                <h2 className="font-bold text-[15px]" style={{ color: '#2F4156' }}>Recent Inspirations</h2>
+                <button className="text-xs font-semibold" style={{ color: '#567C8D' }} onClick={() => router.push('/inspirations')}>See all →</button>
               </div>
               {recent.length === 0 ? (
                 <div className="flex flex-col items-center py-10 gap-3 text-center">
-                  <p className="text-sm font-semibold" style={{ color: '#2F4156' }}>No dissections yet</p>
-                  <p className="text-xs" style={{ color: '#8EA7B5' }}>Paste an Instagram reel URL to get started</p>
-                  <button className="cs-btn mt-1" onClick={() => setAddOpen(true)}>Add first dissection</button>
+                  <p className="text-sm font-semibold" style={{ color: '#2F4156' }}>No inspirations yet</p>
+                  <p className="text-xs" style={{ color: '#8EA7B5' }}>Paste a reel or any link to get started</p>
+                  <button className="cs-btn mt-1" onClick={() => setAddOpen(true)}>Add first inspiration</button>
                 </div>
               ) : (
                 <div className="flex gap-3 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
                   {recent.map(d => (
-                    <MiniCard key={d.id} item={d} onClick={() => router.push(`/dissections/${d.id}`)} />
+                    <MiniCard key={d.id} item={d} onClick={() => router.push(`/inspirations/${d.id}`)} />
                   ))}
                 </div>
               )}
@@ -142,15 +161,15 @@ export default function HomePage() {
               <h2 className="font-bold text-[15px] mb-4" style={{ color: '#2F4156' }}>Quick Actions</h2>
               <div className="space-y-2">
                 {([
-                  { label: 'Add Dissection',   path: null,            icon: '📥', action: () => setAddOpen(true) },
-                  { label: 'New Script',        path: '/scripts',      icon: '✍️', action: null },
-                  { label: 'Browse References', path: '/references',   icon: '🖼️', action: null },
-                  { label: 'Inspirations',      path: '/inspirations', icon: '💡', action: null },
-                ] as { label: string; path: string | null; icon: string; action: (() => void) | null }[]).map(({ label, path, icon, action }) => (
+                  { label: 'Add Inspiration',   icon: '💡', action: () => setAddOpen(true) },
+                  { label: 'New Script',        icon: '✍️', action: newScript },
+                  { label: 'Browse References', icon: '🖼️', action: () => router.push('/references') },
+                  { label: 'Streamlines',       icon: '⚡', action: () => router.push('/streamlines') },
+                ] as { label: string; icon: string; action: () => void }[]).map(({ label, icon, action }) => (
                   <button key={label}
                     className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all"
                     style={{ background: '#F5F8FA', border: '1px solid #E0EAF0' }}
-                    onClick={() => { if (action) action(); else if (path) router.push(path) }}
+                    onClick={action}
                     onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#E8F0F5' }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#F5F8FA' }}
                   >
@@ -188,10 +207,15 @@ export default function HomePage() {
         </div>
       </div>
 
-      {addOpen && (
-        <AddContentModal open={addOpen} onClose={() => setAddOpen(false)}
-          streamlines={streamlines} onSuccess={(d) => { addDissection(d); setAddOpen(false) }} />
-      )}
+      <AddInspirationModal
+        open={addOpen}
+        onClose={() => setAddOpen(false)}
+        onSuccess={(inspiration, refs) => {
+          addInspiration(inspiration)
+          refs.forEach(addReference)
+          setAddOpen(false)
+        }}
+      />
     </div>
   )
 }

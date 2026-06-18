@@ -1,125 +1,119 @@
 'use client'
 import { useState } from 'react'
-import { Settings, Database, Key, ExternalLink, CheckCircle2, Loader2, AlertCircle } from 'lucide-react'
+import { Settings, Cloud, CloudOff, Database, Download, CheckCircle2, Loader2 } from 'lucide-react'
+import { useStore } from '@/lib/store'
 
 export default function SettingsPage() {
-  const [notionToken, setNotionToken] = useState('')
-  const [parentPageId, setParentPageId] = useState('')
-  const [setting, setSetting] = useState(false)
-  const [result, setResult]   = useState<any>(null)
-  const [error, setError]     = useState('')
+  const { inspirations, scripts, streamlines, references, cloud, loaded } = useStore()
+  const [refreshing, setRefreshing] = useState(false)
 
-  async function setupNotion() {
-    setSetting(true); setError(''); setResult(null)
-    try {
-      const res = await fetch('/api/notion/setup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ notionToken, parentPageId }),
-      })
-      if (!res.ok) throw new Error((await res.json()).error)
-      const data = await res.json()
-      setResult(data)
-    } catch (e: any) {
-      setError(e.message)
-    } finally {
-      setSetting(false)
-    }
+  async function checkNow() {
+    setRefreshing(true)
+    await useStore.getState().hydrate()
+    setRefreshing(false)
   }
 
+  function exportData() {
+    const data = { inspirations, scripts, streamlines, references, exportedAt: new Date().toISOString() }
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `contentos-backup-${new Date().toISOString().slice(0, 10)}.json`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const counts = [
+    { label: 'Inspirations', value: inspirations.length },
+    { label: 'Scripts', value: scripts.length },
+    { label: 'References', value: references.length },
+    { label: 'Streamlines', value: streamlines.length },
+  ]
+
   return (
-    <div className="min-h-screen bg-ig-bg">
-      <div className="sticky top-0 z-30 bg-ig-bg/95 backdrop-blur-md border-b border-ig-border">
+    <div className="min-h-screen" style={{ background: '#F5EFEB' }}>
+      <div className="sticky top-0 z-30" style={{ background: 'rgba(245,239,235,0.94)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #D0DDE6' }}>
         <div className="max-w-2xl mx-auto px-4 sm:px-6 py-4">
-          <h1 className="font-bold text-lg">Settings</h1>
+          <h1 className="font-bold text-[18px]" style={{ color: '#2F4156' }}>Settings</h1>
         </div>
       </div>
 
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 space-y-6">
 
-        {/* Notion Setup */}
-        <div className="bg-ig-card border border-ig-border rounded-2xl p-6 space-y-5">
+        {/* Storage & Sync */}
+        <div className="glass-card p-6 space-y-5">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-black border border-ig-border flex items-center justify-center">
-              <Database size={18} className="text-white" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #2F4156 0%, #567C8D 100%)' }}>
+              {cloud ? <Cloud size={18} className="text-white" /> : <CloudOff size={18} className="text-white" />}
             </div>
             <div>
-              <h2 className="font-bold">Notion Databases</h2>
-              <p className="text-xs text-ig-muted">Auto-create the databases your content system needs</p>
+              <h2 className="font-bold" style={{ color: '#2F4156' }}>Storage &amp; Sync</h2>
+              <p className="text-xs" style={{ color: '#8EA7B5' }}>Where your portal data lives</p>
             </div>
           </div>
 
-          <div className="space-y-3">
-            <div>
-              <label className="text-xs font-bold text-ig-muted uppercase tracking-wider mb-2 block flex items-center gap-1">
-                <Key size={11} /> Notion Integration Token
-              </label>
-              <input
-                value={notionToken}
-                onChange={e => setNotionToken(e.target.value)}
-                placeholder="secret_xxxxxxxxxxxxxxxxxxxx"
-                type="password"
-                className="w-full bg-ig-surface border border-ig-border rounded-xl px-4 py-3 text-sm text-ig-text placeholder-ig-faint outline-none focus:border-ig-blue transition-colors font-mono"
-              />
-              <p className="text-xs text-ig-faint mt-1.5">
-                Get this from <a href="https://www.notion.so/my-integrations" target="_blank" rel="noopener noreferrer" className="text-ig-blue hover:underline inline-flex items-center gap-0.5">notion.so/my-integrations <ExternalLink size={10} /></a>
-              </p>
+          {!loaded ? (
+            <div className="flex items-center gap-2 text-sm" style={{ color: '#8EA7B5' }}>
+              <Loader2 size={15} className="animate-spin" /> Checking…
             </div>
-            <div>
-              <label className="text-xs font-bold text-ig-muted uppercase tracking-wider mb-2 block">
-                Parent Page ID
-              </label>
-              <input
-                value={parentPageId}
-                onChange={e => setParentPageId(e.target.value)}
-                placeholder="32-character page ID from the Notion URL"
-                className="w-full bg-ig-surface border border-ig-border rounded-xl px-4 py-3 text-sm text-ig-text placeholder-ig-faint outline-none focus:border-ig-blue transition-colors font-mono"
-              />
-              <p className="text-xs text-ig-faint mt-1.5">Open any Notion page → copy the 32-char ID from the URL</p>
-            </div>
-          </div>
-
-          {error && (
-            <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 text-sm text-red-400">
-              <AlertCircle size={15} /> {error}
-            </div>
-          )}
-
-          {result && (
-            <div className="bg-green-500/10 border border-green-500/20 rounded-xl px-4 py-4 space-y-2">
-              <p className="flex items-center gap-2 text-green-400 font-semibold text-sm"><CheckCircle2 size={15} /> Databases created!</p>
-              <p className="text-xs text-ig-muted">Copy these IDs into your <code className="bg-ig-border px-1 py-0.5 rounded">.env</code> file on Vercel:</p>
-              <div className="space-y-1 font-mono text-xs">
-                <p className="text-ig-text">NOTION_DISSECTIONS_DB_ID=<span className="text-ig-blue">{result.dissId}</span></p>
-                <p className="text-ig-text">NOTION_SCRIPTS_DB_ID=<span className="text-ig-blue">{result.scriptsId}</span></p>
-                <p className="text-ig-text">NOTION_STREAMLINES_DB_ID=<span className="text-ig-blue">{result.streamlinesId}</span></p>
+          ) : cloud ? (
+            <div className="flex items-start gap-2 rounded-xl px-4 py-3" style={{ background: 'rgba(58,125,68,0.1)', border: '1px solid rgba(58,125,68,0.25)' }}>
+              <CheckCircle2 size={16} style={{ color: '#3a7d44', flexShrink: 0, marginTop: 1 }} />
+              <div>
+                <p className="text-sm font-semibold" style={{ color: '#2F4156' }}>Cloud sync is active</p>
+                <p className="text-xs mt-0.5" style={{ color: '#567C8D' }}>Your data is saved online and loads on any device you open this URL from.</p>
               </div>
             </div>
+          ) : (
+            <div className="rounded-xl px-4 py-4 space-y-2" style={{ background: 'rgba(176,74,74,0.08)', border: '1px solid rgba(176,74,74,0.2)' }}>
+              <p className="text-sm font-semibold" style={{ color: '#B04A4A' }}>Cloud sync not connected — saving to this browser only</p>
+              <p className="text-xs leading-relaxed" style={{ color: '#567C8D' }}>
+                To sync across devices, connect a free Vercel Blob store:
+              </p>
+              <ol className="text-xs leading-relaxed list-decimal pl-4 space-y-0.5" style={{ color: '#567C8D' }}>
+                <li>Open your project on <span className="font-semibold">vercel.com</span> → <span className="font-semibold">Storage</span></li>
+                <li>Create / connect a <span className="font-semibold">Blob</span> store to this project</li>
+                <li>Redeploy — Vercel injects the token automatically</li>
+              </ol>
+            </div>
           )}
 
-          <button
-            onClick={setupNotion}
-            disabled={!notionToken || !parentPageId || setting}
-            className="w-full bg-ig-blue hover:bg-ig-blue-hover disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-colors text-sm flex items-center justify-center gap-2"
-          >
-            {setting ? <><Loader2 size={15} className="animate-spin" /> Creating databases…</> : <><Database size={15} /> Create Notion Databases</>}
+          <button onClick={checkNow} disabled={refreshing}
+            className="cs-btn-outline w-full py-2.5 rounded-[10px] text-sm font-semibold flex items-center justify-center gap-2">
+            {refreshing ? <><Loader2 size={14} className="animate-spin" /> Checking…</> : 'Re-check connection'}
           </button>
         </div>
 
-        {/* Env vars reference */}
-        <div className="bg-ig-card border border-ig-border rounded-2xl p-6 space-y-4">
-          <h2 className="font-bold flex items-center gap-2"><Settings size={16} /> Required Environment Variables</h2>
-          <p className="text-ig-muted text-sm">Set these in your Vercel project settings → Environment Variables:</p>
-          <div className="bg-ig-surface rounded-xl p-4 font-mono text-xs space-y-1.5 text-ig-muted">
-            {[
-              'GEMINI_API_KEY',
-              'NOTION_TOKEN',
-              'NOTION_DISSECTIONS_DB_ID',
-              'NOTION_SCRIPTS_DB_ID',
-              'NOTION_STREAMLINES_DB_ID',
-              'BLOB_READ_WRITE_TOKEN',
-            ].map(v => <p key={v}><span className="text-ig-blue">{v}</span>=your_value</p>)}
+        {/* Data */}
+        <div className="glass-card p-6 space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#E8F0F5' }}>
+              <Database size={18} style={{ color: '#567C8D' }} />
+            </div>
+            <div>
+              <h2 className="font-bold" style={{ color: '#2F4156' }}>Your Data</h2>
+              <p className="text-xs" style={{ color: '#8EA7B5' }}>A snapshot of everything in your portal</p>
+            </div>
           </div>
+
+          <div className="grid grid-cols-4 gap-3">
+            {counts.map(c => (
+              <div key={c.label} className="rounded-xl px-3 py-3 text-center" style={{ background: '#FFFFFF', border: '1px solid #D0DDE6' }}>
+                <p className="text-2xl font-bold" style={{ color: '#2F4156' }}>{c.value}</p>
+                <p className="text-[10px] mt-0.5" style={{ color: '#8EA7B5' }}>{c.label}</p>
+              </div>
+            ))}
+          </div>
+
+          <button onClick={exportData} className="cs-btn-outline w-full py-2.5 rounded-[10px] text-sm font-semibold flex items-center justify-center gap-2">
+            <Download size={15} /> Export backup (JSON)
+          </button>
+        </div>
+
+        <div className="flex items-center justify-center gap-1.5 pt-2" style={{ color: '#A0B8C6' }}>
+          <Settings size={12} />
+          <span className="text-[11px]">Faasle Content OS · v2.0</span>
         </div>
       </div>
     </div>
