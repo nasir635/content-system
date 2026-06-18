@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import { useStore } from '@/lib/store'
+import { toast } from '@/lib/toast'
 import type { PlanEntry } from '@/lib/types'
 import { v4 as uuid } from 'uuid'
 
@@ -33,8 +34,10 @@ function PlanModal({ dateKey, entry, onClose }: {
     const now = new Date().toISOString()
     if (entry) {
       updatePlan(entry.id, { categoryId, title: title.trim(), note, scriptId: scriptId || undefined, status, updatedAt: now })
+      toast('Plan updated')
     } else {
       addPlan({ id: uuid(), date: dateKey, categoryId, title: title.trim(), note, scriptId: scriptId || undefined, status, createdAt: now })
+      toast('Added to plan')
     }
     onClose()
   }
@@ -46,7 +49,7 @@ function PlanModal({ dateKey, entry, onClose }: {
       onClick={e => { if (e.target === e.currentTarget) onClose() }}>
       <motion.div initial={{ y: 26, opacity: 0, scale: 0.98 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: 26, opacity: 0, scale: 0.98 }}
         transition={{ type: 'spring', damping: 30, stiffness: 340 }}
-        className="w-full max-w-md rounded-[22px] overflow-hidden flex flex-col"
+        className="w-full max-w-md rounded-lg overflow-hidden flex flex-col"
         style={{ background: '#FFFFFF', border: '1px solid #DFE3EB', boxShadow: '0 24px 64px rgba(47,65,86,0.25)', maxHeight: '90vh' }}>
         <div className="flex items-center justify-between px-5 py-4 flex-shrink-0" style={{ borderBottom: '1px solid #EAF0F6' }}>
           <div>
@@ -101,7 +104,7 @@ function PlanModal({ dateKey, entry, onClose }: {
             <div className="flex gap-2">
               {(['planned', 'posted'] as const).map(st => (
                 <button key={st} type="button" onClick={() => setStatus(st)}
-                  className="flex-1 py-2 rounded-xl text-xs font-semibold capitalize transition-all"
+                  className="flex-1 py-2 rounded-lg text-xs font-semibold capitalize transition-all"
                   style={{ background: status === st ? '#33475B' : '#F5F8FA', color: status === st ? '#FFF' : '#516F90', border: `1.5px solid ${status === st ? '#33475B' : '#DFE3EB'}` }}>
                   {st}
                 </button>
@@ -112,13 +115,13 @@ function PlanModal({ dateKey, entry, onClose }: {
 
         <div className="flex gap-3 px-5 py-4 flex-shrink-0" style={{ borderTop: '1px solid #EAF0F6' }}>
           {entry && (
-            <button className="py-2.5 px-4 rounded-[10px] text-sm font-semibold transition-colors" style={{ color: '#B04A4A', border: '1.5px solid #F0D0D0' }}
-              onClick={() => { deletePlan(entry.id); onClose() }}>
+            <button className="py-2.5 px-4 rounded-md text-sm font-semibold transition-colors" style={{ color: '#B04A4A', border: '1.5px solid #F0D0D0' }}
+              onClick={() => { deletePlan(entry.id); toast('Plan removed'); onClose() }}>
               Delete
             </button>
           )}
-          <button className="cs-btn-outline flex-1 py-2.5 rounded-[10px] text-sm font-semibold" onClick={onClose}>Cancel</button>
-          <button className="cs-btn flex-1 py-2.5 rounded-[10px] text-sm" disabled={!categoryId} onClick={save}>
+          <button className="cs-btn-outline flex-1 py-2.5 rounded-md text-sm font-semibold" onClick={onClose}>Cancel</button>
+          <button className="cs-btn flex-1 py-2.5 rounded-md text-sm" disabled={!categoryId} onClick={save}>
             {entry ? 'Save' : 'Add to plan'}
           </button>
         </div>
@@ -167,7 +170,7 @@ export default function PlannerPage() {
 
   return (
     <div className="min-h-screen" style={{ background: '#F5F8FA' }}>
-      <div className="sticky top-0 z-30" style={{ background: 'rgba(247,249,251,0.94)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #DFE3EB' }}>
+      <div className="sticky top-0 z-30" style={{ background: 'rgba(255,255,255,0.94)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #DFE3EB' }}>
         <div className="flex items-center justify-between px-6 py-4 max-w-5xl mx-auto">
           <div>
             <h1 className="font-bold text-[18px]" style={{ color: '#33475B' }}>Planner</h1>
@@ -183,7 +186,7 @@ export default function PlannerPage() {
               onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#EAF0F6'} onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = '#FFF'}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
-            <button onClick={goToday} className="cs-btn-outline py-1.5 px-3 rounded-[10px] text-xs font-semibold ml-1">Today</button>
+            <button onClick={goToday} className="cs-btn-outline py-1.5 px-3 rounded-md text-xs font-semibold ml-1">Today</button>
           </div>
         </div>
       </div>
@@ -201,7 +204,7 @@ export default function PlannerPage() {
           </div>
         )}
 
-        <div className="rounded-[18px] overflow-hidden" style={{ background: '#FFFFFF', border: '1px solid #DFE3EB', boxShadow: '0 1px 3px rgba(47,65,86,0.05)' }}>
+        <div className="rounded-lg overflow-hidden" style={{ background: '#FFFFFF', border: '1px solid #DFE3EB', boxShadow: '0 1px 3px rgba(47,65,86,0.05)' }}>
           {/* Weekday header */}
           <div className="grid grid-cols-7" style={{ borderBottom: '1px solid #EAF0F6' }}>
             {WEEKDAYS.map(w => (

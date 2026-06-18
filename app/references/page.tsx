@@ -4,13 +4,16 @@ import { useRouter } from 'next/navigation'
 import Masonry from 'react-masonry-css'
 import { useStore } from '@/lib/store'
 import { ReferenceCard } from '@/components/ReferenceCard'
+import { Tabs } from '@/components/Tabs'
+import { CardSkeletonGrid } from '@/components/Skeleton'
+import { toast } from '@/lib/toast'
 import type { Reference } from '@/lib/types'
 import { v4 as uuid } from 'uuid'
 
 const BREAKPOINT_COLS = { default: 3, 1024: 2, 640: 1 }
 
 export default function ReferencesPage() {
-  const { references, addReference, deleteReference } = useStore()
+  const { references, addReference, deleteReference, loaded } = useStore()
   const router = useRouter()
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -87,8 +90,11 @@ export default function ReferencesPage() {
       updatedAt: now,
     }
     addReference(r)
+    toast('Reference added')
     resetForm()
   }
+
+  function remove(id: string) { deleteReference(id); toast('Reference deleted') }
 
   return (
     <div className="min-h-screen" style={{ background: '#F5F8FA' }}>
@@ -97,7 +103,7 @@ export default function ReferencesPage() {
       <div
         className="sticky top-0 z-30"
         style={{
-          background: 'rgba(245,239,235,0.94)',
+          background: 'rgba(255,255,255,0.94)',
           backdropFilter: 'blur(12px)',
           WebkitBackdropFilter: 'blur(12px)',
           borderBottom: '1px solid #DFE3EB',
@@ -107,7 +113,7 @@ export default function ReferencesPage() {
           <h1 className="font-bold text-[18px]" style={{ color: '#33475B' }}>References</h1>
           <div className="flex items-center gap-3">
             <div
-              className="flex items-center gap-2 px-3 py-2 rounded-xl"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg"
               style={{ background: '#FFFFFF', border: '1.5px solid #DFE3EB', minWidth: 180 }}
             >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7C98B6" strokeWidth="2" strokeLinecap="round">
@@ -137,43 +143,24 @@ export default function ReferencesPage() {
           </div>
         </div>
 
-        {/* Category filter pills */}
         {categories.length > 0 && (
-          <div className="px-5 pb-3 max-w-5xl mx-auto flex items-center gap-2 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
-            <button
-              onClick={() => setFilterCat('')}
-              className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
-              style={{
-                background: !filterCat ? '#33475B' : 'rgba(200,217,230,0.3)',
-                color:      !filterCat ? '#FFFFFF'  : '#516F90',
-                border:     `1px solid ${!filterCat ? '#33475B' : '#DFE3EB'}`,
-              }}
-            >
-              All
-            </button>
-            {categories.map(cat => (
-              <button
-                key={cat}
-                onClick={() => setFilterCat(prev => prev === cat ? '' : cat)}
-                className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold capitalize transition-all"
-                style={{
-                  background: filterCat === cat ? '#516F90' : 'rgba(200,217,230,0.3)',
-                  color:      filterCat === cat ? '#FFFFFF'  : '#516F90',
-                  border:     `1px solid ${filterCat === cat ? '#516F90' : '#DFE3EB'}`,
-                }}
-              >
-                {cat}
-              </button>
-            ))}
+          <div className="px-6 max-w-5xl mx-auto">
+            <Tabs
+              tabs={[{ key: '', label: 'All' }, ...categories.map(c => ({ key: c, label: c }))]}
+              active={filterCat}
+              onChange={setFilterCat}
+            />
           </div>
         )}
       </div>
 
       {/* ── GRID ── */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6">
-        {filtered.length === 0 ? (
+      <div className="max-w-5xl mx-auto px-6 py-6">
+        {!loaded ? (
+          <CardSkeletonGrid />
+        ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center py-32 gap-3 text-center">
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: '#EAF0F6' }}>
+            <div className="w-14 h-14 rounded-lg flex items-center justify-center" style={{ background: '#EAF0F6' }}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#516F90" strokeWidth="1.5" strokeLinecap="round">
                 <rect x="3" y="3" width="18" height="18" rx="2"/>
                 <circle cx="8.5" cy="8.5" r="1.5"/>
@@ -201,7 +188,7 @@ export default function ReferencesPage() {
                 key={r.id}
                 item={r}
                 onClick={ref => router.push(`/references/${ref.id}`)}
-                onDelete={deleteReference}
+                onDelete={remove}
               />
             ))}
           </Masonry>
@@ -216,7 +203,7 @@ export default function ReferencesPage() {
           onClick={e => { if (e.target === e.currentTarget) resetForm() }}
         >
           <div
-            className="w-full max-w-lg rounded-[24px] overflow-hidden"
+            className="w-full max-w-lg rounded-lg overflow-hidden"
             style={{
               background: '#F5F8FA',
               border: '1px solid #DFE3EB',
@@ -249,7 +236,7 @@ export default function ReferencesPage() {
                   onChange={handleFileChange}
                 />
                 {preview || form.imageUrl ? (
-                  <div className="relative rounded-[14px] overflow-hidden" style={{ aspectRatio: '16/9' }}>
+                  <div className="relative rounded-md overflow-hidden" style={{ aspectRatio: '16/9' }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={preview || form.imageUrl} alt="" className="w-full h-full object-cover" />
                     <button
@@ -271,7 +258,7 @@ export default function ReferencesPage() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => fileRef.current?.click()}
-                      className="flex-1 flex flex-col items-center justify-center gap-2 rounded-[14px] py-6 transition-all"
+                      className="flex-1 flex flex-col items-center justify-center gap-2 rounded-md py-6 transition-all"
                       style={{ background: '#FFFFFF', border: '1.5px dashed #DFE3EB' }}
                     >
                       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7C98B6" strokeWidth="1.5" strokeLinecap="round">
@@ -349,9 +336,9 @@ export default function ReferencesPage() {
 
             {/* Footer */}
             <div className="flex gap-3 px-5 py-4" style={{ borderTop: '1px solid #DFE3EB' }}>
-              <button className="cs-btn-outline flex-1 py-2.5 rounded-[10px] text-sm font-semibold" onClick={resetForm}>Cancel</button>
+              <button className="cs-btn-outline flex-1 py-2.5 rounded-md text-sm font-semibold" onClick={resetForm}>Cancel</button>
               <button
-                className="cs-btn flex-1 py-2.5 rounded-[10px] text-sm"
+                className="cs-btn flex-1 py-2.5 rounded-md text-sm"
                 onClick={saveReference}
                 disabled={!form.title.trim()}
               >

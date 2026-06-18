@@ -141,7 +141,7 @@ export default function InspirationDetailPage() {
 
       {/* Top bar */}
       <div className="sticky top-0 z-30 flex items-center justify-between px-5 py-3"
-        style={{ background: 'rgba(245,239,235,0.94)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', borderBottom: '1px solid #DFE3EB' }}>
+        style={{ background: 'rgba(255,255,255,0.94)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', borderBottom: '1px solid #DFE3EB' }}>
         <button className="flex items-center gap-2 font-semibold text-sm" style={{ color: '#516F90' }} onClick={() => router.push('/inspirations')}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#516F90" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
           Back
@@ -239,7 +239,7 @@ export default function InspirationDetailPage() {
           ) : (
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
               {linkedRefs.map(r => (
-                <button key={r.id} onClick={() => router.push(`/references/${r.id}`)} className="rounded-[12px] overflow-hidden text-left" style={{ border: '1px solid #DFE3EB', background: '#FFFFFF' }}>
+                <button key={r.id} onClick={() => router.push(`/references/${r.id}`)} className="rounded-md overflow-hidden text-left" style={{ border: '1px solid #DFE3EB', background: '#FFFFFF' }}>
                   <div style={{ height: 88, background: '#EAF0F6' }}>
                     {r.imageUrl && (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -273,12 +273,12 @@ export default function InspirationDetailPage() {
           </div>
 
           {selectedScript ? (
-            <div className="rounded-[16px] overflow-hidden" style={{ border: '1px solid #DFE3EB', height: '74vh' }}>
+            <div className="rounded-lg overflow-hidden" style={{ border: '1px solid #DFE3EB', height: '74vh' }}>
               <ScriptEditor key={selectedScript.id} script={selectedScript} />
             </div>
           ) : (
-            <div className="flex flex-col items-center gap-3 py-12 text-center rounded-[12px]" style={{ border: '1.5px dashed #CBD6E2', background: '#FAFBFC' }}>
-              <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: '#EAF0F6' }}>
+            <div className="flex flex-col items-center gap-3 py-12 text-center rounded-md" style={{ border: '1.5px dashed #CBD6E2', background: '#FAFBFC' }}>
+              <div className="w-11 h-11 rounded-lg flex items-center justify-center" style={{ background: '#EAF0F6' }}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#516F90" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
               </div>
               <div>

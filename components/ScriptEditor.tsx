@@ -8,6 +8,7 @@ import Highlight from '@tiptap/extension-highlight'
 import Link from '@tiptap/extension-link'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useStore } from '@/lib/store'
+import { toast } from '@/lib/toast'
 import type { Script, VisualRef, MusicEntry, Reference } from '@/lib/types'
 import { v4 as uuid } from 'uuid'
 
@@ -87,7 +88,7 @@ function RefPicker({
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 30, opacity: 0 }}
         transition={{ type: 'spring', damping: 30, stiffness: 350 }}
-        className="w-full rounded-[20px] overflow-hidden flex flex-col"
+        className="w-full rounded-lg overflow-hidden flex flex-col"
         style={{ maxWidth: 520, maxHeight: '80vh', background: '#F5F8FA', border: '1px solid #DFE3EB', boxShadow: '0 24px 64px rgba(47,65,86,0.25)' }}
       >
         <div className="flex items-center justify-between px-4 py-3 flex-shrink-0" style={{ borderBottom: '1px solid #DFE3EB' }}>
@@ -99,7 +100,7 @@ function RefPicker({
 
         {/* Search + filter */}
         <div className="px-4 pt-3 pb-2 flex-shrink-0 space-y-2">
-          <div className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: '#FFFFFF', border: '1.5px solid #DFE3EB' }}>
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: '#FFFFFF', border: '1.5px solid #DFE3EB' }}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7C98B6" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search references…" className="flex-1 bg-transparent outline-none text-sm" style={{ color: '#33475B' }} />
           </div>
@@ -137,7 +138,7 @@ function RefPicker({
                   <button
                     key={ref.id}
                     onClick={() => toggle(ref.id)}
-                    className="rounded-[14px] overflow-hidden text-left relative transition-all"
+                    className="rounded-md overflow-hidden text-left relative transition-all"
                     style={{
                       border: sel ? '2px solid #516F90' : '1px solid #DFE3EB',
                       background: sel ? 'rgba(86,124,141,0.06)' : '#FFFFFF',
@@ -170,9 +171,9 @@ function RefPicker({
         </div>
 
         <div className="flex gap-3 px-4 py-3 flex-shrink-0" style={{ borderTop: '1px solid #DFE3EB' }}>
-          <button className="cs-btn-outline flex-1 py-2.5 rounded-[10px] text-sm font-semibold" onClick={onClose}>Cancel</button>
+          <button className="cs-btn-outline flex-1 py-2.5 rounded-md text-sm font-semibold" onClick={onClose}>Cancel</button>
           <button
-            className="cs-btn flex-1 py-2.5 rounded-[10px] text-sm"
+            className="cs-btn flex-1 py-2.5 rounded-md text-sm"
             onClick={addSelected}
             disabled={selected.length === 0}
           >
@@ -209,7 +210,7 @@ function CategoryDropdown({ value, onChange }: { value: string; onChange: (v: st
       <AnimatePresence>
         {open && (
           <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.12 }}
-            className="absolute left-0 mt-1.5 rounded-xl overflow-hidden z-50" style={{ minWidth: 180, background: '#FFFFFF', border: '1px solid #DFE3EB', boxShadow: '0 8px 28px rgba(47,65,86,0.16)', maxHeight: 240, overflowY: 'auto' }}>
+            className="absolute left-0 mt-1.5 rounded-lg overflow-hidden z-50" style={{ minWidth: 180, background: '#FFFFFF', border: '1px solid #DFE3EB', boxShadow: '0 8px 28px rgba(47,65,86,0.16)', maxHeight: 240, overflowY: 'auto' }}>
             {value && (
               <button type="button" onClick={() => { onChange(''); setOpen(false) }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-left transition-colors" style={{ color: '#7C98B6' }}
                 onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#F5F8FA'} onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}>
@@ -302,6 +303,7 @@ export function ScriptEditor({ script, onClose }: Props) {
   const save = useCallback(() => {
     persist()
     setSaved(true)
+    toast('Script saved')
     setTimeout(() => setSaved(false), 1800)
   }, [persist])
 
@@ -361,7 +363,7 @@ export function ScriptEditor({ script, onClose }: Props) {
       {/* ── Top bar ── */}
       <div
         className="flex items-center gap-3 px-4 py-3 flex-shrink-0"
-        style={{ background: 'rgba(245,239,235,0.95)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #DFE3EB' }}
+        style={{ background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #DFE3EB' }}
       >
         {onClose && (
           <button onClick={onClose} style={{ color: '#7C98B6' }} className="flex-shrink-0">
@@ -396,7 +398,7 @@ export function ScriptEditor({ script, onClose }: Props) {
 
         <button
           onClick={save}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex-shrink-0"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex-shrink-0"
           style={{
             background: saved ? '#3a7d44' : '#33475B',
             color: '#FFFFFF',
@@ -568,7 +570,7 @@ export function ScriptEditor({ script, onClose }: Props) {
           {visualRefs.length === 0 ? (
             <button
               onClick={() => setRefPickerOpen(true)}
-              className="w-full py-3 rounded-xl text-xs flex items-center justify-center gap-2 transition-all"
+              className="w-full py-3 rounded-lg text-xs flex items-center justify-center gap-2 transition-all"
               style={{ border: '1.5px dashed #DFE3EB', color: '#7C98B6' }}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
@@ -577,7 +579,7 @@ export function ScriptEditor({ script, onClose }: Props) {
           ) : (
             <div className="space-y-2 max-h-48 overflow-y-auto">
               {visualRefs.map(ref => (
-                <div key={ref.id} className="flex items-center gap-2 p-2 rounded-xl" style={{ background: '#FFFFFF', border: '1px solid #DFE3EB' }}>
+                <div key={ref.id} className="flex items-center gap-2 p-2 rounded-lg" style={{ background: '#FFFFFF', border: '1px solid #DFE3EB' }}>
                   <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0" style={{ background: '#EAF0F6' }}>
                     {ref.imageUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element

@@ -29,7 +29,7 @@ export default function ReferenceDetailPage() {
   if (!item) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4" style={{ background: '#F5F8FA' }}>
-        <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: '#EAF0F6' }}>
+        <div className="w-16 h-16 rounded-lg flex items-center justify-center" style={{ background: '#EAF0F6' }}>
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#516F90" strokeWidth="1.5" strokeLinecap="round">
             <circle cx="12" cy="12" r="10"/>
             <line x1="12" y1="8" x2="12" y2="12"/>
@@ -77,7 +77,7 @@ export default function ReferenceDetailPage() {
       <div
         className="sticky top-0 z-30 flex items-center justify-between px-5 py-3"
         style={{
-          background: 'rgba(245,239,235,0.94)',
+          background: 'rgba(255,255,255,0.94)',
           backdropFilter: 'blur(12px)',
           WebkitBackdropFilter: 'blur(12px)',
           borderBottom: '1px solid #DFE3EB',
@@ -120,7 +120,7 @@ export default function ReferenceDetailPage() {
 
         {/* ── HERO IMAGE ── */}
         <div
-          className="rounded-[20px] overflow-hidden relative"
+          className="rounded-lg overflow-hidden relative"
           style={{ boxShadow: '0 8px 40px rgba(47,65,86,0.14)' }}
         >
           {item.imageUrl ? (
@@ -191,8 +191,8 @@ export default function ReferenceDetailPage() {
                 />
               </div>
               <div className="flex gap-2 pt-1">
-                <button className="cs-btn-outline flex-1 py-2 rounded-[10px] text-sm font-semibold" onClick={() => setEditing(false)}>Cancel</button>
-                <button className="cs-btn flex-1 py-2 rounded-[10px] text-sm" onClick={saveEdit}>Save</button>
+                <button className="cs-btn-outline flex-1 py-2 rounded-md text-sm font-semibold" onClick={() => setEditing(false)}>Cancel</button>
+                <button className="cs-btn flex-1 py-2 rounded-md text-sm" onClick={saveEdit}>Save</button>
               </div>
             </div>
           ) : (

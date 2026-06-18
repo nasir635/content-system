@@ -4,6 +4,9 @@ import { useRouter } from 'next/navigation'
 import Masonry from 'react-masonry-css'
 import { useStore } from '@/lib/store'
 import { AddInspirationModal } from '@/components/AddInspirationModal'
+import { Tabs } from '@/components/Tabs'
+import { CardSkeletonGrid } from '@/components/Skeleton'
+import { toast } from '@/lib/toast'
 import type { Inspiration } from '@/lib/types'
 
 const BREAKPOINT_COLS = { default: 3, 1024: 2, 640: 1 }
@@ -75,7 +78,7 @@ function InspirationCard({ item, onClick, onDelete }: {
 }
 
 export default function InspirationsPage() {
-  const { inspirations, addInspiration, addReference, deleteInspiration } = useStore()
+  const { inspirations, addInspiration, addReference, deleteInspiration, loaded } = useStore()
   const router = useRouter()
   const [search, setSearch]       = useState('')
   const [filterCat, setFilterCat] = useState('')
@@ -97,11 +100,11 @@ export default function InspirationsPage() {
 
   return (
     <div className="min-h-screen" style={{ background: '#F5F8FA' }}>
-      <div className="sticky top-0 z-30" style={{ background: 'rgba(245,239,235,0.94)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', borderBottom: '1px solid #DFE3EB' }}>
+      <div className="sticky top-0 z-30" style={{ background: 'rgba(255,255,255,0.94)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', borderBottom: '1px solid #DFE3EB' }}>
         <div className="flex items-center justify-between px-5 py-4 max-w-5xl mx-auto">
           <h1 className="font-bold text-[18px]" style={{ color: '#33475B' }}>Inspirations</h1>
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: '#FFFFFF', border: '1.5px solid #DFE3EB', minWidth: 180 }}>
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: '#FFFFFF', border: '1.5px solid #DFE3EB', minWidth: 180 }}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7C98B6" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
               <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search inspirations…" className="flex-1 bg-transparent outline-none text-sm" style={{ color: '#33475B' }} />
               {search && (
@@ -118,21 +121,22 @@ export default function InspirationsPage() {
         </div>
 
         {categories.length > 0 && (
-          <div className="px-5 pb-3 max-w-5xl mx-auto flex items-center gap-2 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
-            <button onClick={() => setFilterCat('')} className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
-              style={{ background: !filterCat ? '#33475B' : 'rgba(200,217,230,0.3)', color: !filterCat ? '#FFFFFF' : '#516F90', border: `1px solid ${!filterCat ? '#33475B' : '#DFE3EB'}` }}>All</button>
-            {categories.map(cat => (
-              <button key={cat} onClick={() => setFilterCat(prev => prev === cat ? '' : cat)} className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold capitalize transition-all"
-                style={{ background: filterCat === cat ? '#516F90' : 'rgba(200,217,230,0.3)', color: filterCat === cat ? '#FFFFFF' : '#516F90', border: `1px solid ${filterCat === cat ? '#516F90' : '#DFE3EB'}` }}>{cat}</button>
-            ))}
+          <div className="px-6 max-w-5xl mx-auto">
+            <Tabs
+              tabs={[{ key: '', label: 'All' }, ...categories.map(c => ({ key: c, label: c }))]}
+              active={filterCat}
+              onChange={setFilterCat}
+            />
           </div>
         )}
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6">
-        {filtered.length === 0 ? (
+      <div className="max-w-5xl mx-auto px-6 py-6">
+        {!loaded ? (
+          <CardSkeletonGrid />
+        ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center py-32 gap-3 text-center">
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: '#EAF0F6' }}>
+            <div className="w-14 h-14 rounded-lg flex items-center justify-center" style={{ background: '#EAF0F6' }}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#516F90" strokeWidth="1.5" strokeLinecap="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 015 11.95V17a1 1 0 01-1 1H8a1 1 0 01-1-1v-3.05A7 7 0 0112 2z"/></svg>
             </div>
             <p className="text-sm font-semibold" style={{ color: '#33475B' }}>{inspirations.length === 0 ? 'No inspirations yet' : 'No results'}</p>
@@ -155,6 +159,7 @@ export default function InspirationsPage() {
           addInspiration(inspiration)
           refs.forEach(addReference)
           setAddOpen(false)
+          toast('Inspiration saved')
         }}
       />
     </div>

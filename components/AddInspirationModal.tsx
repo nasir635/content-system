@@ -23,7 +23,7 @@ function CustomSelect({ value, onChange, options }: {
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium border transition-all"
+        className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium border transition-all"
         style={{
           background: '#FFFFFF',
           border: `1.5px solid ${open ? '#516F90' : '#DFE3EB'}`,
@@ -40,7 +40,7 @@ function CustomSelect({ value, onChange, options }: {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.1 }}
-            className="absolute left-0 right-0 mt-1 rounded-xl z-50 overflow-hidden"
+            className="absolute left-0 right-0 mt-1 rounded-lg z-50 overflow-hidden"
             style={{ background: '#FFFFFF', border: '1.5px solid #DFE3EB', boxShadow: '0 8px 32px rgba(47,65,86,0.18)', maxHeight: 220, overflowY: 'auto' }}
           >
             {options.map(opt => (
@@ -175,7 +175,7 @@ export function AddInspirationModal({ open, onClose, onSuccess }: Props) {
             animate={{ y: 0, opacity: 1, scale: 1 }}
             exit={{ y: 40, opacity: 0, scale: 0.97 }}
             transition={{ type: 'spring', damping: 30, stiffness: 350 }}
-            className="w-full max-w-lg rounded-[24px] overflow-hidden"
+            className="w-full max-w-lg rounded-lg overflow-hidden"
             style={{ background: '#F5F8FA', border: '1px solid #DFE3EB', boxShadow: '0 24px 64px rgba(47,65,86,0.25)', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}
           >
             {/* Header */}
@@ -248,7 +248,7 @@ export function AddInspirationModal({ open, onClose, onSuccess }: Props) {
 
                 <button
                   onClick={() => fileRef.current?.click()}
-                  className="w-full flex flex-col items-center justify-center gap-2 py-5 rounded-[14px] transition-all"
+                  className="w-full flex flex-col items-center justify-center gap-2 py-5 rounded-md transition-all"
                   style={{ background: '#FFFFFF', border: '1.5px dashed #DFE3EB' }}
                 >
                   <Upload size={20} style={{ color: '#7C98B6' }} />
@@ -263,7 +263,7 @@ export function AddInspirationModal({ open, onClose, onSuccess }: Props) {
                     {screenshots.map(s => (
                       <div
                         key={s.id}
-                        className="flex gap-3 p-3 rounded-xl"
+                        className="flex gap-3 p-3 rounded-lg"
                         style={{ background: '#FFFFFF', border: '1px solid #DFE3EB' }}
                       >
                         <div className="relative flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden" style={{ background: '#EAF0F6' }}>
@@ -305,11 +305,11 @@ export function AddInspirationModal({ open, onClose, onSuccess }: Props) {
 
             {/* Footer */}
             <div className="flex gap-3 px-5 py-4 flex-shrink-0" style={{ borderTop: '1px solid #DFE3EB' }}>
-              <button className="cs-btn-outline flex-1 py-2.5 rounded-[10px] text-sm font-semibold" onClick={() => { reset(); onClose() }}>
+              <button className="cs-btn-outline flex-1 py-2.5 rounded-md text-sm font-semibold" onClick={() => { reset(); onClose() }}>
                 Cancel
               </button>
               <button
-                className="cs-btn flex-1 py-2.5 rounded-[10px] text-sm flex items-center justify-center gap-2"
+                className="cs-btn flex-1 py-2.5 rounded-md text-sm flex items-center justify-center gap-2"
                 onClick={handleSave}
                 disabled={!url.trim() || !howToUse.trim() || saving}
               >

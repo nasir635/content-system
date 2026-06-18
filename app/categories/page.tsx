@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useStore } from '@/lib/store'
+import { toast } from '@/lib/toast'
 import { CATEGORY_COLORS } from '@/lib/types'
 import type { Category } from '@/lib/types'
 import { v4 as uuid } from 'uuid'
@@ -26,7 +27,7 @@ function CategoryModal({ initial, onSave, onClose }: {
       <motion.div
         initial={{ y: 28, opacity: 0, scale: 0.98 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: 28, opacity: 0, scale: 0.98 }}
         transition={{ type: 'spring', damping: 30, stiffness: 340 }}
-        className="w-full max-w-lg rounded-[22px] overflow-hidden flex flex-col"
+        className="w-full max-w-lg rounded-lg overflow-hidden flex flex-col"
         style={{ background: '#FFFFFF', border: '1px solid #DFE3EB', boxShadow: '0 24px 64px rgba(47,65,86,0.25)', maxHeight: '90vh' }}
       >
         <div className="flex items-center justify-between px-5 py-4 flex-shrink-0" style={{ borderBottom: '1px solid #EAF0F6' }}>
@@ -71,8 +72,8 @@ function CategoryModal({ initial, onSave, onClose }: {
         </div>
 
         <div className="flex gap-3 px-5 py-4 flex-shrink-0" style={{ borderTop: '1px solid #EAF0F6' }}>
-          <button className="cs-btn-outline flex-1 py-2.5 rounded-[10px] text-sm font-semibold" onClick={onClose}>Cancel</button>
-          <button className="cs-btn flex-1 py-2.5 rounded-[10px] text-sm" disabled={!name.trim()}
+          <button className="cs-btn-outline flex-1 py-2.5 rounded-md text-sm font-semibold" onClick={onClose}>Cancel</button>
+          <button className="cs-btn flex-1 py-2.5 rounded-md text-sm" disabled={!name.trim()}
             onClick={() => onSave({ name: name.trim(), description, rules, shotTypes, color })}>
             {initial ? 'Save changes' : 'Create category'}
           </button>
@@ -87,7 +88,7 @@ function CategoryCard({ cat, count, onEdit, onDelete, onClick }: {
 }) {
   return (
     <motion.div layout initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-      className="group rounded-[18px] overflow-hidden cursor-pointer"
+      className="group rounded-lg overflow-hidden cursor-pointer"
       style={{ background: '#FFFFFF', border: '1px solid #DFE3EB', boxShadow: '0 1px 3px rgba(47,65,86,0.05)', transition: 'box-shadow .2s, transform .2s' }}
       onClick={onClick}
       onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 28px rgba(47,65,86,0.12)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-3px)' }}
@@ -154,15 +155,17 @@ export default function CategoriesPage() {
   function handleSave(data: Omit<Category, 'id' | 'createdAt'>) {
     if (editing) {
       updateCategory(editing.id, { ...data, updatedAt: new Date().toISOString() })
+      toast('Category updated')
     } else {
       addCategory({ ...data, id: uuid(), createdAt: new Date().toISOString() })
+      toast('Category created')
     }
     setModalOpen(false); setEditing(null)
   }
 
   return (
     <div className="min-h-screen" style={{ background: '#F5F8FA' }}>
-      <div className="sticky top-0 z-30" style={{ background: 'rgba(247,249,251,0.94)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #DFE3EB' }}>
+      <div className="sticky top-0 z-30" style={{ background: 'rgba(255,255,255,0.94)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #DFE3EB' }}>
         <div className="flex items-center justify-between px-6 py-4 max-w-5xl mx-auto">
           <div>
             <h1 className="font-bold text-[18px]" style={{ color: '#33475B' }}>Content Categories</h1>
@@ -186,7 +189,7 @@ export default function CategoriesPage() {
             {categories.map(c => (
               <CategoryCard key={c.id} cat={c} count={countFor(c.name)}
                 onEdit={() => openEdit(c)}
-                onDelete={() => { if (confirm(`Delete "${c.name}"? Scripts keep their tag; planner entries for it are removed.`)) deleteCategory(c.id) }}
+                onDelete={() => { if (confirm(`Delete "${c.name}"? Scripts keep their tag; planner entries for it are removed.`)) { deleteCategory(c.id); toast('Category deleted') } }}
                 onClick={() => router.push(`/scripts?category=${encodeURIComponent(c.name)}`)} />
             ))}
           </motion.div>

@@ -15,7 +15,10 @@
   --faint: #99ACC2;
   --primary: #FF7A59;
   --primary-hover: #FF8F73;
+  --primary-soft: #FFF1ED;
   --accent: #00A4BD;
+  --radius: 6px;
+  --radius-lg: 8px;
 }
 
 html, body {
@@ -32,18 +35,22 @@ html, body {
 ::-webkit-scrollbar-thumb { background: #D5DCE5; border-radius: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
 
+/* Keyboard focus ring (HubSpot-style) — pointer clicks stay clean */
+:focus-visible { outline: 2px solid rgba(0,164,189,0.55); outline-offset: 2px; border-radius: 3px; }
+button:focus:not(:focus-visible), a:focus:not(:focus-visible) { outline: none; }
+
 /* ── CARD (content cards: scripts, references, inspirations) ── */
 .glossy-card {
   background: var(--card);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border);
-  box-shadow: 0 1px 2px rgba(45, 62, 80, 0.04);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+  box-shadow: 0 1px 1px rgba(45, 62, 80, 0.04);
+  transition: border-color 0.13s ease, box-shadow 0.13s ease, transform 0.13s ease;
   overflow: hidden;
 }
 .glossy-card:hover {
   border-color: var(--border-strong);
-  box-shadow: 0 6px 18px rgba(45, 62, 80, 0.10);
+  box-shadow: 0 4px 12px rgba(45, 62, 80, 0.09);
   transform: translateY(-2px);
 }
 
@@ -51,22 +58,22 @@ html, body {
 .glass-card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  box-shadow: 0 1px 2px rgba(45, 62, 80, 0.04);
-  transition: box-shadow 0.15s ease;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 1px 1px rgba(45, 62, 80, 0.04);
+  transition: box-shadow 0.13s ease;
 }
-.glass-card:hover { box-shadow: 0 4px 14px rgba(45, 62, 80, 0.07); }
+.glass-card:hover { box-shadow: 0 3px 10px rgba(45, 62, 80, 0.06); }
 
 /* ── STAT CARD ── */
 .stat-card {
   background: var(--card);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border);
-  padding: 18px 20px;
-  box-shadow: 0 1px 2px rgba(45, 62, 80, 0.04);
-  transition: box-shadow 0.15s ease, transform 0.15s ease;
+  padding: 16px 18px;
+  box-shadow: 0 1px 1px rgba(45, 62, 80, 0.04);
+  transition: box-shadow 0.13s ease, transform 0.13s ease;
 }
-.stat-card:hover { box-shadow: 0 4px 14px rgba(45, 62, 80, 0.08); transform: translateY(-1px); }
+.stat-card:hover { box-shadow: 0 3px 10px rgba(45, 62, 80, 0.08); transform: translateY(-1px); }
 
 /* ── SECONDARY BUTTON (card actions) ── */
 .glossy-btn {
@@ -74,28 +81,29 @@ html, body {
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding: 9px 16px;
+  padding: 8px 14px;
   background: #FFFFFF;
   border: 1px solid var(--border-strong);
-  border-radius: 8px;
+  border-radius: var(--radius);
   font-size: 13px;
   font-weight: 600;
   color: var(--text);
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  transition: background 0.13s ease, border-color 0.13s ease, transform 0.05s ease;
 }
 .glossy-btn:hover { background: #F5F8FA; border-color: #B8C4D6; }
+.glossy-btn:active { transform: translateY(1px); }
 
 /* ── MASONRY ── */
 .my-masonry-grid { display: flex; gap: 16px; width: 100%; }
 .my-masonry-grid-column { display: flex; flex-direction: column; gap: 16px; }
 
-/* ── CHIP / BADGE ── */
+/* ── CHIP / BADGE (squared, enterprise) ── */
 .chip {
   display: inline-flex;
   align-items: center;
-  padding: 3px 10px;
-  border-radius: 6px;
+  padding: 2px 8px;
+  border-radius: 4px;
   font-size: 11px;
   font-weight: 600;
   background: #EAF0F6;
@@ -108,35 +116,35 @@ html, body {
   width: 100%;
   background: #FFFFFF;
   border: 1px solid var(--border-strong);
-  border-radius: 6px;
-  padding: 10px 13px;
+  border-radius: var(--radius);
+  padding: 9px 12px;
   font-size: 14px;
   color: var(--text);
   outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color 0.13s, box-shadow 0.13s;
 }
 .cs-input::placeholder { color: var(--faint); }
 .cs-input:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(255, 122, 89, 0.15);
+  box-shadow: 0 0 0 3px rgba(255, 122, 89, 0.16);
 }
 
-/* ── PRIMARY BUTTON (orange CTA, HubSpot-style) ── */
+/* ── PRIMARY BUTTON (orange CTA) ── */
 .cs-btn {
   background: var(--primary);
   color: #FFFFFF;
   font-weight: 600;
   font-size: 13px;
-  border-radius: 8px;
-  padding: 9px 18px;
+  border-radius: var(--radius);
+  padding: 8px 16px;
   border: none;
   cursor: pointer;
-  box-shadow: 0 1px 2px rgba(45, 62, 80, 0.10);
-  transition: background 0.15s, box-shadow 0.15s, transform 0.05s;
+  box-shadow: 0 1px 1px rgba(45, 62, 80, 0.10);
+  transition: background 0.13s, box-shadow 0.13s, transform 0.05s;
 }
-.cs-btn:hover { background: var(--primary-hover); box-shadow: 0 2px 8px rgba(255, 122, 89, 0.30); }
+.cs-btn:hover { background: var(--primary-hover); box-shadow: 0 2px 6px rgba(255, 122, 89, 0.32); }
 .cs-btn:active { transform: translateY(1px); }
-.cs-btn:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+.cs-btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
 
 /* ── OUTLINE BUTTON ── */
 .cs-btn-outline {
@@ -144,13 +152,53 @@ html, body {
   color: var(--text);
   font-weight: 600;
   font-size: 13px;
-  border-radius: 8px;
-  padding: 9px 18px;
+  border-radius: var(--radius);
+  padding: 8px 16px;
   border: 1px solid var(--border-strong);
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
+  transition: background 0.13s, border-color 0.13s, transform 0.05s;
 }
 .cs-btn-outline:hover { background: #F5F8FA; border-color: #B8C4D6; }
+.cs-btn-outline:active { transform: translateY(1px); }
+
+/* ── UNDERLINE TABS (HubSpot filter pattern) ── */
+.hs-tabs { display: flex; align-items: center; gap: 2px; border-bottom: 1px solid var(--border); }
+.hs-tab {
+  position: relative;
+  padding: 9px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.13s;
+}
+.hs-tab:hover { color: var(--text); }
+.hs-tab[data-active="true"] { color: var(--text); }
+.hs-tab[data-active="true"]::after {
+  content: ''; position: absolute; left: 8px; right: 8px; bottom: -1px; height: 2px;
+  background: var(--primary); border-radius: 2px 2px 0 0;
+}
+
+/* ── SKELETON ── */
+.skeleton {
+  background: linear-gradient(90deg, #ECF1F6 25%, #F4F7FA 37%, #ECF1F6 63%);
+  background-size: 400% 100%;
+  animation: skeleton 1.3s ease infinite;
+  border-radius: var(--radius);
+}
+@keyframes skeleton { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+
+/* ── TOAST ── */
+.toast {
+  display: flex; align-items: center; gap: 10px;
+  background: #213343; color: #FFFFFF;
+  padding: 11px 14px; border-radius: var(--radius-lg);
+  font-size: 13px; font-weight: 500;
+  box-shadow: 0 10px 28px rgba(33, 51, 67, 0.30);
+}
 
 /* ── EDITOR (TipTap / ProseMirror) ── */
 .ProseMirror, .notion-editor { outline: none; min-height: 320px; color: var(--text); font-size: 15px; line-height: 1.7; }

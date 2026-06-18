@@ -43,7 +43,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'linear-gradient(160deg, #F5F8FA 0%, #EAF0F6 100%)' }}>
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center mb-6">
-          <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3" style={{ background: 'linear-gradient(135deg, #33475B 0%, #516F90 100%)', boxShadow: '0 8px 24px rgba(47,65,86,0.25)' }}>
+          <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-3" style={{ background: 'linear-gradient(135deg, #33475B 0%, #516F90 100%)', boxShadow: '0 8px 24px rgba(47,65,86,0.25)' }}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
             </svg>
@@ -54,7 +54,7 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <div className="rounded-[20px] p-6" style={{ background: '#FFFFFF', border: '1px solid #DFE3EB', boxShadow: '0 12px 40px rgba(47,65,86,0.12)' }}>
+        <div className="rounded-lg p-6" style={{ background: '#FFFFFF', border: '1px solid #DFE3EB', boxShadow: '0 12px 40px rgba(47,65,86,0.12)' }}>
           {mode === 'loading' ? (
             <p className="text-sm text-center py-6" style={{ color: '#7C98B6' }}>Loading…</p>
           ) : (
@@ -73,7 +73,7 @@ export default function LoginPage() {
                 </div>
               )}
               {error && <p className="text-xs font-medium" style={{ color: '#B04A4A' }}>{error}</p>}
-              <button type="submit" disabled={busy || !password} className="cs-btn w-full py-2.5 rounded-[12px] text-sm">
+              <button type="submit" disabled={busy || !password} className="cs-btn w-full py-2.5 rounded-md text-sm">
                 {busy ? 'Please wait…' : mode === 'setup' ? 'Set password & enter' : 'Unlock'}
               </button>
             </form>

@@ -11,7 +11,7 @@ export default function ScriptDetailPage() {
   if (!script) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4" style={{ background: '#F5F8FA' }}>
-        <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: '#EAF0F6' }}>
+        <div className="w-16 h-16 rounded-lg flex items-center justify-center" style={{ background: '#EAF0F6' }}>
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#516F90" strokeWidth="1.5" strokeLinecap="round">
             <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
           </svg>

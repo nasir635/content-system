@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { Shell } from '@/components/Shell'
 import { StoreHydrator } from '@/components/StoreHydrator'
+import { Toaster } from '@/components/Toaster'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' })
 
@@ -17,6 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <StoreHydrator />
         <Shell>{children}</Shell>
+        <Toaster />
       </body>
     </html>
   )

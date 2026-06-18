@@ -67,7 +67,7 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen" style={{ background: '#F5F8FA' }}>
-      <div className="sticky top-0 z-30" style={{ background: 'rgba(245,239,235,0.94)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #DFE3EB' }}>
+      <div className="sticky top-0 z-30" style={{ background: 'rgba(255,255,255,0.94)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #DFE3EB' }}>
         <div className="max-w-2xl mx-auto px-4 sm:px-6 py-4">
           <h1 className="font-bold text-[18px]" style={{ color: '#33475B' }}>Settings</h1>
         </div>
@@ -78,7 +78,7 @@ export default function SettingsPage() {
         {/* Workspace */}
         <div className="glass-card p-6 space-y-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#EAF0F6' }}>
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: '#EAF0F6' }}>
               <Briefcase size={18} style={{ color: '#516F90' }} />
             </div>
             <div>
@@ -102,7 +102,7 @@ export default function SettingsPage() {
         {/* Security */}
         <div className="glass-card p-6 space-y-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #33475B 0%, #516F90 100%)' }}>
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #33475B 0%, #516F90 100%)' }}>
               <Lock size={18} className="text-white" />
             </div>
             <div>
@@ -118,10 +118,10 @@ export default function SettingsPage() {
             </div>
             {pwMsg && <p className="text-xs font-medium" style={{ color: pwMsg.ok ? '#3a7d44' : '#B04A4A' }}>{pwMsg.text}</p>}
             <div className="flex gap-3">
-              <button type="button" onClick={logout} className="cs-btn-outline py-2.5 px-4 rounded-[10px] text-sm font-semibold flex items-center gap-2">
+              <button type="button" onClick={logout} className="cs-btn-outline py-2.5 px-4 rounded-md text-sm font-semibold flex items-center gap-2">
                 <LogOut size={14} /> Log out
               </button>
-              <button type="submit" disabled={pwBusy || !current || !next} className="cs-btn flex-1 py-2.5 rounded-[10px] text-sm">
+              <button type="submit" disabled={pwBusy || !current || !next} className="cs-btn flex-1 py-2.5 rounded-md text-sm">
                 {pwBusy ? 'Saving…' : 'Update password'}
               </button>
             </div>
@@ -131,7 +131,7 @@ export default function SettingsPage() {
         {/* Storage & Sync */}
         <div className="glass-card p-6 space-y-5">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #33475B 0%, #516F90 100%)' }}>
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #33475B 0%, #516F90 100%)' }}>
               {cloud ? <Cloud size={18} className="text-white" /> : <CloudOff size={18} className="text-white" />}
             </div>
             <div>
@@ -145,7 +145,7 @@ export default function SettingsPage() {
               <Loader2 size={15} className="animate-spin" /> Checking…
             </div>
           ) : cloud ? (
-            <div className="flex items-start gap-2 rounded-xl px-4 py-3" style={{ background: 'rgba(58,125,68,0.1)', border: '1px solid rgba(58,125,68,0.25)' }}>
+            <div className="flex items-start gap-2 rounded-lg px-4 py-3" style={{ background: 'rgba(58,125,68,0.1)', border: '1px solid rgba(58,125,68,0.25)' }}>
               <CheckCircle2 size={16} style={{ color: '#3a7d44', flexShrink: 0, marginTop: 1 }} />
               <div>
                 <p className="text-sm font-semibold" style={{ color: '#33475B' }}>Cloud sync is active</p>
@@ -153,14 +153,14 @@ export default function SettingsPage() {
               </div>
             </div>
           ) : (
-            <div className="rounded-xl px-4 py-4 space-y-2" style={{ background: 'rgba(176,74,74,0.08)', border: '1px solid rgba(176,74,74,0.2)' }}>
+            <div className="rounded-lg px-4 py-4 space-y-2" style={{ background: 'rgba(176,74,74,0.08)', border: '1px solid rgba(176,74,74,0.2)' }}>
               <p className="text-sm font-semibold" style={{ color: '#B04A4A' }}>Cloud sync not connected — saving to this browser only</p>
               <p className="text-xs leading-relaxed" style={{ color: '#516F90' }}>Connect a Vercel Blob store in your project&apos;s Storage tab, then redeploy.</p>
             </div>
           )}
 
           <button onClick={checkNow} disabled={refreshing}
-            className="cs-btn-outline w-full py-2.5 rounded-[10px] text-sm font-semibold flex items-center justify-center gap-2">
+            className="cs-btn-outline w-full py-2.5 rounded-md text-sm font-semibold flex items-center justify-center gap-2">
             {refreshing ? <><Loader2 size={14} className="animate-spin" /> Checking…</> : 'Re-check connection'}
           </button>
         </div>
@@ -168,7 +168,7 @@ export default function SettingsPage() {
         {/* Data */}
         <div className="glass-card p-6 space-y-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#EAF0F6' }}>
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: '#EAF0F6' }}>
               <Database size={18} style={{ color: '#516F90' }} />
             </div>
             <div>
@@ -179,14 +179,14 @@ export default function SettingsPage() {
 
           <div className="grid grid-cols-4 gap-3">
             {counts.map(c => (
-              <div key={c.label} className="rounded-xl px-3 py-3 text-center" style={{ background: '#FFFFFF', border: '1px solid #DFE3EB' }}>
+              <div key={c.label} className="rounded-lg px-3 py-3 text-center" style={{ background: '#FFFFFF', border: '1px solid #DFE3EB' }}>
                 <p className="text-2xl font-bold" style={{ color: '#33475B' }}>{c.value}</p>
                 <p className="text-[10px] mt-0.5" style={{ color: '#7C98B6' }}>{c.label}</p>
               </div>
             ))}
           </div>
 
-          <button onClick={exportData} className="cs-btn-outline w-full py-2.5 rounded-[10px] text-sm font-semibold flex items-center justify-center gap-2">
+          <button onClick={exportData} className="cs-btn-outline w-full py-2.5 rounded-md text-sm font-semibold flex items-center justify-center gap-2">
             <Download size={15} /> Export backup (JSON)
           </button>
         </div>

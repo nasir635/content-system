@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useStore } from '@/lib/store'
 import { AddInspirationModal } from '@/components/AddInspirationModal'
+import { toast } from '@/lib/toast'
 import type { Inspiration, Script } from '@/lib/types'
 import { v4 as uuid } from 'uuid'
 
@@ -26,7 +27,7 @@ function MiniCard({ item, onClick }: { item: Inspiration; onClick: () => void })
   const label = inspoLabel(item)
   return (
     <button onClick={onClick}
-      className="flex-shrink-0 rounded-[16px] overflow-hidden cursor-pointer relative"
+      className="flex-shrink-0 rounded-lg overflow-hidden cursor-pointer relative"
       style={{ width: 140, height: 180, boxShadow: '0 4px 16px rgba(47,65,86,0.12)', transition: 'transform 0.18s ease' }}
       onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1.03)' }}
       onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)' }}
@@ -178,7 +179,7 @@ export default function HomePage() {
               <div className="space-y-2">
                 {quickActions.map(({ key, label, action }) => (
                   <button key={key}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all"
                     style={{ background: '#F5F8FA', border: '1px solid #DFE3EB' }}
                     onClick={action}
                     onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#EAF0F6' }}
@@ -205,7 +206,7 @@ export default function HomePage() {
                     const count = scripts.filter(s => s.category === c.name).length
                     return (
                       <button key={c.id}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left transition-all"
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left transition-all"
                         style={{ background: '#F5F8FA', border: '1px solid #DFE3EB' }}
                         onClick={() => router.push(`/scripts?category=${encodeURIComponent(c.name)}`)}
                         onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#EAF0F6' }}
@@ -231,6 +232,7 @@ export default function HomePage() {
           addInspiration(inspiration)
           refs.forEach(addReference)
           setAddOpen(false)
+          toast('Inspiration saved')
         }}
       />
     </div>
