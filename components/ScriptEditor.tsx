@@ -249,17 +249,31 @@ export function ScriptEditor({ script, onClose }: Props) {
   const [saved, setSaved]       = useState(false)
   const [refPickerOpen, setRefPickerOpen] = useState(false)
 
+  const autoTimer  = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const persistRef = useRef<() => void>(() => {})
+  const skipAutosave = useRef(true)
+
   const inspiration = script.inspirationId
     ? inspirations.find(i => i.id === script.inspirationId)
     : null
 
   useEffect(() => {
+    skipAutosave.current = true
     setTitle(script.title)
     setStatus(script.status)
     setCategory(script.category)
     setVisualRefs(script.visualRefs ?? [])
     setMusic(script.music ?? [])
   }, [script.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  function scheduleAutosave() {
+    if (autoTimer.current) clearTimeout(autoTimer.current)
+    autoTimer.current = setTimeout(() => {
+      persistRef.current()
+      setSaved(true)
+      setTimeout(() => setSaved(false), 1500)
+    }, 1000)
+  }
 
   const editor = useEditor({
     extensions: [
@@ -273,18 +287,37 @@ export function ScriptEditor({ script, onClose }: Props) {
     editorProps: {
       attributes: { class: 'notion-editor focus:outline-none' },
     },
+    onUpdate: () => scheduleAutosave(),
   }, [script.id])
 
-  const save = useCallback(() => {
+  const persist = useCallback(() => {
+    let content = script.content
+    try { if (editor && !editor.isDestroyed) content = JSON.stringify(editor.getJSON()) } catch { /* keep prior */ }
     updateScript(script.id, {
-      title, status, category,
-      content: JSON.stringify(editor?.getJSON()),
-      visualRefs, music,
+      title, status, category, content, visualRefs, music,
       updatedAt: new Date().toISOString(),
     })
+  }, [script.id, title, status, category, editor, visualRefs, music, updateScript, script.content])
+
+  const save = useCallback(() => {
+    persist()
     setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
-  }, [script.id, title, status, category, editor, visualRefs, music, updateScript])
+    setTimeout(() => setSaved(false), 1800)
+  }, [persist])
+
+  // Keep a live ref to persist so the debounced timer always flushes latest.
+  useEffect(() => { persistRef.current = persist }, [persist])
+
+  // Autosave when fields change (skip the reload that fires on script switch).
+  useEffect(() => {
+    if (skipAutosave.current) { skipAutosave.current = false; return }
+    scheduleAutosave()
+  }, [title, status, category, visualRefs, music]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Flush any pending save on unmount (e.g. navigating away).
+  useEffect(() => () => {
+    if (autoTimer.current) { clearTimeout(autoTimer.current); persistRef.current() }
+  }, [])
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
