@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
+import 'katex/dist/katex.min.css'
+import 'tippy.js/dist/tippy.css'
 import { Shell } from '@/components/Shell'
 import { StoreHydrator } from '@/components/StoreHydrator'
 import { Toaster } from '@/components/Toaster'

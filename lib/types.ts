@@ -61,6 +61,7 @@ export interface Script {
   status: 'draft' | 'ready' | 'shot'
   content: string
   coverImage?: string
+  coverPosition?: number   // vertical focal point 0–100 (%) for the cover crop
   visualRefs: VisualRef[]
   music: MusicEntry[]
   comments?: ScriptComment[]

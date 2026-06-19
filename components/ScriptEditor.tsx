@@ -1,16 +1,15 @@
 'use client'
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
-import StarterKit from '@tiptap/starter-kit'
-import Placeholder from '@tiptap/extension-placeholder'
-import Underline from '@tiptap/extension-underline'
-import Highlight from '@tiptap/extension-highlight'
-import Link from '@tiptap/extension-link'
+import { buildEditorExtensions } from '@/components/editor/extensions'
+import { BubbleToolbar } from '@/components/editor/BubbleToolbar'
+import { FontFamilySelect, FontSizeSelect, ColorControl } from '@/components/editor/ToolbarControls'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useStore } from '@/lib/store'
 import { toast } from '@/lib/toast'
 import { CoverImage } from '@/components/CoverImage'
 import type { Script, VisualRef, MusicEntry, Reference, ScriptComment } from '@/lib/types'
+import { CATEGORY_COLORS } from '@/lib/types'
 import { v4 as uuid } from 'uuid'
 
 /* ── Toolbar button ─────────────────────────────────────── */
@@ -189,15 +188,33 @@ function RefPicker({
 /* ── Category dropdown ──────────────────────────────────── */
 function CategoryDropdown({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const categories = useStore(s => s.categories)
+  const addCategory = useStore(s => s.addCategory)
   const [open, setOpen] = useState(false)
+  const [creating, setCreating] = useState(false)
+  const [newName, setNewName] = useState('')
   const ref = useRef<HTMLDivElement>(null)
+  const newInputRef = useRef<HTMLInputElement>(null)
   const current = categories.find(c => c.name === value)
 
   useEffect(() => {
-    function handle(e: MouseEvent) { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false) }
+    function handle(e: MouseEvent) { if (ref.current && !ref.current.contains(e.target as Node)) { setOpen(false); setCreating(false) } }
     document.addEventListener('mousedown', handle)
     return () => document.removeEventListener('mousedown', handle)
   }, [])
+
+  useEffect(() => { if (creating) newInputRef.current?.focus() }, [creating])
+
+  function createCategory() {
+    const name = newName.trim()
+    if (!name) return
+    const existing = categories.find(c => c.name.toLowerCase() === name.toLowerCase())
+    if (existing) { onChange(existing.name); setCreating(false); setNewName(''); setOpen(false); return }
+    const now = new Date().toISOString()
+    const color = CATEGORY_COLORS[categories.length % CATEGORY_COLORS.length]
+    addCategory({ id: uuid(), name, description: '', rules: '', shotTypes: '', color, createdAt: now, updatedAt: now })
+    onChange(name)
+    setNewName(''); setCreating(false); setOpen(false)
+  }
 
   return (
     <div ref={ref} className="relative">
@@ -227,7 +244,32 @@ function CategoryDropdown({ value, onChange }: { value: string; onChange: (v: st
                 {c.name}
               </button>
             ))}
-            {categories.length === 0 && <p className="px-3 py-2 text-xs" style={{ color: '#99ACC2' }}>No categories yet</p>}
+            {categories.length === 0 && <p className="px-3 pt-2 pb-1 text-xs" style={{ color: '#99ACC2' }}>No categories yet</p>}
+
+            {/* Create a custom category inline */}
+            <div style={{ borderTop: '1px solid #EAF0F6', marginTop: 2 }}>
+              {creating ? (
+                <div className="flex items-center gap-1.5 px-2 py-2">
+                  <input
+                    ref={newInputRef}
+                    value={newName}
+                    onChange={e => setNewName(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); createCategory() } if (e.key === 'Escape') { setCreating(false); setNewName('') } }}
+                    placeholder="New category name…"
+                    className="cs-input flex-1 text-xs py-1.5"
+                  />
+                  <button type="button" onClick={createCategory} disabled={!newName.trim()} className="cs-btn flex-shrink-0" style={{ fontSize: 11, padding: '6px 10px' }}>Add</button>
+                </div>
+              ) : (
+                <button type="button" onClick={() => setCreating(true)}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-left transition-colors"
+                  style={{ color: '#516F90' }}
+                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#F5F8FA'} onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Create new category
+                </button>
+              )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -251,6 +293,7 @@ export function ScriptEditor({ script, onClose }: Props) {
   const [comments, setComments] = useState<ScriptComment[]>(script.comments ?? [])
   const [commentText, setCommentText] = useState('')
   const [cover, setCover] = useState(script.coverImage ?? '')
+  const [coverPos, setCoverPos] = useState(script.coverPosition ?? 50)
   const [saved, setSaved]       = useState(false)
   const [refPickerOpen, setRefPickerOpen] = useState(false)
   const [uploadingImg, setUploadingImg] = useState(false)
@@ -275,6 +318,7 @@ export function ScriptEditor({ script, onClose }: Props) {
     setMusic(script.music ?? [])
     setComments(script.comments ?? [])
     setCover(script.coverImage ?? '')
+    setCoverPos(script.coverPosition ?? 50)
   }, [script.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function scheduleAutosave() {
@@ -287,13 +331,7 @@ export function ScriptEditor({ script, onClose }: Props) {
   }
 
   const editor = useEditor({
-    extensions: [
-      StarterKit.configure({ codeBlock: { HTMLAttributes: { class: 'code-block' } } }),
-      Placeholder.configure({ placeholder: 'Start writing your script…\n\nTip: Use / to add headings, lists, and more.' }),
-      Underline,
-      Highlight.configure({ multicolor: false }),
-      Link.configure({ openOnClick: false }),
-    ],
+    extensions: buildEditorExtensions('Write, or press “/” for commands…'),
     content: (() => { try { return script.content ? JSON.parse(script.content) : '' } catch { return script.content ?? '' } })(),
     editorProps: {
       attributes: { class: 'notion-editor focus:outline-none' },
@@ -301,14 +339,62 @@ export function ScriptEditor({ script, onClose }: Props) {
     onUpdate: () => scheduleAutosave(),
   }, [script.id])
 
+  /* Open the slash menu for the block next to the “+” gutter button. */
+  const openSlashAtHandle = useCallback((handle: HTMLElement) => {
+    if (!editor) return
+    const rect = handle.getBoundingClientRect()
+    const found = editor.view.posAtCoords({ left: rect.right + 40, top: rect.top + 8 })
+    if (!found) { editor.chain().focus().insertContent('/').run(); return }
+    try {
+      const $pos = editor.state.doc.resolve(found.pos)
+      if ($pos.depth < 1) { editor.chain().focus().insertContent('/').run(); return }
+      const node = $pos.node(1)
+      const emptyPara = node.type.name === 'paragraph' && node.content.size === 0
+      if (emptyPara) {
+        editor.chain().focus().setTextSelection($pos.before(1) + 1).insertContent('/').run()
+      } else {
+        const after = $pos.after(1)
+        editor.chain().focus().insertContentAt(after, { type: 'paragraph' }).setTextSelection(after + 1).insertContent('/').run()
+      }
+    } catch {
+      editor.chain().focus().insertContent('/').run()
+    }
+  }, [editor])
+
+  /* Turn the drag-handle into a Notion-style “+” + drag gutter. */
+  useEffect(() => {
+    if (!editor) return
+    const parent = editor.view.dom.parentElement
+    if (!parent) return
+    let onClick: ((e: Event) => void) | null = null
+    let handleEl: HTMLElement | null = null
+    const inject = () => {
+      const handles = parent.querySelectorAll(':scope > .drag-handle')
+      handles.forEach((h, i) => { if (i > 0) h.remove() })
+      const handle = handles[0] as HTMLElement | undefined
+      if (!handle || handle.dataset.csReady) return
+      handle.dataset.csReady = '1'
+      handle.classList.add('cs-gutter')
+      handle.setAttribute('title', 'Click to add a block · drag to move')
+      handle.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'
+      handleEl = handle
+      onClick = (e: Event) => { e.preventDefault(); e.stopPropagation(); openSlashAtHandle(handle) }
+      handle.addEventListener('click', onClick)
+    }
+    inject()
+    const obs = new MutationObserver(inject)
+    obs.observe(parent, { childList: true })
+    return () => { obs.disconnect(); if (handleEl && onClick) handleEl.removeEventListener('click', onClick) }
+  }, [editor, openSlashAtHandle])
+
   const persist = useCallback(() => {
     let content = script.content
     try { if (editor && !editor.isDestroyed) content = JSON.stringify(editor.getJSON()) } catch { /* keep prior */ }
     updateScript(script.id, {
-      title, status, category, content, coverImage: cover || undefined, visualRefs, music, comments,
+      title, status, category, content, coverImage: cover || undefined, coverPosition: coverPos, visualRefs, music, comments,
       updatedAt: new Date().toISOString(),
     })
-  }, [script.id, title, status, category, cover, editor, visualRefs, music, comments, updateScript, script.content])
+  }, [script.id, title, status, category, cover, coverPos, editor, visualRefs, music, comments, updateScript, script.content])
 
   const save = useCallback(() => {
     persist()
@@ -324,7 +410,7 @@ export function ScriptEditor({ script, onClose }: Props) {
   useEffect(() => {
     if (skipAutosave.current) { skipAutosave.current = false; return }
     scheduleAutosave()
-  }, [title, status, category, cover, visualRefs, music, comments]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [title, status, category, cover, coverPos, visualRefs, music, comments]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Flush any pending save on unmount (e.g. navigating away).
   useEffect(() => () => {
@@ -512,6 +598,9 @@ export function ScriptEditor({ script, onClose }: Props) {
           <option value="3">Heading 3</option>
         </select>
 
+        {editor && <FontFamilySelect editor={editor} />}
+        {editor && <FontSizeSelect editor={editor} />}
+
         <Sep />
 
         <TB active={editor?.isActive('bold')} onMouseDown={() => editor?.chain().focus().toggleBold().run()} title="Bold (⌘B)"><b>B</b></TB>
@@ -523,6 +612,7 @@ export function ScriptEditor({ script, onClose }: Props) {
         <TB active={editor?.isActive('highlight')} onMouseDown={() => editor?.chain().focus().toggleHighlight().run()} title="Highlight">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
         </TB>
+        {editor && <ColorControl editor={editor} />}
 
         <Sep />
 
@@ -561,10 +651,11 @@ export function ScriptEditor({ script, onClose }: Props) {
       {/* ── Editor body + sections (scroll together) ── */}
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-2xl mx-auto px-6 pt-5">
-          <CoverImage value={cover} onChange={setCover} onRemove={() => setCover('')} />
+          <CoverImage value={cover} onChange={setCover} onRemove={() => setCover('')} height={220} position={coverPos} onPositionChange={setCoverPos} />
         </div>
         <div className="max-w-2xl mx-auto px-6 pt-5 pb-6">
           <EditorContent editor={editor} />
+          {editor && <BubbleToolbar editor={editor} />}
         </div>
 
         <div className="max-w-2xl mx-auto px-6 pb-10 space-y-4">
