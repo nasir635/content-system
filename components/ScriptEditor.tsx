@@ -3,7 +3,8 @@ import { useState, useCallback, useEffect, useRef } from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import { buildEditorExtensions } from '@/components/editor/extensions'
 import { BubbleToolbar } from '@/components/editor/BubbleToolbar'
-import { FontFamilySelect, FontSizeSelect, ColorControl } from '@/components/editor/ToolbarControls'
+import { FontFamilySelect, FontSizeSelect, LineSpacingSelect, ColorControl } from '@/components/editor/ToolbarControls'
+import { printScriptPdf } from '@/components/editor/exportPdf'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useStore } from '@/lib/store'
 import { toast } from '@/lib/toast'
@@ -536,6 +537,25 @@ export function ScriptEditor({ script, onClose }: Props) {
         </div>
 
         <button
+          onClick={() => {
+            if (!editor) return
+            printScriptPdf({
+              title,
+              bodyHtml: editor.getHTML(),
+              coverImage: cover || undefined,
+              coverPosition: coverPos,
+              meta: [category, status === 'ready' ? 'Ready to shoot' : status === 'shot' ? 'Shot' : 'Draft'].filter(Boolean).join('  ·  '),
+            })
+          }}
+          title="Download / print as PDF"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex-shrink-0"
+          style={{ background: '#FFFFFF', color: '#33475B', border: '1px solid #CBD6E2' }}
+        >
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          PDF
+        </button>
+
+        <button
           onClick={save}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex-shrink-0"
           style={{
@@ -600,6 +620,7 @@ export function ScriptEditor({ script, onClose }: Props) {
 
         {editor && <FontFamilySelect editor={editor} />}
         {editor && <FontSizeSelect editor={editor} />}
+        {editor && <LineSpacingSelect editor={editor} />}
 
         <Sep />
 

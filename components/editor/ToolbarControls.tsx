@@ -3,6 +3,15 @@ import { type Editor } from '@tiptap/react'
 import { useEffect, useRef, useState } from 'react'
 import { Baseline, PaintBucket, ChevronDown } from 'lucide-react'
 
+const LINE_HEIGHTS = [
+  { label: 'Spacing', value: '' },
+  { label: 'Tight', value: '1.25' },
+  { label: 'Snug', value: '1.45' },
+  { label: 'Normal', value: '1.7' },
+  { label: 'Relaxed', value: '2' },
+  { label: 'Loose', value: '2.5' },
+]
+
 const FONT_FAMILIES = [
   { label: 'Default', value: '' },
   { label: 'Serif', value: 'Georgia, "Times New Roman", serif' },
@@ -68,6 +77,20 @@ export function FontSizeSelect({ editor }: { editor: Editor }) {
       style={{ ...selStyle, maxWidth: 90 }}
     >
       {FONT_SIZES.map(s => <option key={s.label} value={s.value}>{s.label}</option>)}
+    </select>
+  )
+}
+
+export function LineSpacingSelect({ editor }: { editor: Editor }) {
+  const active = editor.getAttributes('paragraph').lineHeight || editor.getAttributes('heading').lineHeight || ''
+  return (
+    <select
+      title="Line spacing"
+      value={active}
+      onChange={e => { const v = e.target.value; v ? editor.chain().focus().setLineHeight(v).run() : editor.chain().focus().unsetLineHeight().run() }}
+      style={{ ...selStyle, maxWidth: 96 }}
+    >
+      {LINE_HEIGHTS.map(s => <option key={s.label} value={s.value}>{s.label}</option>)}
     </select>
   )
 }
