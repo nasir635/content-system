@@ -3,7 +3,7 @@ import { useState, useCallback, useEffect, useRef } from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import { buildEditorExtensions } from '@/components/editor/extensions'
 import { BubbleToolbar } from '@/components/editor/BubbleToolbar'
-import { FontFamilySelect, FontSizeSelect, LineSpacingSelect, ColorControl } from '@/components/editor/ToolbarControls'
+import { FontFamilySelect, FontSizeSelect, LineSpacingSelect, ColorControl, TableControls } from '@/components/editor/ToolbarControls'
 import { printScriptPdf } from '@/components/editor/exportPdf'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useStore } from '@/lib/store'
@@ -667,6 +667,8 @@ export function ScriptEditor({ script, onClose }: Props) {
         <TB active={false} onMouseDown={() => editor?.chain().focus().redo().run()} title="Redo (⌘⇧Z)">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="15 14 20 9 15 4"/><path d="M4 20v-7a4 4 0 014-4h12"/></svg>
         </TB>
+
+        {editor && <TableControls editor={editor} />}
       </div>
 
       {/* ── Editor body + sections (scroll together) ── */}

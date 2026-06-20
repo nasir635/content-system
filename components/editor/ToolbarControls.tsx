@@ -81,6 +81,25 @@ export function FontSizeSelect({ editor }: { editor: Editor }) {
   )
 }
 
+export function TableControls({ editor }: { editor: Editor }) {
+  if (!editor.isActive('table')) return null
+  const B = (run: () => void, label: string, title: string) => (
+    <button type="button" title={title} className="cs-tablectl-btn"
+      onMouseDown={e => e.preventDefault()} onClick={run}>{label}</button>
+  )
+  const c = () => editor.chain().focus()
+  return (
+    <span className="cs-tablectl">
+      {B(() => c().addRowAfter().run(), '+ Row', 'Add row below')}
+      {B(() => c().addColumnAfter().run(), '+ Col', 'Add column right')}
+      {B(() => c().deleteRow().run(), '− Row', 'Delete row')}
+      {B(() => c().deleteColumn().run(), '− Col', 'Delete column')}
+      {B(() => c().toggleHeaderRow().run(), 'Header', 'Toggle header row')}
+      {B(() => c().deleteTable().run(), 'Delete', 'Delete table')}
+    </span>
+  )
+}
+
 export function LineSpacingSelect({ editor }: { editor: Editor }) {
   const active = editor.getAttributes('paragraph').lineHeight || editor.getAttributes('heading').lineHeight || ''
   return (

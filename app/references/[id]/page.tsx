@@ -1,7 +1,8 @@
 'use client'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useStore } from '@/lib/store'
+import { toast } from '@/lib/toast'
 
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -23,8 +24,26 @@ export default function ReferenceDetailPage() {
   const [noteVal, setNoteVal]   = useState('')
   const [catVal, setCatVal]     = useState('')
   const [titleVal, setTitleVal] = useState('')
+  const [tagsVal, setTagsVal]   = useState('')
+  const [busy, setBusy]         = useState(false)
+  const fileRef = useRef<HTMLInputElement>(null)
 
   const item = references.find(r => r.id === id)
+
+  async function replaceImage(files: FileList | null) {
+    const file = files?.[0]
+    if (!file || !item) return
+    setBusy(true)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      const res = await fetch('/api/references/upload', { method: 'POST', body: fd })
+      if (!res.ok) throw new Error()
+      updateReference(item.id, { imageUrl: (await res.json()).url, updatedAt: new Date().toISOString() })
+      toast('Image replaced')
+    } catch { toast('Image upload failed', 'error') }
+    setBusy(false)
+  }
 
   if (!item) {
     return (
@@ -50,6 +69,7 @@ export default function ReferenceDetailPage() {
     setTitleVal(item?.title ?? '')
     setNoteVal(item?.note ?? '')
     setCatVal(item?.category ?? '')
+    setTagsVal((item?.tags ?? []).join(', '))
     setEditing(true)
   }
 
@@ -59,6 +79,7 @@ export default function ReferenceDetailPage() {
       title:    titleVal.trim() || item.title,
       note:     noteVal.trim(),
       category: catVal.trim().toLowerCase(),
+      tags:     tagsVal.split(',').map(t => t.trim()).filter(Boolean),
       updatedAt: new Date().toISOString(),
     })
     setEditing(false)
@@ -119,10 +140,18 @@ export default function ReferenceDetailPage() {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 space-y-5">
 
         {/* ── HERO IMAGE ── */}
+        <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={e => { replaceImage(e.target.files); e.target.value = '' }} />
         <div
-          className="rounded-lg overflow-hidden relative"
+          className="rounded-lg overflow-hidden relative group"
           style={{ boxShadow: '0 8px 40px rgba(47,65,86,0.14)' }}
         >
+          <button
+            onClick={() => fileRef.current?.click()}
+            className="absolute top-3 right-3 z-10 text-xs font-semibold px-3 py-1.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
+            style={{ background: 'rgba(255,255,255,0.94)', color: '#33475B' }}
+          >
+            {busy ? 'Uploading…' : item.imageUrl ? 'Replace image' : 'Add image'}
+          </button>
           {item.imageUrl ? (
             <div className="relative w-full" style={{ maxHeight: 480 }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -188,6 +217,15 @@ export default function ReferenceDetailPage() {
                   value={catVal}
                   onChange={e => setCatVal(e.target.value)}
                   placeholder="e.g. cinematics, lighting…"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-semibold uppercase tracking-wider mb-1.5 block" style={{ color: '#7C98B6' }}>Tags</label>
+                <input
+                  className="cs-input"
+                  value={tagsVal}
+                  onChange={e => setTagsVal(e.target.value)}
+                  placeholder="Comma-separated, e.g. moody, neon, closeup"
                 />
               </div>
               <div className="flex gap-2 pt-1">

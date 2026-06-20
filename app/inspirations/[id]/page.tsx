@@ -12,7 +12,7 @@ export default function InspirationDetailPage() {
   const router = useRouter()
   const {
     inspirations, scripts, references, categories,
-    updateInspiration, deleteInspiration, addReference, addScript,
+    updateInspiration, deleteInspiration, addReference, deleteReference, addScript,
   } = useStore()
 
   const item = inspirations.find(i => i.id === id)
@@ -71,6 +71,15 @@ export default function InspirationDetailPage() {
   function saveHowTo() {
     updateInspiration(item!.id, { howToUse: howTo, updatedAt: new Date().toISOString() })
     setEditingHowTo(false)
+  }
+
+  function deleteShot(ref: Reference) {
+    if (!confirm('Remove this reference shot? It will also be removed from your References library.')) return
+    deleteReference(ref.id)
+    updateInspiration(item!.id, {
+      screenshots: (item!.screenshots ?? []).filter(s => s.refId !== ref.id && s.id !== ref.id),
+      updatedAt: new Date().toISOString(),
+    })
   }
 
   function startMeta() {
@@ -247,15 +256,25 @@ export default function InspirationDetailPage() {
           ) : (
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
               {linkedRefs.map(r => (
-                <button key={r.id} onClick={() => router.push(`/references/${r.id}`)} className="rounded-md overflow-hidden text-left" style={{ border: '1px solid #DFE3EB', background: '#FFFFFF' }}>
-                  <div style={{ height: 88, background: '#EAF0F6' }}>
-                    {r.imageUrl && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={r.imageUrl} alt={r.title} className="w-full h-full object-cover" draggable={false} />
-                    )}
-                  </div>
-                  {r.title && <p className="px-2 py-1.5 text-[11px] font-semibold truncate" style={{ color: '#33475B' }}>{r.title}</p>}
-                </button>
+                <div key={r.id} className="relative group rounded-md overflow-hidden" style={{ border: '1px solid #DFE3EB', background: '#FFFFFF' }}>
+                  <button onClick={() => router.push(`/references/${r.id}`)} className="block w-full text-left">
+                    <div style={{ height: 88, background: '#EAF0F6' }}>
+                      {r.imageUrl && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={r.imageUrl} alt={r.title} className="w-full h-full object-cover" draggable={false} />
+                      )}
+                    </div>
+                    {r.title && <p className="px-2 py-1.5 text-[11px] font-semibold truncate" style={{ color: '#33475B' }}>{r.title}</p>}
+                  </button>
+                  <button
+                    onClick={e => { e.stopPropagation(); deleteShot(r) }}
+                    title="Remove shot"
+                    className="absolute top-1 right-1 w-6 h-6 flex items-center justify-center rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
+                    style={{ background: 'rgba(33,51,67,0.78)', color: '#fff' }}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
               ))}
             </div>
           )}

@@ -3,7 +3,6 @@ import Placeholder from '@tiptap/extension-placeholder'
 import Underline from '@tiptap/extension-underline'
 import Highlight from '@tiptap/extension-highlight'
 import Link from '@tiptap/extension-link'
-import Image from '@tiptap/extension-image'
 import TextStyle from '@tiptap/extension-text-style'
 import Color from '@tiptap/extension-color'
 import FontFamily from '@tiptap/extension-font-family'
@@ -25,6 +24,7 @@ import { ColumnList, Column } from './columns'
 import { MathBlock } from './mathBlock'
 import { TableOfContents } from './tableOfContents'
 import { AudioBlock, VideoBlock, EmbedBlock, FileBlock, BookmarkBlock } from './media'
+import { ResizableImage } from './image'
 import { SlashCommand } from '../slash'
 import { EmojiCommand } from '../emoji'
 
@@ -49,7 +49,7 @@ export function buildEditorExtensions(placeholder: string) {
     Underline,
     Highlight.configure({ multicolor: true }),
     Link.configure({ openOnClick: false, autolink: true, HTMLAttributes: { rel: 'noopener noreferrer', target: '_blank' } }),
-    Image.configure({ inline: false, allowBase64: false, HTMLAttributes: { class: 'cs-img' } }),
+    ResizableImage.configure({ inline: false, allowBase64: false }),
     TextStyle,
     Color,
     FontFamily,
