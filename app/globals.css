@@ -240,12 +240,12 @@ button:focus:not(:focus-visible), a:focus:not(:focus-visible) { outline: none; }
   border: 1px solid #DCE3EB; border-radius: 4px;
   box-shadow: 0 1px 3px rgba(45,62,80,.10), 0 10px 30px rgba(45,62,80,.07);
 }
-.cs-page > :first-child { margin: 16px 16px 0; }
-.cs-page-body { padding: 26px 72px 72px; }
+.cs-page-cover { padding: 24px 72px 0; }
+.cs-page-body { padding: 22px 72px 72px; }
 @media (max-width: 860px) {
   .cs-page { margin: 10px; }
-  .cs-page > :first-child { margin: 10px 10px 0; }
-  .cs-page-body { padding: 20px 22px 48px; }
+  .cs-page-cover { padding: 14px 22px 0; }
+  .cs-page-body { padding: 16px 22px 48px; }
 }
 
 /* ── Editor toolbar ── */

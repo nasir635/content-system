@@ -574,7 +574,9 @@ export function ScriptEditor({ script, onClose }: Props) {
       {/* ── Document canvas + sections (scroll together) ── */}
       <div className="flex-1 overflow-y-auto" style={{ background: '#E9EDF2' }}>
         <div className="cs-page" style={{ ['--cs-lh' as string]: String(lineSpacing) } as React.CSSProperties}>
-          <CoverImage value={cover} onChange={setCover} onRemove={() => setCover('')} height={220} position={coverPos} onPositionChange={setCoverPos} />
+          <div className="cs-page-cover">
+            <CoverImage value={cover} onChange={setCover} onRemove={() => setCover('')} height={220} position={coverPos} onPositionChange={setCoverPos} />
+          </div>
           <div className="cs-page-body">
             <EditorContent editor={editor} />
             {editor && <BubbleToolbar editor={editor} />}
