@@ -8,7 +8,6 @@ import Color from '@tiptap/extension-color'
 import FontFamily from '@tiptap/extension-font-family'
 import TextAlign from '@tiptap/extension-text-align'
 import { FontSize } from './fontSize'
-import { LineHeight } from './lineHeight'
 import TaskList from '@tiptap/extension-task-list'
 import TaskItem from '@tiptap/extension-task-item'
 import Table from '@tiptap/extension-table'
@@ -54,7 +53,6 @@ export function buildEditorExtensions(placeholder: string) {
     Color,
     FontFamily,
     FontSize,
-    LineHeight,
     TextAlign.configure({ types: ['heading', 'paragraph'] }),
     TaskList,
     TaskItem.configure({ nested: true }),

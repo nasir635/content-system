@@ -3,13 +3,11 @@ import { type Editor } from '@tiptap/react'
 import { useEffect, useRef, useState } from 'react'
 import { Baseline, PaintBucket, ChevronDown } from 'lucide-react'
 
-const LINE_HEIGHTS = [
-  { label: 'Spacing', value: '' },
-  { label: 'Tight', value: '1.25' },
-  { label: 'Snug', value: '1.45' },
-  { label: 'Normal', value: '1.7' },
-  { label: 'Relaxed', value: '2' },
-  { label: 'Loose', value: '2.5' },
+const LINE_SPACINGS = [
+  { label: 'Compact', value: 1.35 },
+  { label: 'Normal', value: 1.6 },
+  { label: 'Relaxed', value: 1.9 },
+  { label: 'Double', value: 2.3 },
 ]
 
 const FONT_FAMILIES = [
@@ -100,16 +98,17 @@ export function TableControls({ editor }: { editor: Editor }) {
   )
 }
 
-export function LineSpacingSelect({ editor }: { editor: Editor }) {
-  const active = editor.getAttributes('paragraph').lineHeight || editor.getAttributes('heading').lineHeight || ''
+export function LineSpacingSelect({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  // Snap the stored value to the nearest preset for display.
+  const nearest = LINE_SPACINGS.reduce((a, b) => Math.abs(b.value - value) < Math.abs(a.value - value) ? b : a)
   return (
     <select
-      title="Line spacing"
-      value={active}
-      onChange={e => { const v = e.target.value; v ? editor.chain().focus().setLineHeight(v).run() : editor.chain().focus().unsetLineHeight().run() }}
-      style={{ ...selStyle, maxWidth: 96 }}
+      title="Line spacing (whole document)"
+      value={nearest.value}
+      onChange={e => onChange(parseFloat(e.target.value))}
+      style={{ ...selStyle, maxWidth: 100 }}
     >
-      {LINE_HEIGHTS.map(s => <option key={s.label} value={s.value}>{s.label}</option>)}
+      {LINE_SPACINGS.map(s => <option key={s.label} value={s.value}>{s.label}</option>)}
     </select>
   )
 }

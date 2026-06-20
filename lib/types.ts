@@ -62,6 +62,7 @@ export interface Script {
   content: string
   coverImage?: string
   coverPosition?: number   // vertical focal point 0–100 (%) for the cover crop
+  lineSpacing?: number     // document-wide line spacing (e.g. 1.35, 1.6, 1.9)
   visualRefs: VisualRef[]
   music: MusicEntry[]
   comments?: ScriptComment[]

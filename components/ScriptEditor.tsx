@@ -295,6 +295,7 @@ export function ScriptEditor({ script, onClose }: Props) {
   const [commentText, setCommentText] = useState('')
   const [cover, setCover] = useState(script.coverImage ?? '')
   const [coverPos, setCoverPos] = useState(script.coverPosition ?? 50)
+  const [lineSpacing, setLineSpacing] = useState(script.lineSpacing ?? 1.6)
   const [saved, setSaved]       = useState(false)
   const [refPickerOpen, setRefPickerOpen] = useState(false)
   const [uploadingImg, setUploadingImg] = useState(false)
@@ -320,6 +321,7 @@ export function ScriptEditor({ script, onClose }: Props) {
     setComments(script.comments ?? [])
     setCover(script.coverImage ?? '')
     setCoverPos(script.coverPosition ?? 50)
+    setLineSpacing(script.lineSpacing ?? 1.6)
   }, [script.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function scheduleAutosave() {
@@ -392,10 +394,10 @@ export function ScriptEditor({ script, onClose }: Props) {
     let content = script.content
     try { if (editor && !editor.isDestroyed) content = JSON.stringify(editor.getJSON()) } catch { /* keep prior */ }
     updateScript(script.id, {
-      title, status, category, content, coverImage: cover || undefined, coverPosition: coverPos, visualRefs, music, comments,
+      title, status, category, content, coverImage: cover || undefined, coverPosition: coverPos, lineSpacing, visualRefs, music, comments,
       updatedAt: new Date().toISOString(),
     })
-  }, [script.id, title, status, category, cover, coverPos, editor, visualRefs, music, comments, updateScript, script.content])
+  }, [script.id, title, status, category, cover, coverPos, lineSpacing, editor, visualRefs, music, comments, updateScript, script.content])
 
   const save = useCallback(() => {
     persist()
@@ -411,7 +413,7 @@ export function ScriptEditor({ script, onClose }: Props) {
   useEffect(() => {
     if (skipAutosave.current) { skipAutosave.current = false; return }
     scheduleAutosave()
-  }, [title, status, category, cover, coverPos, visualRefs, music, comments]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [title, status, category, cover, coverPos, lineSpacing, visualRefs, music, comments]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Flush any pending save on unmount (e.g. navigating away).
   useEffect(() => () => {
@@ -620,7 +622,7 @@ export function ScriptEditor({ script, onClose }: Props) {
 
         {editor && <FontFamilySelect editor={editor} />}
         {editor && <FontSizeSelect editor={editor} />}
-        {editor && <LineSpacingSelect editor={editor} />}
+        <LineSpacingSelect value={lineSpacing} onChange={setLineSpacing} />
 
         <Sep />
 
@@ -676,7 +678,7 @@ export function ScriptEditor({ script, onClose }: Props) {
         <div className="max-w-2xl mx-auto px-6 pt-5">
           <CoverImage value={cover} onChange={setCover} onRemove={() => setCover('')} height={220} position={coverPos} onPositionChange={setCoverPos} />
         </div>
-        <div className="max-w-2xl mx-auto px-6 pt-5 pb-6">
+        <div className="max-w-2xl mx-auto px-6 pt-5 pb-6" style={{ ['--cs-lh' as string]: String(lineSpacing) } as React.CSSProperties}>
           <EditorContent editor={editor} />
           {editor && <BubbleToolbar editor={editor} />}
         </div>
