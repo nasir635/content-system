@@ -10,6 +10,10 @@ import TextAlign from '@tiptap/extension-text-align'
 import { FontSize } from './fontSize'
 import TaskList from '@tiptap/extension-task-list'
 import TaskItem from '@tiptap/extension-task-item'
+import Superscript from '@tiptap/extension-superscript'
+import Subscript from '@tiptap/extension-subscript'
+import CharacterCount from '@tiptap/extension-character-count'
+import { Indent } from './indent'
 import Table from '@tiptap/extension-table'
 import TableRow from '@tiptap/extension-table-row'
 import TableHeader from '@tiptap/extension-table-header'
@@ -53,7 +57,11 @@ export function buildEditorExtensions(placeholder: string) {
     Color,
     FontFamily,
     FontSize,
-    TextAlign.configure({ types: ['heading', 'paragraph'] }),
+    Indent,
+    Superscript,
+    Subscript,
+    CharacterCount,
+    TextAlign.configure({ types: ['heading', 'paragraph'], alignments: ['left', 'center', 'right', 'justify'] }),
     TaskList,
     TaskItem.configure({ nested: true }),
     Table.configure({ resizable: true, lastColumnResizable: true }),

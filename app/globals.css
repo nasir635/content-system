@@ -232,6 +232,39 @@ button:focus:not(:focus-visible), a:focus:not(:focus-visible) { outline: none; }
 .ProseMirror mark { background: #FFE9B0; border-radius: 2px; }
 .ProseMirror hr { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
 .ProseMirror hr.ProseMirror-selectednode { border-top-color: var(--accent); }
+.ProseMirror sub, .ProseMirror sup { line-height: 0; }
+
+/* ── Document page canvas (Google-Docs style) ── */
+.cs-page {
+  max-width: 820px; margin: 28px auto; background: #fff;
+  border: 1px solid #DCE3EB; border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(45,62,80,.10), 0 10px 30px rgba(45,62,80,.07);
+}
+.cs-page > :first-child { margin: 16px 16px 0; }
+.cs-page-body { padding: 26px 72px 72px; }
+@media (max-width: 860px) {
+  .cs-page { margin: 10px; }
+  .cs-page > :first-child { margin: 10px 10px 0; }
+  .cs-page-body { padding: 20px 22px 48px; }
+}
+
+/* ── Editor toolbar ── */
+.cs-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 2px; padding: 6px 10px; }
+.cs-tb-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 28px; height: 28px; padding: 0 4px;
+  border: none; background: none; color: #44586b; border-radius: 5px; cursor: pointer;
+}
+.cs-tb-btn:hover { background: #EEF2F6; color: var(--text); }
+.cs-tb-btn.is-on { background: #D5E3EB; color: #1f2733; }
+.cs-tb-btn:disabled { opacity: .4; cursor: default; }
+.cs-tb-sep { width: 1px; height: 20px; background: #DFE3EB; margin: 0 5px; }
+.cs-tb-select { height: 28px; border: 1px solid #DFE3EB; border-radius: 6px; background: #F5F8FA; color: var(--text); font-size: 12px; padding: 0 6px; outline: none; cursor: pointer; }
+.cs-tb-size { display: inline-flex; align-items: center; gap: 1px; }
+.cs-tb-size > button { width: 22px; height: 28px; border: none; background: none; color: #44586b; font-size: 16px; line-height: 1; cursor: pointer; border-radius: 5px; }
+.cs-tb-size > button:hover { background: #EEF2F6; }
+.cs-tb-size-input { width: 36px; height: 26px; text-align: center; border: 1px solid #DFE3EB; border-radius: 6px; background: #fff; font-size: 12px; color: var(--text); outline: none; }
+.cs-tb-size-input:focus { border-color: var(--accent); }
 
 /* ══════════════════════════════════════════════════════════
    NOTION-STYLE EDITOR

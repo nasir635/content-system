@@ -3,7 +3,7 @@ import { useState, useCallback, useEffect, useRef } from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import { buildEditorExtensions } from '@/components/editor/extensions'
 import { BubbleToolbar } from '@/components/editor/BubbleToolbar'
-import { FontFamilySelect, FontSizeSelect, LineSpacingSelect, ColorControl, TableControls } from '@/components/editor/ToolbarControls'
+import { EditorToolbar } from '@/components/editor/EditorToolbar'
 import { printScriptPdf } from '@/components/editor/exportPdf'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useStore } from '@/lib/store'
@@ -12,34 +12,6 @@ import { CoverImage } from '@/components/CoverImage'
 import type { Script, VisualRef, MusicEntry, Reference, ScriptComment } from '@/lib/types'
 import { CATEGORY_COLORS } from '@/lib/types'
 import { v4 as uuid } from 'uuid'
-
-/* ── Toolbar button ─────────────────────────────────────── */
-function TB({
-  active, onMouseDown, children, title,
-}: {
-  active?: boolean; onMouseDown: () => void; children: React.ReactNode; title?: string
-}) {
-  return (
-    <button
-      type="button"
-      title={title}
-      onMouseDown={e => { e.preventDefault(); onMouseDown() }}
-      className="flex items-center justify-center rounded transition-colors"
-      style={{
-        width: 28, height: 28,
-        background: active ? '#33475B' : 'transparent',
-        color: active ? '#FFFFFF' : '#516F90',
-        fontSize: 13, fontWeight: active ? 700 : 500,
-      }}
-    >
-      {children}
-    </button>
-  )
-}
-
-function Sep() {
-  return <div style={{ width: 1, height: 18, background: '#DFE3EB', margin: '0 4px', flexShrink: 0 }} />
-}
 
 /* ── Reference picker modal ─────────────────────────────── */
 function RefPicker({
@@ -594,93 +566,19 @@ export function ScriptEditor({ script, onClose }: Props) {
         </div>
       )}
 
-      {/* ── TipTap Toolbar ── */}
-      <div
-        className="flex items-center flex-wrap gap-0.5 px-4 py-2 flex-shrink-0"
-        style={{ background: '#FFFFFF', borderBottom: '1px solid #DFE3EB' }}
-      >
-        {/* Text type */}
-        <select
-          onChange={e => {
-            const v = e.target.value
-            if (v === 'p') editor?.chain().focus().setParagraph().run()
-            else editor?.chain().focus().toggleHeading({ level: parseInt(v) as 1|2|3 }).run()
-          }}
-          value={
-            editor?.isActive('heading', { level: 1 }) ? '1' :
-            editor?.isActive('heading', { level: 2 }) ? '2' :
-            editor?.isActive('heading', { level: 3 }) ? '3' : 'p'
-          }
-          className="text-xs rounded-lg px-2 py-1 outline-none transition-colors mr-1"
-          style={{ border: '1px solid #DFE3EB', color: '#33475B', background: '#F5F8FA', height: 28 }}
-        >
-          <option value="p">Text</option>
-          <option value="1">Heading 1</option>
-          <option value="2">Heading 2</option>
-          <option value="3">Heading 3</option>
-        </select>
-
-        {editor && <FontFamilySelect editor={editor} />}
-        {editor && <FontSizeSelect editor={editor} />}
-        <LineSpacingSelect value={lineSpacing} onChange={setLineSpacing} />
-
-        <Sep />
-
-        <TB active={editor?.isActive('bold')} onMouseDown={() => editor?.chain().focus().toggleBold().run()} title="Bold (⌘B)"><b>B</b></TB>
-        <TB active={editor?.isActive('italic')} onMouseDown={() => editor?.chain().focus().toggleItalic().run()} title="Italic (⌘I)"><i>I</i></TB>
-        <TB active={editor?.isActive('underline')} onMouseDown={() => editor?.chain().focus().toggleUnderline().run()} title="Underline (⌘U)"><u>U</u></TB>
-        <TB active={editor?.isActive('strike')} onMouseDown={() => editor?.chain().focus().toggleStrike().run()} title="Strikethrough">
-          <s>S</s>
-        </TB>
-        <TB active={editor?.isActive('highlight')} onMouseDown={() => editor?.chain().focus().toggleHighlight().run()} title="Highlight">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-        </TB>
-        {editor && <ColorControl editor={editor} />}
-
-        <Sep />
-
-        <TB active={editor?.isActive('bulletList')} onMouseDown={() => editor?.chain().focus().toggleBulletList().run()} title="Bullet list">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4" cy="6" r="1.5" fill="currentColor"/><circle cx="4" cy="12" r="1.5" fill="currentColor"/><circle cx="4" cy="18" r="1.5" fill="currentColor"/></svg>
-        </TB>
-        <TB active={editor?.isActive('orderedList')} onMouseDown={() => editor?.chain().focus().toggleOrderedList().run()} title="Numbered list">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
-        </TB>
-
-        <Sep />
-
-        <TB active={editor?.isActive('blockquote')} onMouseDown={() => editor?.chain().focus().toggleBlockquote().run()} title="Quote">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
-        </TB>
-        <TB active={editor?.isActive('code')} onMouseDown={() => editor?.chain().focus().toggleCode().run()} title="Inline code">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-        </TB>
-        <TB active={editor?.isActive('codeBlock')} onMouseDown={() => editor?.chain().focus().toggleCodeBlock().run()} title="Code block">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><polyline points="8 21 12 17 16 21"/></svg>
-        </TB>
-        <TB active={false} onMouseDown={() => editor?.chain().focus().setHorizontalRule().run()} title="Divider">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="2" y1="12" x2="22" y2="12"/></svg>
-        </TB>
-
-        <Sep />
-
-        <TB active={false} onMouseDown={() => editor?.chain().focus().undo().run()} title="Undo (⌘Z)">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 00-4-4H4"/></svg>
-        </TB>
-        <TB active={false} onMouseDown={() => editor?.chain().focus().redo().run()} title="Redo (⌘⇧Z)">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="15 14 20 9 15 4"/><path d="M4 20v-7a4 4 0 014-4h12"/></svg>
-        </TB>
-
-        {editor && <TableControls editor={editor} />}
+      {/* ── Toolbar (Google-Docs style) ── */}
+      <div className="flex-shrink-0" style={{ background: '#FFFFFF', borderBottom: '1px solid #DFE3EB' }}>
+        {editor && <EditorToolbar editor={editor} lineSpacing={lineSpacing} setLineSpacing={setLineSpacing} />}
       </div>
 
-      {/* ── Editor body + sections (scroll together) ── */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-2xl mx-auto px-6 pt-5">
+      {/* ── Document canvas + sections (scroll together) ── */}
+      <div className="flex-1 overflow-y-auto" style={{ background: '#E9EDF2' }}>
+        <div className="cs-page" style={{ ['--cs-lh' as string]: String(lineSpacing) } as React.CSSProperties}>
           <CoverImage value={cover} onChange={setCover} onRemove={() => setCover('')} height={220} position={coverPos} onPositionChange={setCoverPos} />
-        </div>
-        <div className="max-w-2xl mx-auto px-6 pt-5 pb-6" style={{ ['--cs-lh' as string]: String(lineSpacing) } as React.CSSProperties}>
-          <EditorContent editor={editor} />
-          {editor && <BubbleToolbar editor={editor} />}
+          <div className="cs-page-body">
+            <EditorContent editor={editor} />
+            {editor && <BubbleToolbar editor={editor} />}
+          </div>
         </div>
 
         <div className="max-w-2xl mx-auto px-6 pb-10 space-y-4">
@@ -809,6 +707,13 @@ export function ScriptEditor({ script, onClose }: Props) {
           </div>
 
         </div>
+      </div>
+
+      {/* Status bar */}
+      <div className="flex-shrink-0 flex items-center justify-end px-5 py-1.5" style={{ background: '#FFFFFF', borderTop: '1px solid #DFE3EB' }}>
+        <span style={{ fontSize: 11, color: '#7C98B6' }}>
+          {editor ? `${editor.storage.characterCount.words()} words · ${editor.storage.characterCount.characters()} characters` : ''}
+        </span>
       </div>
 
       {/* Hidden upload inputs */}
