@@ -12,9 +12,44 @@ const LINE_SPACINGS = [
 
 const FONT_FAMILIES = [
   { label: 'Default', value: '' },
-  { label: 'Serif', value: 'Georgia, "Times New Roman", serif' },
-  { label: 'Mono', value: 'ui-monospace, SFMono-Regular, Menlo, monospace' },
-  { label: 'Rounded', value: '"Trebuchet MS", "Segoe UI", sans-serif' },
+  // System / web-safe (no download)
+  { label: 'Arial', value: 'Arial, Helvetica, sans-serif' },
+  { label: 'Helvetica', value: 'Helvetica, Arial, sans-serif' },
+  { label: 'Verdana', value: 'Verdana, Geneva, sans-serif' },
+  { label: 'Tahoma', value: 'Tahoma, Geneva, sans-serif' },
+  { label: 'Trebuchet MS', value: '"Trebuchet MS", sans-serif' },
+  { label: 'Georgia', value: 'Georgia, serif' },
+  { label: 'Times New Roman', value: '"Times New Roman", Times, serif' },
+  { label: 'Garamond', value: 'Garamond, "Times New Roman", serif' },
+  { label: 'Courier New', value: '"Courier New", Courier, monospace' },
+  { label: 'Comic Sans MS', value: '"Comic Sans MS", "Comic Sans", cursive' },
+  { label: 'Impact', value: 'Impact, Charcoal, sans-serif' },
+  // Google Fonts (loaded in layout) — sans
+  { label: 'Roboto', value: '"Roboto", sans-serif' },
+  { label: 'Open Sans', value: '"Open Sans", sans-serif' },
+  { label: 'Lato', value: '"Lato", sans-serif' },
+  { label: 'Montserrat', value: '"Montserrat", sans-serif' },
+  { label: 'Poppins', value: '"Poppins", sans-serif' },
+  { label: 'Raleway', value: '"Raleway", sans-serif' },
+  { label: 'Nunito', value: '"Nunito", sans-serif' },
+  { label: 'Work Sans', value: '"Work Sans", sans-serif' },
+  { label: 'Inter', value: '"Inter", sans-serif' },
+  // Google Fonts — serif
+  { label: 'Merriweather', value: '"Merriweather", serif' },
+  { label: 'Playfair Display', value: '"Playfair Display", serif' },
+  { label: 'Lora', value: '"Lora", serif' },
+  { label: 'PT Serif', value: '"PT Serif", serif' },
+  // Google Fonts — display / handwriting
+  { label: 'Oswald', value: '"Oswald", sans-serif' },
+  { label: 'Bebas Neue', value: '"Bebas Neue", sans-serif' },
+  { label: 'Pacifico', value: '"Pacifico", cursive' },
+  { label: 'Dancing Script', value: '"Dancing Script", cursive' },
+  { label: 'Caveat', value: '"Caveat", cursive' },
+  { label: 'Lobster', value: '"Lobster", cursive' },
+  // Google Fonts — monospace
+  { label: 'Roboto Mono', value: '"Roboto Mono", monospace' },
+  { label: 'Source Code Pro', value: '"Source Code Pro", monospace' },
+  { label: 'JetBrains Mono', value: '"JetBrains Mono", monospace' },
 ]
 
 const FONT_SIZES = [
@@ -58,9 +93,9 @@ export function FontFamilySelect({ editor }: { editor: Editor }) {
       title="Font"
       value={active}
       onChange={e => { const v = e.target.value; v ? editor.chain().focus().setFontFamily(v).run() : editor.chain().focus().unsetFontFamily().run() }}
-      style={{ ...selStyle, maxWidth: 92 }}
+      style={{ ...selStyle, maxWidth: 132, minWidth: 96 }}
     >
-      {FONT_FAMILIES.map(f => <option key={f.label} value={f.value}>{f.label}</option>)}
+      {FONT_FAMILIES.map(f => <option key={f.label} value={f.value} style={{ fontFamily: f.value || undefined }}>{f.label}</option>)}
     </select>
   )
 }
